@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const gallerySchema = new mongoose.Schema(
   {
+    category: {
+      type: String,
+      required: true,
+    },
     images: {
       type: Array,
     },

@@ -14,6 +14,7 @@ import UserAccess from "./models/useraccess.model.js";
 import { generateToken } from "./lib/util.js";
 import router from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
+import Menu from "./models/menu.model.js";
 
 const app = express();
 app.use(express.json());
@@ -216,6 +217,10 @@ app.delete("/api/events/:id", async (req, res) => {
 
 app.post("/api/gallery", upload.any(), async (req, res) => {
   try {
+    const { category } = req.body;
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No images provided" });
+    }
     const uploadPromises = req.files.map((file) => {
       const bufferStream = Readable.from(file.buffer);
       return new Promise((resolve, reject) => {
@@ -239,12 +244,67 @@ app.post("/api/gallery", upload.any(), async (req, res) => {
     const uploadedImages = await Promise.all(uploadPromises);
 
     const gallery = await Gallery.create({
-      images: uploadedImages, // array of { url, public_id }
+      category,
+      images: uploadedImages,
     });
 
     res.status(200).json({ message: "Gallery created successfully", gallery });
   } catch (error) {
     console.error("Gallery upload error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/gallery/:category", async (req, res) => {
+  try {
+    const { category } = req.params;
+
+    const gallery = await Gallery.findOne({ category });
+
+    if (!gallery) {
+      return res.status(404).json({ message: "Gallery category not found" });
+    }
+
+    res.status(200).json({
+      message: "Gallery fetched successfully",
+      images: gallery.images,
+    });
+  } catch (error) {
+    console.error("Error fetching gallery:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.delete("/api/gallery/image", async (req, res) => {
+  try {
+    const { category, public_id } = req.body;
+
+    if (!category || !public_id) {
+      return res
+        .status(400)
+        .json({ message: "category and public_id are required" });
+    }
+
+    // Delete from Cloudinary
+    await cloudinaryV2.uploader.destroy(public_id);
+
+    // Remove image from the array in the gallery document
+    const updatedGallery = await Gallery.findOneAndUpdate(
+      { category },
+      { $pull: { images: { public_id } } },
+      { new: true }
+    );
+
+    if (!updatedGallery) {
+      return res.status(404).json({ message: "Gallery category not found" });
+    }
+
+    res.status(200).json({
+      message: "Image deleted successfully",
+      gallery: updatedGallery,
+    });
+  } catch (error) {
+    console.error("Image delete error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -286,6 +346,40 @@ app.get("/api/roles", async (req, res) => {
 });
 
 app.use("/api/auth", router);
+
+app.post("/api/menu", upload.single("menu-image"), async (req, res) => {
+  try {
+    const { category } = req.body;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ message: "No image provided" });
+    }
+
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinaryV2.uploader.upload_stream(
+        {
+          folder: "menu-images",
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      stream.end(file.buffer);
+    });
+
+    const newMenu = await Menu.create({
+      category,
+      imageUrl: result.secure_url,
+    });
+
+    res.status(201).json(newMenu);
+  } catch (error) {
+    console.error("Error uploading menu:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`Listening at port: ${process.env.PORT}.`);
