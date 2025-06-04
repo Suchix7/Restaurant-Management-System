@@ -19,8 +19,8 @@ const eventSchema = new mongoose.Schema(
       required: true,
     },
     posterImage: {
-      type: String,
-      default: "",
+      imageUrl: String,
+      publicId: String,
     },
   },
   { timestamps: true }

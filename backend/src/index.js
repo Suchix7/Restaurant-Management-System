@@ -15,6 +15,7 @@ import { generateToken } from "./lib/util.js";
 import router from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
 import Menu from "./models/menu.model.js";
+import Mail from "./models/mail.model.js";
 
 const app = express();
 app.use(express.json());
@@ -156,38 +157,41 @@ app.get("/api/contact", async (req, res) => {
 app.post("/api/events", upload.single("posterImage"), async (req, res) => {
   try {
     const { title, date, time, description } = req.body;
-    let posterUrl = "";
+    const file = req.file;
 
-    if (req.file) {
-      const bufferStream = Readable.from(req.file.buffer);
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinaryV2.uploader.upload_stream(
-          {
-            resource_type: "image",
-            folder: "event-posters", // optional Cloudinary folder
-          },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-          }
-        );
-        bufferStream.pipe(stream);
-      });
-
-      posterUrl = result.secure_url;
+    if (!file) {
+      return res.status(400).json({ message: "No poster image provided" });
     }
 
-    const event = await Event.create({
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinaryV2.uploader.upload_stream(
+        {
+          folder: "event-posters",
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      stream.end(file.buffer);
+    });
+
+    const newEvent = await Event.create({
       title,
       date,
       time,
       description,
-      posterImage: posterUrl,
+      posterImage: {
+        imageUrl: result.secure_url,
+        publicId: result.public_id,
+      },
     });
 
-    res.status(200).json({ message: "Event created successfully", event });
+    res
+      .status(201)
+      .json({ message: "Event created successfully", event: newEvent });
   } catch (error) {
-    console.error(error);
+    console.error("Error uploading event poster:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -202,15 +206,39 @@ app.get("/api/events", async (req, res) => {
   }
 });
 
-app.delete("/api/events/:id", async (req, res) => {
+app.get("/api/events/:id", async (req, res) => {
   try {
-    const event = await Event.findByIdAndDelete(req.params.id);
+    const event = await Event.findById(req.params.id);
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
-    res.status(200).json({ message: "Event deleted successfully" });
+    res.status(200).json(event);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.delete("/api/events/:id", async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    // Delete image from Cloudinary if it exists
+    if (event.posterImage && event.posterImage.publicId) {
+      await cloudinary.v2.uploader.destroy(event.posterImage.publicId, {
+        resource_type: "image",
+      });
+    }
+
+    // Delete the event from MongoDB
+    await Event.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ message: "Event deleted successfully" });
+  } catch (error) {
+    console.error("Event delete error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -377,6 +405,67 @@ app.post("/api/menu", upload.single("menu-image"), async (req, res) => {
     res.status(201).json(newMenu);
   } catch (error) {
     console.error("Error uploading menu:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.post("/api/mail", async (req, res) => {
+  try {
+    const { email, pass } = req.body;
+    if (!email || !pass) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
+    }
+
+    const existingMail = await Mail.findOne({ email });
+    if (existingMail) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    const newMail = await Mail.create({
+      email,
+      pass,
+    });
+
+    res.status(201).json({ message: "Mail created successfully", newMail });
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/mail", async (req, res) => {
+  try {
+    const mail = await Mail.findOne();
+    if (!mail) {
+      return res.status(404).json({ message: "Mail credentials not found" });
+    }
+    res.status(200).json(mail);
+  } catch (error) {
+    console.error("Error fetching mail credentials:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.put("/api/mail", async (req, res) => {
+  try {
+    const { email, pass } = req.body;
+    if (!email || !pass) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
+    }
+    const updatedMail = await Mail.findOneAndUpdate(
+      {},
+      { email, pass },
+      { new: true, upsert: true }
+    );
+    res
+      .status(200)
+      .json({ message: "Mail credentials updated successfully", updatedMail });
+  } catch (error) {
+    console.error("Error updating mail credentials:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
