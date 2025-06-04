@@ -35,3 +35,24 @@ export const sendEmailNotification = async (name, email, subject, message) => {
   };
   return transporter.sendMail(mailOptions);
 };
+
+export const sendEmail = async (to, subject, text) => {
+  const { user, pass } = await getMailCredentials();
+  if (!user || !pass) {
+    throw new Error("Mail credentials are not set");
+  }
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user,
+      pass,
+    },
+  });
+  const mailOptions = {
+    from: user,
+    to,
+    subject,
+    text,
+  };
+  return transporter.sendMail(mailOptions);
+};

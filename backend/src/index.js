@@ -6,7 +6,7 @@ import Venue from "./models/venue.model.js";
 import cloudinary from "cloudinary";
 import multer from "multer";
 import Contact from "./models/contact.model.js";
-import { sendEmailNotification } from "./lib/mailTemplate.js";
+import { sendEmailNotification, sendEmail } from "./lib/mailTemplate.js";
 import Event from "./models/events.model.js";
 import { Readable } from "stream";
 import Gallery from "./models/gallery.model.js";
@@ -16,6 +16,7 @@ import router from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
 import Menu from "./models/menu.model.js";
 import Mail from "./models/mail.model.js";
+import Subscriber from "./models/subscriber.model.js";
 
 const app = express();
 app.use(express.json());
@@ -466,6 +467,45 @@ app.put("/api/mail", async (req, res) => {
       .json({ message: "Mail credentials updated successfully", updatedMail });
   } catch (error) {
     console.error("Error updating mail credentials:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.post("/api/subscribe", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const existingSubscriber = await Subscriber.findOne({ email });
+    if (existingSubscriber) {
+      return res.status(400).json({ message: "Already subscribed" });
+    }
+
+    const newSubscriber = await Subscriber.create({
+      email,
+    });
+
+    await sendEmailNotification(
+      "Subscriber",
+      email,
+      "New Subscription",
+      `New subscriber: ${email}`
+    );
+
+    await sendEmail(
+      email,
+      "Subscription Confirmation",
+      "Thank you for subscribing!"
+    );
+
+    res.status(201).json({
+      message: "Subscription successful",
+      subscriber: newSubscriber,
+    });
+  } catch (error) {
+    console.error("Error subscribing:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
