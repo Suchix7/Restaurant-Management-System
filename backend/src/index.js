@@ -510,6 +510,16 @@ app.post("/api/subscribe", async (req, res) => {
   }
 });
 
+app.get("/api/subscribers", async (req, res) => {
+  try {
+    const subscribers = await Subscriber.find({});
+    res.status(200).json(subscribers);
+  } catch (error) {
+    console.error("Error fetching subscribers:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Listening at port: ${process.env.PORT}.`);
   connectDB();

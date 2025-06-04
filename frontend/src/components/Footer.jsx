@@ -10,16 +10,19 @@ const Footer = () => {
           Be the first to hear about upcoming events, specials, and more.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-          <input
-            type="email"
-            placeholder="Your email address"
-            className="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          />
-          <button className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
-            Subscribe
-          </button>
-        </div>
+        <form method="POST" action="http://localhost:3000/api/subscribe">
+          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              name="email"
+              placeholder="Your email address"
+              className="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+            <button className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
+              Subscribe
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* Info Grid */}
