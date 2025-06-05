@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -40,56 +41,66 @@ const LoginPage = () => {
         { withCredentials: true }
       );
 
-      // No need to store token manually
-      // Token is stored in httpOnly cookie by backend
       toast.success("Login successful!");
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
-      alert("Login failed. Please check your credentials.");
+      toast.error("Login failed. Please check your credentials.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
-      <div className="relative z-10 w-full max-w-md">
-        <Card className="border-slate-700/50 bg-slate-800/50 backdrop-blur-xl shadow-2xl">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[#2D6A4F]/5 bg-[radial-gradient(#2D6A4F_1px,transparent_1px)] [background-size:16px_16px]" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 w-full max-w-md"
+      >
+        <Card className="border-gray-200 bg-white/95 backdrop-blur-sm shadow-xl">
           <CardHeader className="space-y-1 pb-8">
-            <div className="flex justify-center mb-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex justify-center mb-4"
+            >
+              <div className="w-12 h-12 bg-[#2D6A4F] rounded-lg flex items-center justify-center">
                 <User className="w-6 h-6 text-white" />
               </div>
-            </div>
-            <CardTitle className="text-2xl font-bold text-center text-white">
+            </motion.div>
+            <CardTitle className="text-2xl font-bold text-center text-gray-900">
               Welcome Back
             </CardTitle>
-            <CardDescription className="text-center text-slate-400">
+            <CardDescription className="text-center text-gray-600">
               Sign in to access your dashboard
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
+                <label className="text-sm font-medium text-gray-700">
                   Role
                 </label>
                 <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger className="bg-slate-700/50 border-slate-600 text-white focus:border-blue-500 focus:ring-blue-500/20">
+                  <SelectTrigger className="bg-white border-gray-200 text-gray-900 focus:border-[#2D6A4F] focus:ring-[#2D6A4F]/20">
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectContent className="bg-white border-gray-200">
                     <SelectItem
                       value="admin"
-                      className="text-white hover:bg-slate-700"
+                      className="text-gray-900 hover:bg-[#2D6A4F]/10"
                     >
                       Admin
                     </SelectItem>
                     <SelectItem
                       value="editor"
-                      className="text-white hover:bg-slate-700"
+                      className="text-gray-900 hover:bg-[#2D6A4F]/10"
                     >
                       Editor
                     </SelectItem>
@@ -98,7 +109,7 @@ const LoginPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
+                <label className="text-sm font-medium text-gray-700">
                   Password
                 </label>
                 <div className="relative">
@@ -106,13 +117,13 @@ const LoginPage = () => {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500/20 pr-10"
+                    className="bg-white border-gray-200 text-gray-900 placeholder:text-gray-500 focus:border-[#2D6A4F] focus:ring-[#2D6A4F]/20 pr-10"
                     placeholder="Enter your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -126,7 +137,7 @@ const LoginPage = () => {
               <Button
                 type="submit"
                 disabled={!role || !password || isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 mt-6 transition-all duration-200 disabled:opacity-50"
+                className="w-full bg-[#2D6A4F] hover:bg-[#235c41] text-white font-medium py-2.5 mt-6 transition-all duration-200 disabled:opacity-50 disabled:hover:bg-[#2D6A4F]"
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
@@ -143,7 +154,7 @@ const LoginPage = () => {
             </form>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     </div>
   );
 };
