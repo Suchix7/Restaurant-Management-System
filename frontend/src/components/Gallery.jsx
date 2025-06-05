@@ -9,7 +9,6 @@ const galleryImages = [
   { src: "/images/cocktail5.jpg", alt: "Cocktail15", rowSpan: 30 },
 ];
 
-
 const Gallery = () => {
   return (
     <section className="bg-[#fad987] py-20">
