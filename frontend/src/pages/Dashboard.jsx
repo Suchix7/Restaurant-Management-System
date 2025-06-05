@@ -1,14 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   LayoutDashboard,
-  Users,
+  Image as GalleryIcon,
+  CalendarDays,
+  Mail,
   FileText,
   Settings,
-  BarChart3,
+  Landmark,
+  ClipboardList,
   Bell,
   Search,
   LogOut,
+  UtensilsCrossed,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,41 +24,70 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import VenueView from "@/components/VenueView";
+
+// View Components (for demo)
+const DashboardView = () => (
+  <div>
+    <h2 className="text-2xl font-bold text-slate-900 mb-2">
+      Dashboard Overview
+    </h2>
+    <p className="text-slate-600">
+      Overview of analytics, stats, and quick summaries.
+    </p>
+  </div>
+);
+
+const MenuView = () => (
+  <div>
+    <h2 className="text-2xl font-bold text-slate-900 mb-2">Menu Management</h2>
+    <p className="text-slate-600">Add, edit or remove menu items.</p>
+  </div>
+);
+
+const GalleryView = () => (
+  <div>
+    <h2 className="text-2xl font-bold text-slate-900 mb-2">Gallery</h2>
+    <p className="text-slate-600">Manage event or venue photos.</p>
+  </div>
+);
+
+const EventsView = () => (
+  <div>
+    <h2 className="text-2xl font-bold text-slate-900 mb-2">Event Scheduling</h2>
+    <p className="text-slate-600">Create or update upcoming events.</p>
+  </div>
+);
+
+const InquiriesView = () => (
+  <div>
+    <h2 className="text-2xl font-bold text-slate-900 mb-2">
+      Customer Inquiries
+    </h2>
+    <p className="text-slate-600">Review and respond to user inquiries.</p>
+  </div>
+);
+
+const EmailConfigView = () => (
+  <div>
+    <h2 className="text-2xl font-bold text-slate-900 mb-2">
+      Email Configuration
+    </h2>
+    <p className="text-slate-600">Manage email settings and SMTP configs.</p>
+  </div>
+);
 
 const Dashboard = ({ userRole, onLogout }) => {
-  const sidebarItems = [
-    { icon: LayoutDashboard, label: "Dashboard", active: true },
-    { icon: Users, label: "Users", active: false },
-    { icon: FileText, label: "Documents", active: false },
-    { icon: BarChart3, label: "Analytics", active: false },
-    { icon: Settings, label: "Settings", active: false },
-  ];
+  const [selectedTab, setSelectedTab] = useState("Dashboard");
 
-  const stats = [
-    {
-      title: "Total Users",
-      value: "2,543",
-      change: "+12%",
-      color: "text-green-500",
-    },
-    {
-      title: "Active Sessions",
-      value: "1,234",
-      change: "+5%",
-      color: "text-blue-500",
-    },
-    {
-      title: "Documents",
-      value: "856",
-      change: "+18%",
-      color: "text-purple-500",
-    },
-    {
-      title: "Storage Used",
-      value: "42.8 GB",
-      change: "+3%",
-      color: "text-orange-500",
-    },
+  const sidebarItems = [
+    { icon: LayoutDashboard, label: "Dashboard", key: "Dashboard" },
+    { icon: Landmark, label: "Venue", key: "Venue" },
+    { icon: UtensilsCrossed, label: "Menu", key: "Menu" },
+    { icon: GalleryIcon, label: "Gallery", key: "Gallery" },
+    { icon: CalendarDays, label: "Events", key: "Events" },
+    { icon: ClipboardList, label: "Inquiries", key: "Inquiries" },
+    { icon: Mail, label: "Email Config", key: "EmailConfig" },
   ];
 
   return (
@@ -65,7 +99,7 @@ const Dashboard = ({ userRole, onLogout }) => {
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <LayoutDashboard className="w-4 h-4 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-slate-800">Dashboard</h1>
+            <h1 className="text-xl font-bold text-slate-800">Admin Panel</h1>
           </div>
         </div>
 
@@ -73,8 +107,9 @@ const Dashboard = ({ userRole, onLogout }) => {
           {sidebarItems.map((item, index) => (
             <button
               key={index}
+              onClick={() => setSelectedTab(item.key)}
               className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
-                item.active
+                selectedTab === item.key
                   ? "bg-blue-50 text-blue-700 border border-blue-200"
                   : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               }`}
@@ -91,14 +126,12 @@ const Dashboard = ({ userRole, onLogout }) => {
         {/* Header */}
         <header className="bg-white border-b border-slate-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <Input
-                  placeholder="Search..."
-                  className="pl-10 w-80 bg-slate-50 border-slate-200 focus:bg-white"
-                />
-              </div>
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Input
+                placeholder="Search..."
+                className="pl-10 w-80 bg-slate-50 border-slate-200 focus:bg-white"
+              />
             </div>
 
             <div className="flex items-center space-x-4">
@@ -133,99 +166,15 @@ const Dashboard = ({ userRole, onLogout }) => {
           </div>
         </header>
 
-        {/* Dashboard Content */}
+        {/* Content Section */}
         <main className="flex-1 p-6 space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              Welcome back!
-            </h2>
-            <p className="text-slate-600">
-              Here's what's happening with your dashboard today.
-            </p>
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <Card
-                key={index}
-                className="border-slate-200 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <CardHeader className="pb-2">
-                  <CardDescription className="text-slate-600">
-                    {stat.title}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <p className="text-2xl font-bold text-slate-900">
-                      {stat.value}
-                    </p>
-                    <span className={`text-sm font-medium ${stat.color}`}>
-                      {stat.change}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Content Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-slate-200 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-slate-900">
-                  Recent Activity
-                </CardTitle>
-                <CardDescription>Latest updates from your team</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {[1, 2, 3].map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg"
-                  >
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-slate-900">
-                        Document updated
-                      </p>
-                      <p className="text-xs text-slate-500">{item} hours ago</p>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-slate-900">Quick Actions</CardTitle>
-                <CardDescription>Common tasks and shortcuts</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
-                  <Users className="w-4 h-4 mr-2" />
-                  Manage Users
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start border-slate-200"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Create Document
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start border-slate-200"
-                >
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  View Reports
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          {selectedTab === "Dashboard" && <DashboardView />}
+          {selectedTab === "Venue" && <VenueView />}
+          {selectedTab === "Menu" && <MenuView />}
+          {selectedTab === "Gallery" && <GalleryView />}
+          {selectedTab === "Events" && <EventsView />}
+          {selectedTab === "Inquiries" && <InquiriesView />}
+          {selectedTab === "EmailConfig" && <EmailConfigView />}
         </main>
       </div>
     </div>
