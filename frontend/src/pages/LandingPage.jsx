@@ -39,16 +39,17 @@ function LandingPage() {
       <BrandSection />
       <Footer />
 
-      {/* Sticky Vertical Center Right Button */}
+      {/* Sticky Daily Special Button */}
       <button
         onClick={() => setShowPopup(true)}
-        className="fixed bottom-6 left-20 -translate-y-1/2 z-50 bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-4 py-2 rounded-full shadow-lg flex items-center gap-2"
+        className="fixed bottom-6 left-4 md:left-20 md:-translate-y-1/2 z-50 bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
       >
-        <Calendar className="w-4 h-4" />
-        <span>See Daily Special</span>
+        <Calendar className="w-4 h-4 md:w-4 md:h-4" />
+        <span className="hidden md:inline">See Daily Special</span>
+        <span className="md:hidden">Special</span>
       </button>
 
-      {/* Centered Popup Modal */}
+      {/* Popup Modal */}
       <AnimatePresence>
         {showPopup && (
           <motion.div
@@ -56,7 +57,7 @@ function LandingPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 md:p-0"
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -68,26 +69,61 @@ function LandingPage() {
               {/* Close Button */}
               <button
                 onClick={() => setShowPopup(false)}
-                className="absolute top-4 right-4 text-gray-700 hover:text-black z-10"
+                className="absolute top-3 right-3 z-10 md:top-4 md:right-4 bg-black/50 hover:bg-black/70 md:bg-transparent md:hover:bg-transparent p-2 md:p-0 rounded-full md:rounded-none transition-colors"
               >
-                <X className="w-5 h-5 text-white" />
+                <X className="w-5 h-5 text-white md:text-gray-700 md:hover:text-black" />
               </button>
 
-              {/* Event Poster Content */}
-              <img
-                src="/images/section.jpg"
-                alt="Today's Event"
-                className="w-full h-[600px] object-cover"
-              />
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-3 text-[#2D6A4F]">
-                  🎶 Live Music Tonight
-                </h2>
-                <p className="text-base text-gray-700">
-                  Join us at 4 Donkeys Bar for an unforgettable jazz night.
-                  Enjoy signature cocktails and a live band from 7PM till late.
-                  Be there early to grab your favorite spot!
-                </p>
+              {/* Mobile View */}
+              <div className="md:hidden">
+                <div className="flex flex-col">
+                  <img
+                    src="/images/section.jpg"
+                    alt="Today's Event"
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-5">
+                    <h2 className="text-xl font-bold mb-3 text-[#2D6A4F]">
+                      🎶 Live Music Tonight
+                    </h2>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Join us at 4 Donkeys Bar for an unforgettable jazz night.
+                      Enjoy signature cocktails and a live band from 7PM till
+                      late. Be there early to grab your favorite spot!
+                    </p>
+                    <button
+                      onClick={() => setShowPopup(false)}
+                      className="mt-4 w-full bg-[#2D6A4F] text-white py-3 rounded-lg font-semibold hover:bg-[#235040] transition-colors"
+                    >
+                      Reserve Your Spot
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop View */}
+              <div className="hidden md:block">
+                <img
+                  src="/images/section.jpg"
+                  alt="Today's Event"
+                  className="w-full h-[600px] object-cover"
+                />
+                <div className="p-6">
+                  <h2 className="text-2xl font-bold mb-3 text-[#2D6A4F]">
+                    🎶 Live Music Tonight
+                  </h2>
+                  <p className="text-base text-gray-700 mb-4">
+                    Join us at 4 Donkeys Bar for an unforgettable jazz night.
+                    Enjoy signature cocktails and a live band from 7PM till
+                    late. Be there early to grab your favorite spot!
+                  </p>
+                  <button
+                    onClick={() => setShowPopup(false)}
+                    className="w-full bg-[#2D6A4F] text-white py-3 rounded-lg font-semibold hover:bg-[#235040] transition-colors"
+                  >
+                    Reserve Your Spot
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
