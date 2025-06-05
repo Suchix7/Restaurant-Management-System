@@ -7,7 +7,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -24,10 +24,9 @@ const getStatusColor = (status) => {
 const VenueView = () => {
   const [reservations, setReservations] = useState([]);
 
-  // Replace with real API call
   useEffect(() => {
+    // Replace with real API call
     const fetchData = async () => {
-      // Simulated API response
       const data = [
         {
           _id: "1",
@@ -73,13 +72,67 @@ const VenueView = () => {
       )
     );
 
-    // TODO: Send update to server
-    console.log(`Status for ${id} updated to: ${newStatus}`);
+    // TODO: Update on server
+    console.log(`Updated ${id} to ${newStatus}`);
+  };
+
+  const handleExport = () => {
+    const headers = [
+      "Name",
+      "Email",
+      "Phone",
+      "Booking Type",
+      "Event Type",
+      "Guests",
+      "Reserve Date",
+      "Start Time",
+      "End Time",
+      "Special Requests",
+      "Status",
+    ];
+
+    const rows = reservations.map((r) => [
+      r.name,
+      r.email,
+      r.phone,
+      r.bookingType,
+      r.eventType,
+      r.estimatedGuests,
+      new Date(r.reserveDate).toLocaleDateString(),
+      r.startTime,
+      r.endTime,
+      r.specialRequests,
+      r.status,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers, ...rows]
+        .map((e) => e.map((field) => `"${field}"`).join(","))
+        .join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "venue_reservations.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-slate-900">Venue Reservations</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-slate-900">
+          Venue Reservations
+        </h2>
+        <Button
+          onClick={handleExport}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          Export CSV
+        </Button>
+      </div>
 
       {reservations.length === 0 ? (
         <p className="text-slate-600">No reservations found.</p>

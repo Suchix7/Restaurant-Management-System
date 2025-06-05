@@ -16,8 +16,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import axiosInstance from "@/lib/axiosInstance.js";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
-const LoginPage = ({ onLogin }) => {
+const LoginPage = () => {
+  const navigate = useNavigate();
   const [role, setRole] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -28,10 +32,24 @@ const LoginPage = ({ onLogin }) => {
     if (!role || !password) return;
 
     setIsLoading(true);
-    setTimeout(() => {
-      onLogin(role, password);
+
+    try {
+      const response = await axiosInstance.post(
+        "/auth/login",
+        { role, password },
+        { withCredentials: true }
+      );
+
+      // No need to store token manually
+      // Token is stored in httpOnly cookie by backend
+      toast.success("Login successful!");
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Login failed. Please check your credentials.");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -67,7 +85,7 @@ const LoginPage = ({ onLogin }) => {
                       value="admin"
                       className="text-white hover:bg-slate-700"
                     >
-                      Administrator
+                      Admin
                     </SelectItem>
                     <SelectItem
                       value="editor"

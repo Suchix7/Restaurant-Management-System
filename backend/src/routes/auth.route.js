@@ -8,4 +8,8 @@ router.post("/login", checkAuth);
 
 router.post("/logout", protectRoute, logout);
 
+router.get("/check", protectRoute, (req, res) => {
+  res.status(200).json({ message: "Authenticated" });
+});
+
 export default router;
