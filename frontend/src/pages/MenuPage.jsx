@@ -13,17 +13,20 @@ const MenuPage = () => {
     {
       id: 1,
       title: "Drinks Menu",
-      image: "/images/menu/drinks-menu.jpg",
+      image:
+        "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1000&auto=format&fit=crop",
     },
     {
       id: 2,
       title: "Main Course",
-      image: "/images/menu/main-menu.jpg",
+      image:
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1000&auto=format&fit=crop",
     },
     {
       id: 3,
       title: "Desserts & Specials",
-      image: "/images/menu/desserts-menu.jpg",
+      image:
+        "https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=1000&auto=format&fit=crop",
     },
   ];
 

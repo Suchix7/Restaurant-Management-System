@@ -10,15 +10,34 @@ const categories = [
     title: "Special Events",
     description:
       "From intimate gatherings to grand celebrations, experience the magic of our venue through the lens of unforgettable moments.",
-    mainImage: "/images/gallery/events-main.jpg",
+    mainImage:
+      "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
     align: "right",
     images: [
-      { src: "/images/gallery/events/1.jpg", alt: "Corporate event setup" },
-      { src: "/images/gallery/events/2.jpg", alt: "Birthday celebration" },
-      { src: "/images/gallery/events/3.jpg", alt: "Wedding reception" },
-      { src: "/images/gallery/events/4.jpg", alt: "Live music night" },
-      { src: "/images/gallery/events/5.jpg", alt: "Private party" },
-      { src: "/images/gallery/events/6.jpg", alt: "Holiday celebration" },
+      {
+        src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80",
+        alt: "Corporate event setup",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=800&q=80",
+        alt: "Birthday celebration",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80",
+        alt: "Wedding reception",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80",
+        alt: "Live music night",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1528495612343-9ca9f4a4de28?auto=format&fit=crop&w=800&q=80",
+        alt: "Private party",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80",
+        alt: "Holiday celebration",
+      },
     ],
   },
   {
@@ -26,15 +45,34 @@ const categories = [
     title: "Signature Cocktails",
     description:
       "Discover our artisanal cocktails, crafted with precision and passion by our expert mixologists using the finest ingredients.",
-    mainImage: "/images/gallery/drinks-main.jpg",
+    mainImage:
+      "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1200&q=80",
     align: "left",
     images: [
-      { src: "/images/gallery/drinks/1.jpg", alt: "Classic Mojito" },
-      { src: "/images/gallery/drinks/2.jpg", alt: "Espresso Martini" },
-      { src: "/images/gallery/drinks/3.jpg", alt: "Craft Beer Selection" },
-      { src: "/images/gallery/drinks/4.jpg", alt: "Wine Collection" },
-      { src: "/images/gallery/drinks/5.jpg", alt: "Signature Cocktail" },
-      { src: "/images/gallery/drinks/6.jpg", alt: "Seasonal Specials" },
+      {
+        src: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80",
+        alt: "Classic Mojito",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1560512823-829485b8bf24?auto=format&fit=crop&w=800&q=80",
+        alt: "Espresso Martini",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=800&q=80",
+        alt: "Craft Beer Selection",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=800&q=80",
+        alt: "Wine Collection",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&w=800&q=80",
+        alt: "Signature Cocktail",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1514361892635-6b07e31e75f9?auto=format&fit=crop&w=800&q=80",
+        alt: "Seasonal Specials",
+      },
     ],
   },
   {
@@ -42,15 +80,34 @@ const categories = [
     title: "Our Space",
     description:
       "Step into our carefully designed space, where modern aesthetics meet comfortable sophistication.",
-    mainImage: "/images/gallery/venue-main.jpg",
+    mainImage:
+      "https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1200&q=80",
     align: "right",
     images: [
-      { src: "/images/gallery/venue/1.jpg", alt: "Main Bar Area" },
-      { src: "/images/gallery/venue/2.jpg", alt: "Lounge Seating" },
-      { src: "/images/gallery/venue/3.jpg", alt: "Private Booths" },
-      { src: "/images/gallery/venue/4.jpg", alt: "Outdoor Patio" },
-      { src: "/images/gallery/venue/5.jpg", alt: "VIP Section" },
-      { src: "/images/gallery/venue/6.jpg", alt: "Dance Floor" },
+      {
+        src: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&w=800&q=80",
+        alt: "Main Bar Area",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1508253730651-e5ace80a7025?auto=format&fit=crop&w=800&q=80",
+        alt: "Lounge Seating",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1517940310602-26535839fe84?auto=format&fit=crop&w=800&q=80",
+        alt: "Private Booths",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+        alt: "Outdoor Patio",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1525268323446-0505b6fe7778?auto=format&fit=crop&w=800&q=80",
+        alt: "VIP Section",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?auto=format&fit=crop&w=800&q=80",
+        alt: "Dance Floor",
+      },
     ],
   },
   {
@@ -58,15 +115,34 @@ const categories = [
     title: "Vibrant Atmosphere",
     description:
       "Join our diverse community of patrons and experience the energetic atmosphere that makes us unique.",
-    mainImage: "/images/gallery/crowd-main.jpg",
+    mainImage:
+      "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
     align: "left",
     images: [
-      { src: "/images/gallery/crowd/1.jpg", alt: "Weekend Crowd" },
-      { src: "/images/gallery/crowd/2.jpg", alt: "Happy Hour" },
-      { src: "/images/gallery/crowd/3.jpg", alt: "Dance Night" },
-      { src: "/images/gallery/crowd/4.jpg", alt: "Social Gathering" },
-      { src: "/images/gallery/crowd/5.jpg", alt: "Bar Atmosphere" },
-      { src: "/images/gallery/crowd/6.jpg", alt: "Event Crowd" },
+      {
+        src: "https://images.unsplash.com/photo-1485872299829-c673f5194813?auto=format&fit=crop&w=800&q=80",
+        alt: "Weekend Crowd",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1575444758702-4a6b9222336e?auto=format&fit=crop&w=800&q=80",
+        alt: "Happy Hour",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1438557068880-c5f474830377?auto=format&fit=crop&w=800&q=80",
+        alt: "Dance Night",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&w=800&q=80",
+        alt: "Social Gathering",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?auto=format&fit=crop&w=800&q=80",
+        alt: "Bar Atmosphere",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80",
+        alt: "Event Crowd",
+      },
     ],
   },
 ];

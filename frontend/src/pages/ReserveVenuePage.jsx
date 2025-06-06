@@ -84,17 +84,17 @@ const ReserveVenuePage = () => {
 
       {/* Sophisticated background pattern */}
       <div
-        className="absolute inset-0"
+        className="fixed inset-0 -z-20"
         style={{
           backgroundImage: `
-            linear-gradient(to right, rgba(45, 106, 79, 0.15), rgba(45, 106, 79, 0.25)),
+            linear-gradient(to right, rgba(45, 106, 79, 0.3), rgba(45, 106, 79, 0.4)),
             url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 16.5c-2.5 0-4.5 2-4.5 4.5s2 4.5 4.5 4.5 4.5-2 4.5-4.5-2-4.5-4.5-4.5zm0 18c-7.5 0-13.5-6-13.5-13.5S22.5 7.5 30 7.5s13.5 6 13.5 13.5S37.5 34.5 30 34.5zm0-27C19.5 7.5 11.25 15.75 11.25 26.25s8.25 18.75 18.75 18.75 18.75-8.25 18.75-18.75S40.5 7.5 30 7.5z' fill='%232D6A4F' fill-opacity='0.1'/%3E%3C/svg%3E"),
             url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M24 4c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2s-2-.9-2-2V6c0-1.1.9-2 2-2zm0 32c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2s-2-.9-2-2v-4c0-1.1.9-2 2-2zm-12-16c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2s.9 2 2 2h4c1.1 0 2-.9 2-2zm32 0c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2s.9 2 2 2h4c1.1 0 2-.9 2-2zm-16 0c1.1 0 2-.9 2-2V18c0-1.1-.9-2-2-2s-2 .9-2 2v4c0 1.1.9 2 2 2z' fill='%232D6A4F' fill-opacity='0.08'/%3E%3C/svg%3E")
           `,
           backgroundSize: "60px 60px, 48px 48px",
         }}
       />
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="fixed inset-0 -z-10 bg-[#2D6A4F]/30 backdrop-blur-sm" />
 
       <div className="relative z-10 container mx-auto px-4 pt-24 pb-16">
         <motion.div
@@ -109,10 +109,10 @@ const ReserveVenuePage = () => {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h1 className="text-5xl font-bold text-white mb-4">
+              <h1 className="text-5xl font-bold text-green-800 mb-4">
                 Reserve Our Venue
               </h1>
-              <p className="text-xl text-gray-200">
+              <p className="text-xl text-green-600">
                 Perfect for private events, corporate functions, and special
                 celebrations
               </p>

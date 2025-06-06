@@ -14,7 +14,8 @@ const events = [
     time: "20:00",
     description:
       "Join us for an evening of smooth jazz and signature cocktails. The Blue Notes bring their unique blend of classic and contemporary jazz to our intimate venue.",
-    image: "/images/events/jazz-night.jpg",
+    image:
+      "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?q=80&w=1000&auto=format&fit=crop",
     location: "Main Bar Area",
     category: "Music",
     price: "Free Entry",
@@ -28,7 +29,8 @@ const events = [
     time: "18:30",
     description:
       "Discover exceptional wines from around the world, paired with carefully selected appetizers. Our sommelier will guide you through six premium wines.",
-    image: "/images/events/wine-tasting.jpg",
+    image:
+      "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=1000&auto=format&fit=crop",
     location: "Private Tasting Room",
     category: "Tasting",
     price: "$45 per person",
@@ -42,7 +44,8 @@ const events = [
     time: "19:00",
     description:
       "Learn the art of mixology from our expert bartenders. Create three signature cocktails and take home recipes to impress your friends.",
-    image: "/images/events/cocktail-class.jpg",
+    image:
+      "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1000&auto=format&fit=crop",
     location: "Bar Workshop Area",
     category: "Workshop",
     price: "$65 per person",
@@ -56,7 +59,8 @@ const events = [
     time: "21:00",
     description:
       "Experience the electrifying performance of local favorite 'The Night Owls' as they bring their unique blend of rock and soul to our stage.",
-    image: "/images/events/live-band.jpg",
+    image:
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1000&auto=format&fit=crop",
     location: "Main Stage",
     category: "Music",
     price: "$10 Cover",
@@ -67,6 +71,7 @@ const events = [
 
 const EventCard = ({ event, onRSVP }) => {
   const [isInterested, setIsInterested] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const spotsLeft = event.capacity - event.rsvpCount;
   const isAlmostFull = spotsLeft <= event.capacity * 0.2; // 20% or less spots remaining
 
@@ -100,10 +105,15 @@ const EventCard = ({ event, onRSVP }) => {
       transition={{ duration: 0.5 }}
       className="bg-white rounded-2xl shadow-lg overflow-hidden"
     >
-      <div className="relative group">
+      <div className="relative group overflow-hidden">
         <img
-          src={event.image}
+          src={
+            imageError
+              ? "https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1000&auto=format&fit=crop"
+              : event.image
+          }
           alt={event.title}
+          onError={() => setImageError(true)}
           className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300" />
