@@ -557,6 +557,16 @@ app.post("/api/menu", upload.single("menu-image"), async (req, res) => {
   }
 });
 
+app.get("/api/menu", async (req, res) => {
+  try {
+    const menus = await Menu.find({});
+    res.status(200).json(menus);
+  } catch (error) {
+    console.error("Error fetching menus:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.post("/api/mail", async (req, res) => {
   try {
     const { email, pass } = req.body;

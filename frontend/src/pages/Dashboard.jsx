@@ -25,10 +25,11 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import VenueView from "@/components/VenueView";
-import Gallery from "@/components/Gallery";
+import Gallery from "@/components/GalleryAdmin";
 import ManageGallery from "@/components/ManageGallery";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import AddMenu from "@/components/AddMenu";
 
 // View Components (for demo)
 const DashboardView = () => (
@@ -42,12 +43,77 @@ const DashboardView = () => (
   </div>
 );
 
-const MenuView = () => (
-  <div>
-    <h2 className="text-2xl font-bold text-slate-900 mb-2">Menu Management</h2>
-    <p className="text-slate-600">Add, edit or remove menu items.</p>
-  </div>
-);
+const MenuView = () => {
+  const [menuItems, setMenuItems] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        const res = await axiosInstance.get("/menu");
+        setMenuItems(res.data || []);
+      } catch (error) {
+        console.error("Failed to fetch menu:", error);
+      }
+    };
+
+    fetchMenu();
+  }, []);
+
+  const handleImageClick = (url) => {
+    setSelectedImage(url);
+  };
+
+  const closeModal = () => {
+    setSelectedImage(null);
+  };
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold text-slate-900">Menu</h2>
+      <p className="text-slate-600">View your menu categories below.</p>
+
+      {menuItems.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {menuItems.map((item) => (
+            <div
+              key={item._id}
+              className="border rounded shadow-sm overflow-hidden bg-white"
+            >
+              <img
+                src={item.imageUrl}
+                alt={item.category}
+                onClick={() => handleImageClick(item.imageUrl)}
+                className="w-full h-100 object-cover cursor-pointer transition hover:brightness-90"
+              />
+              <div className="p-3 text-center">
+                <h3 className="text-sm font-medium text-slate-800">
+                  {item.category}
+                </h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-slate-500">No menu items found.</p>
+      )}
+
+      {/* Fullscreen Image Viewer */}
+      {selectedImage && (
+        <div
+          onClick={closeModal}
+          className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center"
+        >
+          <img
+            src={selectedImage}
+            alt="Full view"
+            className="max-h-full max-w-full object-contain cursor-pointer"
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 const AddGalleryView = () => {
   const [category, setCategory] = useState("");
@@ -206,6 +272,7 @@ const Dashboard = ({ userRole }) => {
   const sidebarItems = [
     { icon: LayoutDashboard, label: "Dashboard", key: "Dashboard" },
     { icon: Landmark, label: "Venue", key: "Venue" },
+    { icon: FileText, label: "Add Menu", key: "AddMenu" },
     { icon: UtensilsCrossed, label: "Menu", key: "Menu" },
     { icon: GalleryIcon, label: "Gallery", key: "Gallery" },
     { icon: GalleryIcon, label: "Add Gallery", key: "AddGallery" },
@@ -307,6 +374,7 @@ const Dashboard = ({ userRole }) => {
           <main className="flex-1 p-6 space-y-6">
             {selectedTab === "Dashboard" && <DashboardView />}
             {selectedTab === "Venue" && <VenueView />}
+            {selectedTab === "AddMenu" && <AddMenu />}
             {selectedTab === "Menu" && <MenuView />}
             {selectedTab === "Gallery" && <Gallery />}
             {selectedTab === "AddGallery" && <AddGalleryView />}
