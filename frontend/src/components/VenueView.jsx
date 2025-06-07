@@ -8,6 +8,8 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import axiosInstance from "@/lib/axiosInstance.js";
+import { toast } from "react-hot-toast";
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -27,50 +29,75 @@ const VenueView = () => {
   useEffect(() => {
     // Replace with real API call
     const fetchData = async () => {
-      const data = [
-        {
-          _id: "1",
-          name: "Anish Shrestha",
-          email: "anish@example.com",
-          bookingType: "Birthday",
-          phone: "9800000000",
-          eventType: "Party",
-          estimatedGuests: 50,
-          reserveDate: "2025-06-15",
-          startTime: "18:00",
-          endTime: "22:00",
-          specialRequests: "Vegan food",
-          file: "",
-          status: "pending",
-        },
-        {
-          _id: "2",
-          name: "Ram Bahadur",
-          email: "ram@example.com",
-          bookingType: "Wedding",
-          phone: "9812345678",
-          eventType: "Reception",
-          estimatedGuests: 120,
-          reserveDate: "2025-06-20",
-          startTime: "14:00",
-          endTime: "20:00",
-          specialRequests: "",
-          file: "",
-          status: "confirmed",
-        },
-      ];
-      setReservations(data);
+      // const data = [
+      //   {
+      //     _id: "1",
+      //     name: "Anish Shrestha",
+      //     email: "anish@example.com",
+      //     bookingType: "Birthday",
+      //     phone: "9800000000",
+      //     eventType: "Party",
+      //     estimatedGuests: 50,
+      //     reserveDate: "2025-06-15",
+      //     startTime: "18:00",
+      //     endTime: "22:00",
+      //     specialRequests: "Vegan food",
+      //     file: "",
+      //     status: "pending",
+      //   },
+      //   {
+      //     _id: "2",
+      //     name: "Ram Bahadur",
+      //     email: "ram@example.com",
+      //     bookingType: "Wedding",
+      //     phone: "9812345678",
+      //     eventType: "Reception",
+      //     estimatedGuests: 120,
+      //     reserveDate: "2025-06-20",
+      //     startTime: "14:00",
+      //     endTime: "20:00",
+      //     specialRequests: "",
+      //     file: "",
+      //     status: "confirmed",
+      //   },
+      // ];
+
+      try {
+        const response = await axiosInstance.get("/venue-reservations");
+        const data = response.data || [];
+        setReservations(data);
+      } catch (error) {
+        console.error("Error fetching reservations:", error);
+        setReservations([]);
+        // Handle error (e.g., show toast notification)
+      }
     };
 
     fetchData();
   }, []);
 
-  const handleStatusChange = (id, newStatus) => {
+  const handleStatusChange = async (id, newStatus) => {
     setReservations((prev) =>
       prev.map((item) =>
         item._id === id ? { ...item, status: newStatus } : item
       )
     );
+
+    try {
+      const response = await axiosInstance.put(`/venue-reservations/${id}`, {
+        status: newStatus,
+      });
+      toast.success("Status updated successfully!");
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status.");
+      // Revert the status change in case of error
+      setReservations((prev) =>
+        prev.map((item) =>
+          item._id === id ? { ...item, status: item.status } : item
+        )
+      );
+    }
 
     // TODO: Update on server
     console.log(`Updated ${id} to ${newStatus}`);
@@ -97,8 +124,8 @@ const VenueView = () => {
       r.phone,
       r.bookingType,
       r.eventType,
-      r.estimatedGuests,
-      new Date(r.reserveDate).toLocaleDateString(),
+      r.guestCount,
+      new Date(r.date).toLocaleDateString(),
       r.startTime,
       r.endTime,
       r.specialRequests,
@@ -154,14 +181,14 @@ const VenueView = () => {
                   <strong>Event Type:</strong> {res.eventType}
                 </p>
                 <p>
-                  <strong>Guests:</strong> {res.estimatedGuests}
+                  <strong>Guests:</strong> {res.guestCount}
                 </p>
                 <p>
                   <strong>Time:</strong> {res.startTime} - {res.endTime}
                 </p>
                 <p>
                   <strong>Date:</strong>{" "}
-                  {new Date(res.reserveDate).toLocaleDateString()}
+                  {new Date(res.date).toLocaleDateString()}
                 </p>
                 {res.specialRequests && (
                   <p>

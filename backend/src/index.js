@@ -125,6 +125,30 @@ app.get("/api/venue-reservations/:id", async (req, res) => {
   }
 });
 
+app.put("/api/venue-reservations/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    const updatedReservation = await Venue.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedReservation) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+
+    res.status(200).json(updatedReservation);
+  } catch (error) {
+    console.error("Error updating reservation:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
