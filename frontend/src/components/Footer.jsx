@@ -1,7 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import axiosInstance from "@/lib/axiosInstance.js";
+import { toast } from "react-hot-toast";
+import { Loader } from "lucide-react";
 
 const Footer = () => {
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const email = e.target.email.value;
+
+    // Basic email validation
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post("/subscribe", { email });
+      toast.success("Thank you for subscribing!");
+      setLoading(false);
+    } catch (error) {
+      console.error("Error subscribing:", error);
+      toast.error("Failed to subscribe. Please try again later.");
+      setLoading(false);
+      return;
+    }
+  };
   return (
     <footer className="bg-[#2D6A4F] text-white pt-16">
       {/* Newsletter Signup */}
@@ -11,7 +37,7 @@ const Footer = () => {
           Be the first to hear about upcoming events, specials, and more.
         </p>
 
-        <form method="POST" action="http://localhost:3000/api/subscribe">
+        <form method="POST" onSubmit={handleSubmit}>
           <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
             <input
               type="email"
@@ -19,9 +45,16 @@ const Footer = () => {
               placeholder="Your email address"
               className="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
-            <button className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
-              Subscribe
-            </button>
+            {!loading ? (
+              <button className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
+                Subscribe
+              </button>
+            ) : (
+              <button className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
+                Subscribe
+                <Loader className="animate-spin w-5 h-5 inline-block ml-2" />
+              </button>
+            )}
           </div>
         </form>
       </div>

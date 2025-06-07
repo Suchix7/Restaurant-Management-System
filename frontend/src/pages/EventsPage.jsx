@@ -189,6 +189,7 @@ const EventCard = ({ event, onRSVP }) => {
 const EventsPage = () => {
   const handleRSVP = (event) => {
     // In a real app, this would make an API call to handle the RSVP
+
     toast.success(
       `Thanks for your interest in ${event.title}! We'll be in touch soon.`
     );
