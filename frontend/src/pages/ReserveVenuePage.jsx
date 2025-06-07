@@ -23,6 +23,7 @@ import {
 import { toast } from "react-hot-toast";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import axiosInstance from "@/lib/axiosInstance.js";
 
 const ReserveVenuePage = () => {
   const [formData, setFormData] = useState({
@@ -66,12 +67,37 @@ const ReserveVenuePage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    toast.success(
-      "Venue reservation request submitted! We'll get back to you shortly."
-    );
+    try {
+      const response = await axiosInstance.post("/reserve-venue", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toast.success(
+        "Venue reservation request submitted! We'll get back to you shortly."
+      );
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        bookingType: "",
+        eventType: "",
+        guestCount: "",
+        date: "",
+        startTime: "",
+        endTime: "",
+        specialRequests: "",
+        file: null,
+      });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error(
+        "Failed to submit reservation request. Please try again later."
+      );
+      return;
+    }
   };
 
   const handleChange = (field, value) => {

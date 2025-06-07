@@ -21,11 +21,11 @@ const venueSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    estimatedGuests: {
+    guestCount: {
       type: Number,
       required: true,
     },
-    reserveDate: {
+    date: {
       type: Date,
       default: new Date(),
     },

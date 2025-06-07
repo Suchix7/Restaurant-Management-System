@@ -49,8 +49,8 @@ app.post("/api/reserve-venue", upload.single("file"), async (req, res) => {
       bookingType,
       phone,
       eventType,
-      estimatedGuests,
-      reserveDate,
+      guestCount,
+      date,
       startTime,
       endTime,
       specialRequests,
@@ -80,8 +80,8 @@ app.post("/api/reserve-venue", upload.single("file"), async (req, res) => {
       bookingType,
       phone,
       eventType,
-      estimatedGuests,
-      reserveDate,
+      guestCount,
+      date,
       startTime,
       endTime,
       specialRequests,
@@ -92,7 +92,7 @@ app.post("/api/reserve-venue", upload.single("file"), async (req, res) => {
       name,
       email,
       "New Venue Reservation",
-      `New venue reservation from ${name} (${email}) for ${eventType} on ${reserveDate}.`
+      `New venue reservation from ${name} (${email}) for ${eventType} on ${date}.`
     );
 
     res.status(200).json({ message: "success" });
