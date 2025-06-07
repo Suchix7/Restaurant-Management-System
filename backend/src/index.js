@@ -395,6 +395,35 @@ app.put("/api/gallery", upload.array("images"), async (req, res) => {
   }
 });
 
+app.delete("/api/gallery", async (req, res) => {
+  try {
+    const { category } = req.body;
+
+    if (!category) {
+      return res.status(400).json({ message: "Category is required" });
+    }
+
+    const deletedGallery = await Gallery.findOneAndDelete({ category });
+
+    if (!deletedGallery) {
+      return res.status(404).json({ message: "Gallery category not found" });
+    }
+
+    // Optionally, delete all images from Cloudinary
+    for (const image of deletedGallery.images) {
+      await cloudinaryV2.uploader.destroy(image.public_id);
+    }
+
+    res.status(200).json({
+      message: "Gallery deleted successfully",
+      gallery: deletedGallery,
+    });
+  } catch (error) {
+    console.error("Error deleting gallery:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.delete("/api/gallery/image", async (req, res) => {
   try {
     const { category, public_id } = req.body;

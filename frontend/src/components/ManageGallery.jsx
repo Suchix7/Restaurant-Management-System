@@ -89,6 +89,26 @@ const ManageGallery = () => {
     setNewFiles(Array(count).fill({ file: null, preview: null }));
   };
 
+  const handleDeleteGallery = async () => {
+    const confirm = window.confirm(
+      `Are you sure you want to delete the entire gallery for category "${selectedCategory}"?`
+    );
+    if (!confirm) return;
+
+    try {
+      await axiosInstance.delete("/gallery", {
+        data: { category: selectedCategory },
+      });
+      toast.success("Gallery deleted successfully.");
+      setSelectedCategory("");
+      setCategoryImages([]);
+      fetchGalleries();
+    } catch (error) {
+      console.error("Error deleting gallery:", error);
+      toast.error("Failed to delete gallery.");
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -108,6 +128,15 @@ const ManageGallery = () => {
             </option>
           ))}
         </select>
+        {selectedCategory && (
+          <Button
+            variant="destructive"
+            onClick={handleDeleteGallery}
+            className="mt-2 text-black"
+          >
+            Delete Entire Gallery
+          </Button>
+        )}
 
         {/* Existing Images */}
         {categoryImages.length > 0 ? (
