@@ -179,6 +179,21 @@ app.get("/api/contact", async (req, res) => {
   }
 });
 
+app.delete("/api/contact/:id", async (req, res) => {
+  try {
+    const contact = await Contact.findById(req.params.id);
+    if (!contact) {
+      return res.status(404).json({ message: "Contact not found" });
+    }
+
+    await Contact.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Contact deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.post("/api/events", upload.single("posterImage"), async (req, res) => {
   try {
     const { title, date, time, description } = req.body;
@@ -563,6 +578,79 @@ app.get("/api/menu", async (req, res) => {
     res.status(200).json(menus);
   } catch (error) {
     console.error("Error fetching menus:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.delete("/api/menu/:id", async (req, res) => {
+  try {
+    const menu = await Menu.findById(req.params.id);
+    if (!menu) {
+      return res.status(404).json({ message: "Menu item not found" });
+    }
+
+    // Delete image from Cloudinary if it exists
+    if (menu.imageUrl) {
+      const publicId = menu.imageUrl.split("/").pop().split(".")[0];
+      await cloudinary.v2.uploader.destroy(publicId, {
+        resource_type: "image",
+      });
+    }
+
+    // Delete the menu item from MongoDB
+    await Menu.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ message: "Menu item deleted successfully" });
+  } catch (error) {
+    console.error("Menu delete error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.put("/api/menu/:id", upload.single("menu-image"), async (req, res) => {
+  try {
+    const { category } = req.body;
+    const file = req.file;
+
+    if (!category) {
+      return res.status(400).json({ message: "Category is required" });
+    }
+
+    // Find existing menu item first
+    const existingMenu = await Menu.findById(req.params.id);
+    if (!existingMenu) {
+      return res.status(404).json({ message: "Menu item not found" });
+    }
+
+    let imageUrl = existingMenu.imageUrl; // default to existing
+
+    // If a new file is uploaded, upload to Cloudinary
+    if (file) {
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinaryV2.uploader.upload_stream(
+          {
+            folder: "menu-images",
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(file.buffer);
+      });
+
+      imageUrl = result.secure_url; // override with new image URL
+    }
+
+    const updatedMenu = await Menu.findByIdAndUpdate(
+      req.params.id,
+      { category, imageUrl },
+      { new: true }
+    );
+
+    res.status(200).json(updatedMenu);
+  } catch (error) {
+    console.error("Error updating menu:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });

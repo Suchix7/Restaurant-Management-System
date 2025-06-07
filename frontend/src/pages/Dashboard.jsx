@@ -30,6 +30,8 @@ import ManageGallery from "@/components/ManageGallery";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import AddMenu from "@/components/AddMenu";
+import MenuView from "@/components/MenuView";
+import InquiriesView from "@/components/InquiriesView";
 
 // View Components (for demo)
 const DashboardView = () => (
@@ -42,78 +44,6 @@ const DashboardView = () => (
     </p>
   </div>
 );
-
-const MenuView = () => {
-  const [menuItems, setMenuItems] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
-
-  useEffect(() => {
-    const fetchMenu = async () => {
-      try {
-        const res = await axiosInstance.get("/menu");
-        setMenuItems(res.data || []);
-      } catch (error) {
-        console.error("Failed to fetch menu:", error);
-      }
-    };
-
-    fetchMenu();
-  }, []);
-
-  const handleImageClick = (url) => {
-    setSelectedImage(url);
-  };
-
-  const closeModal = () => {
-    setSelectedImage(null);
-  };
-
-  return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-slate-900">Menu</h2>
-      <p className="text-slate-600">View your menu categories below.</p>
-
-      {menuItems.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {menuItems.map((item) => (
-            <div
-              key={item._id}
-              className="border rounded shadow-sm overflow-hidden bg-white"
-            >
-              <img
-                src={item.imageUrl}
-                alt={item.category}
-                onClick={() => handleImageClick(item.imageUrl)}
-                className="w-full h-100 object-cover cursor-pointer transition hover:brightness-90"
-              />
-              <div className="p-3 text-center">
-                <h3 className="text-sm font-medium text-slate-800">
-                  {item.category}
-                </h3>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-slate-500">No menu items found.</p>
-      )}
-
-      {/* Fullscreen Image Viewer */}
-      {selectedImage && (
-        <div
-          onClick={closeModal}
-          className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center"
-        >
-          <img
-            src={selectedImage}
-            alt="Full view"
-            className="max-h-full max-w-full object-contain cursor-pointer"
-          />
-        </div>
-      )}
-    </div>
-  );
-};
 
 const AddGalleryView = () => {
   const [category, setCategory] = useState("");
@@ -229,15 +159,6 @@ const EventsView = () => (
   <div>
     <h2 className="text-2xl font-bold text-slate-900 mb-2">Event Scheduling</h2>
     <p className="text-slate-600">Create or update upcoming events.</p>
-  </div>
-);
-
-const InquiriesView = () => (
-  <div>
-    <h2 className="text-2xl font-bold text-slate-900 mb-2">
-      Customer Inquiries
-    </h2>
-    <p className="text-slate-600">Review and respond to user inquiries.</p>
   </div>
 );
 
