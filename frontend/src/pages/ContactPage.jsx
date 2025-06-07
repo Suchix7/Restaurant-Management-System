@@ -4,6 +4,7 @@ import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from "lucide-react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import toast from "react-hot-toast";
+import axiosInstance from "@/lib/axiosInstance.js";
 
 const ContactInfo = () => (
   <div className="bg-white rounded-2xl shadow-lg p-8">
@@ -76,13 +77,21 @@ const ContactForm = () => {
     setIsSubmitting(true);
 
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const response = await axiosInstance.post("/contact", formData);
+
+      toast.success("Message sent successfully! We'll get back to you soon.");
+      setFormData({ name: "", email: "", message: "" });
+      setIsSubmitting(false);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message. Please try again later.");
+      setFormData({ name: "", email: "", message: "" });
+      setIsSubmitting(false);
+      return;
+    }
 
     // In a real app, this would be an API call
-    toast.success("Message sent successfully! We'll get back to you soon.");
-
-    setFormData({ name: "", email: "", message: "" });
-    setIsSubmitting(false);
   };
 
   const handleChange = (e) => {
