@@ -1,56 +1,84 @@
-import React from "react";
-import { motion } from "framer-motion";
-
-const galleryImages = [
-  { src: "/images/cocktail1.jpg", alt: "Cocktail1", rowSpan: 20 },
-  { src: "/images/cocktail2.jpg", alt: "Cocktail2", rowSpan: 30 },
-  { src: "/images/cocktail3.jpg", alt: "Cocktail3", rowSpan: 20 },
-  { src: "/images/cocktail4.jpg", alt: "Cocktail14", rowSpan: 40 },
-  { src: "/images/cocktail5.jpg", alt: "Cocktail15", rowSpan: 30 },
-];
+import React, { useEffect, useState } from "react";
+import axiosInstance from "@/lib/axiosInstance";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Select } from "@/components/ui/select";
+import { toast } from "react-hot-toast";
 
 const Gallery = () => {
-  return (
-    <section className="bg-[#fad987] py-20">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-8">
-        <div className="mb-12 text-center">
-          <h2 className="text-4xl font-bold text-[#2D6A4F]">
-            Signature Moments
-          </h2>
-          <p className="mt-2 text-gray-600 text-sm">
-            Capturing the flavor, mood, and magic of 4 Donkeys Bar
-          </p>
-        </div>
+  const [galleries, setGalleries] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [filteredImages, setFilteredImages] = useState([]);
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 [grid-auto-rows:10px]">
-          {galleryImages.map((image, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              viewport={{ once: true }}
-              className={`relative group overflow-hidden rounded-lg shadow-lg ${
-                image.colSpan ? "sm:col-span-2" : ""
-              }`}
-              style={{
-                gridRowEnd: `span ${image.rowSpan}`,
-              }}
-            >
-              <img
-                src={image.src}
-                alt={image.alt}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition duration-300" />
-              <div className="absolute bottom-3 left-3 text-white text-sm font-semibold opacity-0 group-hover:opacity-100 transition">
-                {image.alt}
-              </div>
-            </motion.div>
+  useEffect(() => {
+    async function fetchGalleries() {
+      try {
+        const res = await axiosInstance.get("/gallery");
+        setGalleries(res.data || []);
+      } catch (error) {
+        console.error("Error fetching galleries:", error);
+        toast.error("Failed to load gallery");
+      }
+    }
+
+    fetchGalleries();
+  }, []);
+
+  useEffect(() => {
+    if (selectedCategory) {
+      const gallery = galleries.find((g) => g.category === selectedCategory);
+      setFilteredImages(gallery?.images || []);
+    } else {
+      setFilteredImages([]);
+    }
+  }, [selectedCategory, galleries]);
+
+  const uniqueCategories = [...new Set(galleries.map((g) => g.category))];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Gallery</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Category Selector */}
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring"
+        >
+          <option value="">Select Category</option>
+          {uniqueCategories.map((category, index) => (
+            <option key={index} value={category}>
+              {category}
+            </option>
           ))}
-        </div>
-      </div>
-    </section>
+        </select>
+
+        {/* Gallery Grid */}
+        {filteredImages.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {filteredImages.map((imgUrl, idx) => (
+              <div
+                key={idx}
+                className="w-full h-80 overflow-hidden rounded border"
+              >
+                <img
+                  src={imgUrl.url}
+                  alt={`gallery-${idx}`}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+            ))}
+          </div>
+        ) : selectedCategory ? (
+          <p className="text-slate-500">No images found for this category.</p>
+        ) : (
+          <p className="text-slate-500">
+            Please select a category to view images.
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

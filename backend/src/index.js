@@ -31,7 +31,7 @@ app.use(
 );
 dotenv.config();
 
-const upload = multer();
+const upload = multer({ storage: multer.memoryStorage() });
 
 const cloudinaryV2 = cloudinary.v2;
 cloudinaryV2.config({
@@ -244,19 +244,20 @@ app.delete("/api/events/:id", async (req, res) => {
   }
 });
 
-app.post("/api/gallery", upload.any(), async (req, res) => {
+app.post("/api/gallery", upload.array("images"), async (req, res) => {
   try {
     const { category } = req.body;
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "No images provided" });
     }
+
     const uploadPromises = req.files.map((file) => {
       const bufferStream = Readable.from(file.buffer);
       return new Promise((resolve, reject) => {
         const stream = cloudinaryV2.uploader.upload_stream(
           {
             resource_type: "image",
-            folder: "gallery", // optional
+            folder: "gallery",
           },
           (error, result) => {
             if (error) return reject(error);
@@ -300,6 +301,72 @@ app.get("/api/gallery/:category", async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching gallery:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/gallery", async (req, res) => {
+  try {
+    const galleries = await Gallery.find({});
+    res.status(200).json(galleries);
+  } catch (error) {
+    console.error("Error fetching galleries:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.put("/api/gallery", upload.array("images"), async (req, res) => {
+  try {
+    const { category } = req.body;
+
+    if (!category) {
+      return res.status(400).json({ message: "Category is required" });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No images provided" });
+    }
+
+    const uploadPromises = req.files.map((file) => {
+      const bufferStream = Readable.from(file.buffer);
+      return new Promise((resolve, reject) => {
+        const stream = cloudinaryV2.uploader.upload_stream(
+          {
+            resource_type: "image",
+            folder: "gallery",
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve({
+              url: result.secure_url,
+              public_id: result.public_id,
+            });
+          }
+        );
+        bufferStream.pipe(stream);
+      });
+    });
+
+    const uploadedImages = await Promise.all(uploadPromises);
+
+    const updatedGallery = await Gallery.findOneAndUpdate(
+      { category },
+      { $push: { images: { $each: uploadedImages } } },
+      { new: true }
+    );
+
+    if (!updatedGallery) {
+      return res
+        .status(404)
+        .json({ message: "Gallery not found for this category" });
+    }
+
+    res.status(200).json({
+      message: "Images added to gallery successfully",
+      gallery: updatedGallery,
+    });
+  } catch (error) {
+    console.error("Error updating gallery:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
