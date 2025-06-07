@@ -4,13 +4,14 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
+import { ReactSortable } from "react-sortablejs";
 
 const ManageGallery = () => {
   const [galleries, setGalleries] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [categoryImages, setCategoryImages] = useState([]);
   const [numImages, setNumImages] = useState(0);
-  const [newFiles, setNewFiles] = useState([]); // [{ file, preview }]
+  const [newFiles, setNewFiles] = useState([]);
 
   useEffect(() => {
     fetchGalleries();
@@ -36,12 +37,8 @@ const ManageGallery = () => {
   const handleDeleteImage = async (public_id) => {
     try {
       await axiosInstance.delete("/gallery/image", {
-        data: {
-          category: selectedCategory,
-          public_id,
-        },
+        data: { category: selectedCategory, public_id },
       });
-
       toast.success("Image deleted!");
       fetchGalleries();
     } catch (error) {
@@ -91,7 +88,7 @@ const ManageGallery = () => {
 
   const handleDeleteGallery = async () => {
     const confirm = window.confirm(
-      `Are you sure you want to delete the entire gallery for category "${selectedCategory}"?`
+      `Are you sure you want to delete "${selectedCategory}" gallery?`
     );
     if (!confirm) return;
 
@@ -99,7 +96,7 @@ const ManageGallery = () => {
       await axiosInstance.delete("/gallery", {
         data: { category: selectedCategory },
       });
-      toast.success("Gallery deleted successfully.");
+      toast.success("Gallery deleted.");
       setSelectedCategory("");
       setCategoryImages([]);
       fetchGalleries();
@@ -110,128 +107,164 @@ const ManageGallery = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Manage Gallery</CardTitle>
+    <Card className="bg-white shadow-sm">
+      <CardHeader className="border-b">
+        <CardTitle className="text-lg font-semibold text-slate-800">
+          Manage Gallery
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Select Category */}
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="w-full border border-slate-300 rounded px-3 py-2"
-        >
-          <option value="">Select Category</option>
-          {uniqueCategories.map((category, index) => (
-            <option key={index} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-        {selectedCategory && (
-          <Button
-            variant="destructive"
-            onClick={handleDeleteGallery}
-            className="mt-2 text-black"
+
+      <CardContent className="space-y-6">
+        {/* Category Select + Delete */}
+        <div className="flex flex-col md:flex-row items-center gap-3">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full md:w-1/2 border border-slate-300 rounded px-3 py-2"
           >
-            Delete Entire Gallery
-          </Button>
-        )}
+            <option value="">Select Category</option>
+            {uniqueCategories.map((category, index) => (
+              <option key={index} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+
+          {selectedCategory && (
+            <Button variant="destructive" onClick={handleDeleteGallery}>
+              Delete Gallery
+            </Button>
+          )}
+        </div>
 
         {/* Existing Images */}
-        {categoryImages.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categoryImages.map((img, idx) => (
-              <div
-                key={idx}
-                className="relative border rounded overflow-hidden group"
-              >
-                <img
-                  src={img.url}
-                  alt={`img-${idx}`}
-                  className="object-cover w-full h-80"
-                />
-                <button
-                  onClick={() => handleDeleteImage(img.public_id)}
-                  className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs rounded opacity-0 group-hover:opacity-100 transition"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : selectedCategory ? (
-          <p className="text-slate-500">No images in this category.</p>
-        ) : (
-          <p className="text-slate-500">Please select a category to manage.</p>
-        )}
 
-        {/* Number of Images Input */}
-        <Input
-          type="number"
-          placeholder="Number of images"
-          min="1"
-          value={numImages}
-          onChange={handleNumImagesChange}
-        />
-
-        {/* Upload Boxes with Preview */}
-        {newFiles.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {newFiles.map((fileObj, index) => (
-              <div
-                key={index}
-                className="relative border h-80 w-full rounded bg-slate-100 flex items-center justify-center overflow-hidden group"
+        {selectedCategory &&
+          (categoryImages.length > 0 ? (
+            <>
+              <ReactSortable
+                list={categoryImages}
+                setList={setCategoryImages}
+                tag="div"
+                className="grid grid-cols-2 md:grid-cols-4 gap-4"
               >
-                <label className="w-full h-full cursor-pointer flex items-center justify-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    onChange={(e) =>
-                      handleImageChange(index, e.target.files[0])
-                    }
-                  />
-                  {fileObj.preview ? (
+                {categoryImages.map((img, idx) => (
+                  <div
+                    key={img.public_id}
+                    className="relative group border rounded overflow-hidden"
+                    data-id={img.public_id}
+                  >
                     <img
-                      src={fileObj.preview}
-                      alt={`preview-${index}`}
-                      className="object-cover w-full h-full"
+                      src={img.url}
+                      alt={`img-${idx}`}
+                      className="w-full h-72 object-cover"
                     />
-                  ) : (
-                    <span className="text-sm text-slate-500">
-                      Click to upload
-                    </span>
-                  )}
-                </label>
+                    <button
+                      onClick={() => handleDeleteImage(img.public_id)}
+                      className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </ReactSortable>
 
-                {/* ❌ Delete Button */}
+              <Button
+                onClick={async () => {
+                  try {
+                    await axiosInstance.put("/gallery/reorder", {
+                      category: selectedCategory,
+                      images: categoryImages,
+                    });
+                    toast.success("Image order saved.");
+                    fetchGalleries();
+                  } catch (err) {
+                    console.error(err);
+                    toast.error("Failed to save image order.");
+                  }
+                }}
+                className="mt-4"
+                variant="outline"
+              >
+                Save Order
+              </Button>
+            </>
+          ) : (
+            <p className="text-sm text-slate-500 italic">
+              No images in this category.
+            </p>
+          ))}
+
+        {/* Upload New Images */}
+        {selectedCategory && (
+          <div className="space-y-3">
+            <Input
+              type="number"
+              placeholder="Number of images"
+              min="1"
+              value={numImages}
+              onChange={handleNumImagesChange}
+              className="w-full md:w-1/3"
+            />
+
+            {newFiles.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {newFiles.map((fileObj, index) => (
+                  <div
+                    key={index}
+                    className="relative group h-72 border rounded bg-slate-100 flex items-center justify-center overflow-hidden"
+                  >
+                    <label className="w-full h-full flex items-center justify-center cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        onChange={(e) =>
+                          handleImageChange(index, e.target.files[0])
+                        }
+                      />
+                      {fileObj.preview ? (
+                        <img
+                          src={fileObj.preview}
+                          alt={`preview-${index}`}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : (
+                        <span className="text-sm text-slate-500">
+                          Click to upload
+                        </span>
+                      )}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setNewFiles(newFiles.filter((_, i) => i !== index))
+                      }
+                      className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+
+                {/* ➕ Add Box */}
                 <button
                   type="button"
                   onClick={() =>
-                    setNewFiles(newFiles.filter((_, i) => i !== index))
+                    setNewFiles([...newFiles, { file: null, preview: null }])
                   }
-                  className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs rounded opacity-0 group-hover:opacity-100 transition"
+                  className="h-72 w-full border border-dashed rounded text-slate-400 hover:text-slate-600 hover:border-slate-400 text-4xl font-bold flex items-center justify-center"
                 >
-                  Delete
+                  +
                 </button>
               </div>
-            ))}
+            )}
 
-            {/* ➕ Add Box */}
-            <button
-              type="button"
-              onClick={() =>
-                setNewFiles([...newFiles, { file: null, preview: null }])
-              }
-              className="h-80 w-full border border-dashed rounded text-slate-400 hover:text-slate-600 hover:border-slate-400 text-4xl font-bold flex items-center justify-center"
-            >
-              +
-            </button>
+            <Button onClick={handleAddImages} className="mt-2">
+              Add Images
+            </Button>
           </div>
         )}
-
-        <Button onClick={handleAddImages}>Add Images</Button>
       </CardContent>
     </Card>
   );

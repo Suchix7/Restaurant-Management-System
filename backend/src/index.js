@@ -395,6 +395,33 @@ app.put("/api/gallery", upload.array("images"), async (req, res) => {
   }
 });
 
+app.put("/api/gallery/reorder", async (req, res) => {
+  const { category, images } = req.body;
+
+  if (!category || !Array.isArray(images)) {
+    return res
+      .status(400)
+      .json({ message: "Category and image array required." });
+  }
+
+  try {
+    const gallery = await Gallery.findOneAndUpdate(
+      { category },
+      { images }, // Replace existing array with new one
+      { new: true }
+    );
+
+    if (!gallery) {
+      return res.status(404).json({ message: "Gallery not found" });
+    }
+
+    res.status(200).json({ message: "Gallery reordered", gallery });
+  } catch (error) {
+    console.error("Error reordering images:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.delete("/api/gallery", async (req, res) => {
   try {
     const { category } = req.body;
