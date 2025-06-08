@@ -1,34 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ZoomIn, X } from "lucide-react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import axiosInstance from "@/lib/axiosInstance"; // Adjust the import based on your project structure
 
 const MenuPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [menuPages, setMenuPages] = useState([]);
 
-  // Mock menu pages (these will be replaced with admin-uploaded images)
-  const menuPages = [
-    {
-      id: 1,
-      title: "Drinks Menu",
-      image:
-        "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      id: 2,
-      title: "Main Course",
-      image:
-        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1000&auto=format&fit=crop",
-    },
-    {
-      id: 3,
-      title: "Desserts & Specials",
-      image:
-        "https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=1000&auto=format&fit=crop",
-    },
-  ];
+  const fetchMenu = async () => {
+    try {
+      const response = await axiosInstance.get("/menu");
+      const data = response.data.map((item, index) => ({
+        id: index + 1,
+        title: item.category,
+        image: item.imageUrl,
+      }));
+      console.log(data);
+      setMenuPages(data);
+    } catch (error) {
+      console.error("Error fetching menu data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMenu();
+  }, []);
 
   const nextPage = () => {
     setCurrentPage((prev) => (prev + 1) % menuPages.length);
@@ -96,69 +95,74 @@ const MenuPage = () => {
           </div>
 
           {/* Menu Display */}
-          <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentPage}
-                initial={{ opacity: 0, x: 100 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -100 }}
-                transition={{ duration: 0.3 }}
-                className="relative aspect-[4/3] bg-gray-100"
-              >
-                <img
-                  src={menuPages[currentPage].image}
-                  alt={menuPages[currentPage].title}
-                  className="w-full h-full object-contain"
-                />
+          {menuPages.length > 0 && (
+            <>
+              <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentPage}
+                    initial={{ opacity: 0, x: 100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ duration: 0.3 }}
+                    className="relative aspect-[4/3] bg-gray-100"
+                  >
+                    <img
+                      src={menuPages[currentPage].image}
+                      alt={menuPages[currentPage].title}
+                      className="w-full h-full object-contain"
+                    />
 
-                {/* Zoom Button */}
+                    {/* Zoom Button */}
+                    <button
+                      onClick={() => setIsZoomed(true)}
+                      className="absolute bottom-4 right-4 bg-black/70 text-white p-3 rounded-full hover:bg-black/90 transition-colors"
+                    >
+                      <ZoomIn className="w-6 h-6" />
+                    </button>
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Navigation Arrows */}
                 <button
-                  onClick={() => setIsZoomed(true)}
-                  className="absolute bottom-4 right-4 bg-black/70 text-white p-3 rounded-full hover:bg-black/90 transition-colors"
+                  onClick={prevPage}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/70 text-white p-3 rounded-full hover:bg-black/90 transition-colors"
                 >
-                  <ZoomIn className="w-6 h-6" />
+                  <ChevronLeft className="w-6 h-6" />
                 </button>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Navigation Arrows */}
-            <button
-              onClick={prevPage}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/70 text-white p-3 rounded-full hover:bg-black/90 transition-colors"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              onClick={nextPage}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/70 text-white p-3 rounded-full hover:bg-black/90 transition-colors"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-
-            {/* Page Indicator */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-              {menuPages.map((_, index) => (
                 <button
-                  key={index}
-                  onClick={() => setCurrentPage(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    currentPage === index ? "bg-[#2D6A4F] w-6" : "bg-gray-400"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+                  onClick={nextPage}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/70 text-white p-3 rounded-full hover:bg-black/90 transition-colors"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
 
-          {/* Page Title */}
-          <div className="text-center mt-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              {menuPages[currentPage].title}
-            </h2>
-            <p className="text-gray-600 mt-2">
-              Page {currentPage + 1} of {menuPages.length}
-            </p>
-          </div>
+                {/* Page Indicator */}
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                  {menuPages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentPage(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        currentPage === index
+                          ? "bg-[#2D6A4F] w-6"
+                          : "bg-gray-400"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              {/* Page Title */}
+              <div className="text-center mt-6">
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  {menuPages[currentPage].title}
+                </h2>
+                <p className="text-gray-600 mt-2">
+                  Page {currentPage + 1} of {menuPages.length}
+                </p>
+              </div>
+            </>
+          )}
         </motion.div>
       </div>
 
