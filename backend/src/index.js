@@ -390,6 +390,31 @@ app.put("/api/events/:id", upload.single("posterImage"), async (req, res) => {
   }
 });
 
+app.put("/api/events/rsvp/:id", async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found." });
+    }
+
+    event.rsvpCount = (event.rsvpCount || 0) + 1;
+    if (event.capacity && event.rsvpCount > event.capacity) {
+      return res.status(400).json({
+        message: "RSVP limit exceeded. Please contact us for more information.",
+      });
+    }
+    await event.save();
+
+    res.status(200).json({
+      message: "RSVP updated successfully.",
+      rsvpCount: event.rsvpCount,
+    });
+  } catch (error) {
+    console.error("Error updating RSVP:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 const uploadFields = upload.fields([
   { name: "mainImage", maxCount: 1 },
   { name: "images", maxCount: 20 }, // Adjust max count as needed
