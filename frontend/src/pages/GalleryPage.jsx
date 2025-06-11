@@ -1,6 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
@@ -9,7 +15,7 @@ const categories = [
     id: "events",
     title: "Special Events",
     description:
-      "From intimate gatherings to grand celebrations, experience the magic of our venue through the lens of unforgettable moments.",
+      "From intimate gatherings to grand celebrations, experience the magic of our venue through the lens of unforgettable moments. Enjoy curated themes, customized décor, and world-class service that makes every occasion memorable. Whether it’s a private party or a corporate gala, our dedicated team ensures a flawless execution from start to finish.",
     mainImage:
       "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
     align: "right",
@@ -44,7 +50,7 @@ const categories = [
     id: "drinks",
     title: "Signature Cocktails",
     description:
-      "Discover our artisanal cocktails, crafted with precision and passion by our expert mixologists using the finest ingredients.",
+      "Discover our artisanal cocktails, crafted with precision and passion by our expert mixologists using the finest ingredients. Each drink tells a story—infused with exotic flavors, premium spirits, and stunning presentation. Whether you crave the classics or adventurous blends, our cocktail list will elevate your night out.",
     mainImage:
       "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1200&q=80",
     align: "left",
@@ -79,7 +85,7 @@ const categories = [
     id: "venue",
     title: "Our Space",
     description:
-      "Step into our carefully designed space, where modern aesthetics meet comfortable sophistication.",
+      "Step into our carefully designed space, where modern aesthetics meet comfortable sophistication. Every corner is curated for ambience, offering the perfect blend of style and intimacy. With dynamic lighting, cozy nooks, and open layouts, our venue adapts beautifully to any event—be it a casual meet-up or a lavish party.",
     mainImage:
       "https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1200&q=80",
     align: "right",
@@ -114,7 +120,7 @@ const categories = [
     id: "crowd",
     title: "Vibrant Atmosphere",
     description:
-      "Join our diverse community of patrons and experience the energetic atmosphere that makes us unique.",
+      "Join our diverse community of patrons and experience the energetic atmosphere that makes us unique. From upbeat music and live performances to friendly faces and shared laughter, every visit feels like a celebration. Whether you’re dancing with friends or meeting someone new, our space thrives on connection and joy.",
     mainImage:
       "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
     align: "left",
@@ -146,11 +152,31 @@ const categories = [
     ],
   },
 ];
-
 const GalleryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [lightboxImage, setLightboxImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [expandedSection, setExpandedSection] = useState(() => {
+    const allIds = categories.map((category) => category.id);
+    return new Set(allIds);
+  });
+  const [mainImages, setMainImages] = useState(() => {
+    return categories.map(() => 0);
+  });
+  const [direction, setDirection] = useState(1);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMainImages((prev) => {
+        return prev.map((index, i) => {
+          const total = categories[i].images.length;
+          return (index + 1) % total;
+        });
+      });
+      setDirection(1);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const openLightbox = (category, index) => {
     setSelectedCategory(category);
@@ -166,6 +192,7 @@ const GalleryPage = () => {
   const nextImage = () => {
     if (!selectedCategory) return;
     const newIndex = (currentImageIndex + 1) % selectedCategory.images.length;
+    setDirection(1);
     setCurrentImageIndex(newIndex);
     setLightboxImage(selectedCategory.images[newIndex]);
   };
@@ -175,6 +202,7 @@ const GalleryPage = () => {
     const newIndex =
       (currentImageIndex - 1 + selectedCategory.images.length) %
       selectedCategory.images.length;
+    setDirection(-1);
     setCurrentImageIndex(newIndex);
     setLightboxImage(selectedCategory.images[newIndex]);
   };
@@ -185,6 +213,18 @@ const GalleryPage = () => {
       if (e.key === "ArrowLeft") prevImage();
       if (e.key === "Escape") closeLightbox();
     }
+  };
+
+  const toggleSection = (id) => {
+    setExpandedSection((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -212,79 +252,105 @@ const GalleryPage = () => {
             </p>
           </motion.div>
 
-          <div className="space-y-32">
-            {categories.map((category) => (
-              <motion.div
-                key={category.id}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className={`flex flex-col ${
-                  category.align === "left"
-                    ? "lg:flex-row"
-                    : "lg:flex-row-reverse"
-                } items-center gap-8 lg:gap-16`}
-              >
-                {/* Main Category Image */}
-                <div className="w-full lg:w-1/2">
+          <div className="space-y-8">
+            {categories.map((category, i) => {
+              const isExpanded = expandedSection.has(category.id);
+              return (
+                <div key={category.id} className="border-b pb-6">
                   <div
-                    className="relative group cursor-pointer"
-                    onClick={() => openLightbox(category, 0)}
+                    onClick={() => toggleSection(category.id)}
+                    className="flex items-center justify-between cursor-pointer py-4 px-6 bg-gray-100 hover:bg-gray-200 rounded-md transition"
                   >
-                    <div className="relative overflow-hidden rounded-2xl">
-                      <img
-                        src={category.mainImage}
-                        alt={category.title}
-                        className="w-full h-[500px] object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300" />
+                    <h2 className="text-2xl font-semibold text-gray-800">
+                      {category.title}
+                    </h2>
+                    <div className="text-gray-600">
+                      {isExpanded ? (
+                        <ChevronUp size={24} />
+                      ) : (
+                        <ChevronDown size={24} />
+                      )}
                     </div>
                   </div>
-                </div>
 
-                {/* Category Info */}
-                <div className="w-full lg:w-1/2">
-                  <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                    {category.title}
-                  </h2>
-                  <p className="text-lg text-gray-600 mb-8">
-                    {category.description}
-                  </p>
-
-                  {/* Image Grid */}
-                  <div className="grid grid-cols-3 gap-4">
-                    {category.images.slice(1, 7).map((image, index) => (
+                  <AnimatePresence initial={false}>
+                    {isExpanded && (
                       <motion.div
-                        key={image.src}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className="relative group cursor-pointer aspect-square"
-                        onClick={() => openLightbox(category, index + 1)}
+                        key="expand"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden px-6 pt-6"
                       >
-                        <div className="absolute inset-0 rounded-lg overflow-hidden">
-                          <img
-                            src={image.src}
-                            alt={image.alt}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300" />
+                        <div
+                          className={`flex flex-col ${
+                            category.align === "left"
+                              ? "lg:flex-row"
+                              : "lg:flex-row-reverse"
+                          } items-start gap-8 lg:gap-16`}
+                        >
+                          <div className="w-full lg:w-1/2">
+                            <div className="overflow-hidden rounded-2xl relative h-[300px]">
+                              <AnimatePresence custom={direction}>
+                                <motion.img
+                                  key={category.images[mainImages[i]].src}
+                                  src={category.images[mainImages[i]].src}
+                                  alt={category.images[mainImages[i]].alt}
+                                  className="absolute w-full h-full object-cover rounded-2xl hover:scale-105 transition-transform duration-300 ease-in-out"
+                                  initial={{
+                                    x: direction > 0 ? 100 : -100,
+                                    opacity: 0,
+                                  }}
+                                  animate={{
+                                    x: 0,
+                                    opacity: 1,
+                                    transition: {
+                                      duration: 0.25,
+                                      ease: "easeInOut",
+                                      type: "tween",
+                                    },
+                                  }}
+                                  exit={{
+                                    x: direction > 0 ? -100 : 100,
+                                    opacity: 0,
+                                    transition: {
+                                      duration: 0.25,
+                                      ease: "easeInOut",
+                                      type: "tween",
+                                    },
+                                  }}
+                                />
+                              </AnimatePresence>
+                            </div>
+                          </div>
+
+                          <div className="w-full lg:w-1/2">
+                            <p className="text-lg text-gray-600 mb-4">
+                              {category.description}
+                            </p>
+                            <button
+                              className="mb-6 px-4 py-2 bg-[#2D6A4F] text-white rounded-lg hover:bg-[#569d7d] transition"
+                              onClick={() =>
+                                (window.location.href = `/gallery/${category.id}`)
+                              }
+                            >
+                              View More
+                            </button>
+                          </div>
                         </div>
                       </motion.div>
-                    ))}
-                  </div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </motion.div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
 
       <Footer />
 
-      {/* Lightbox */}
       <AnimatePresence>
         {lightboxImage && (
           <motion.div
@@ -300,7 +366,6 @@ const GalleryPage = () => {
             >
               <X className="w-8 h-8" />
             </button>
-
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -310,7 +375,6 @@ const GalleryPage = () => {
             >
               <ChevronLeft className="w-8 h-8" />
             </button>
-
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -320,7 +384,6 @@ const GalleryPage = () => {
             >
               <ChevronRight className="w-8 h-8" />
             </button>
-
             <motion.img
               key={lightboxImage.src}
               initial={{ opacity: 0, scale: 0.9 }}

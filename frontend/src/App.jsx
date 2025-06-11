@@ -15,7 +15,7 @@ import EventsPage from "./pages/EventsPage";
 import ContactPage from "./pages/ContactPage";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
-
+import MoreGallery from "./pages/[section]";
 function App() {
   return (
     <Router>
@@ -28,6 +28,7 @@ function App() {
         <Route path="/reserve-venue" element={<ReserveVenuePage />} />
         <Route path="/menu" element={<MenuPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
+        <Route path="/gallery/:section" element={<MoreGallery />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/contact" element={<ContactPage />} />
       </Routes>
