@@ -196,7 +196,17 @@ app.delete("/api/contact/:id", async (req, res) => {
 
 app.post("/api/events", upload.single("posterImage"), async (req, res) => {
   try {
-    const { title, date, time, description } = req.body;
+    const {
+      title,
+      date,
+      time,
+      description,
+      location,
+      category,
+      price,
+      capacity,
+      rsvpCount,
+    } = req.body;
     const file = req.file;
 
     if (!file) {
@@ -225,6 +235,11 @@ app.post("/api/events", upload.single("posterImage"), async (req, res) => {
         imageUrl: result.secure_url,
         publicId: result.public_id,
       },
+      location,
+      category,
+      price,
+      capacity: parseInt(capacity, 10),
+      rsvpCount: parseInt(rsvpCount, 10) || 0,
     });
 
     res
@@ -239,7 +254,7 @@ app.post("/api/events", upload.single("posterImage"), async (req, res) => {
 app.get("/api/events", async (req, res) => {
   try {
     const events = await Event.find({});
-    res.status(200).json(events);
+    return res.status(200).json(events);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -280,6 +295,98 @@ app.delete("/api/events/:id", async (req, res) => {
   } catch (error) {
     console.error("Event delete error:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.put("/api/events/:id", upload.single("posterImage"), async (req, res) => {
+  try {
+    const {
+      title,
+      date,
+      time,
+      description,
+      location,
+      category,
+      price,
+      capacity,
+    } = req.body;
+
+    if (
+      !title ||
+      !date ||
+      !time ||
+      !description ||
+      !location ||
+      !category ||
+      !price ||
+      !capacity
+    ) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found." });
+    }
+
+    let newPosterImage = event.posterImage;
+
+    if (req.file) {
+      // Delete old image from Cloudinary if exists
+      if (event.posterImage?.publicId) {
+        await cloudinaryV2.uploader.destroy(event.posterImage.publicId, {
+          resource_type: "image",
+        });
+      }
+
+      // Upload new poster image
+      const streamUpload = () =>
+        new Promise((resolve, reject) => {
+          const stream = cloudinaryV2.uploader.upload_stream(
+            {
+              folder: "events/posters",
+              resource_type: "image",
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else
+                resolve({
+                  imageUrl: result.secure_url,
+                  publicId: result.public_id,
+                });
+            }
+          );
+
+          Readable.from(req.file.buffer).pipe(stream);
+        });
+
+      newPosterImage = await streamUpload();
+    }
+
+    // Update event
+    const updatedEvent = await Event.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        date,
+        time,
+        description,
+        location,
+        category,
+        price,
+        capacity: parseInt(capacity, 10) || 0,
+        posterImage: newPosterImage,
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Event updated successfully.",
+      event: updatedEvent,
+    });
+  } catch (error) {
+    console.error("Error updating event:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 

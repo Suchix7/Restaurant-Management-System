@@ -33,6 +33,8 @@ import AddMenu from "@/components/AddMenu";
 import MenuView from "@/components/MenuView";
 import InquiriesView from "@/components/InquiriesView";
 import AddGalleryView from "@/components/AddGalleryView";
+import EventsView from "@/components/EventsView";
+import AddEvents from "@/components/AddEvents";
 
 // View Components (for demo)
 const DashboardView = () => (
@@ -43,13 +45,6 @@ const DashboardView = () => (
     <p className="text-slate-600">
       Overview of analytics, stats, and quick summaries.
     </p>
-  </div>
-);
-
-const EventsView = () => (
-  <div>
-    <h2 className="text-2xl font-bold text-slate-900 mb-2">Event Scheduling</h2>
-    <p className="text-slate-600">Create or update upcoming events.</p>
   </div>
 );
 
@@ -89,6 +84,7 @@ const Dashboard = ({ userRole }) => {
     { icon: GalleryIcon, label: "Gallery", key: "Gallery" },
     { icon: GalleryIcon, label: "Add Gallery", key: "AddGallery" },
     { icon: FileText, label: "Manage Gallery", key: "ManageGallery" },
+    { icon: FileText, label: "Add Events", key: "AddEvents" },
     { icon: CalendarDays, label: "Events", key: "Events" },
     { icon: ClipboardList, label: "Inquiries", key: "Inquiries" },
     { icon: Mail, label: "Email Config", key: "EmailConfig" },
@@ -191,6 +187,7 @@ const Dashboard = ({ userRole }) => {
             {selectedTab === "Gallery" && <Gallery />}
             {selectedTab === "AddGallery" && <AddGalleryView />}
             {selectedTab === "ManageGallery" && <ManageGallery />}
+            {selectedTab === "AddEvents" && <AddEvents />}
             {selectedTab === "Events" && <EventsView />}
             {selectedTab === "Inquiries" && <InquiriesView />}
             {selectedTab === "EmailConfig" && <EmailConfigView />}

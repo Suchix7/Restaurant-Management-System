@@ -281,7 +281,7 @@ const GalleryPage = () => {
 
                   {/* Image Grid */}
                   <div className="grid grid-cols-3 gap-4">
-                    {category.images.slice(1, 7).map((image, index) => (
+                    {category.images.slice(0, 6).map((image, index) => (
                       <motion.div
                         key={image.src}
                         initial={{ opacity: 0, scale: 0.9 }}
