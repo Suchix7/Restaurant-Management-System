@@ -36,8 +36,8 @@ const NavBar = ({ forceSolid = false }) => {
     <nav
       className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${
         scrolled || forceSolid || isOpen
-          ? "bg-[#2D6A4F] shadow-md"
-          : "bg-transparent"
+          ? "bg-[#ffffff] shadow-md text-black"
+          : "bg-transparent text-white"
       }`}
     >
       <div className="max-w-[1600px] mx-auto px-6 py-4 flex justify-between items-center">
@@ -45,9 +45,11 @@ const NavBar = ({ forceSolid = false }) => {
         <div className="flex items-center">
           <Link to="/">
             <img
-              src="/logo.jpg"
+              src="/logo.png"
               alt="4 Donkeys"
-              className="h-10 w-auto object-contain"
+              className={`h-10 w-auto object-contain transition duration-300 ${
+                scrolled || forceSolid || isOpen ? "invert" : ""
+              }`}
             />
           </Link>
         </div>
@@ -58,10 +60,8 @@ const NavBar = ({ forceSolid = false }) => {
             <Link
               key={item.path}
               to={item.path}
-              className={`text-white hover:text-gray-200 transition-all ${
-                location.pathname === item.path
-                  ? "border-b-2 border-white pb-1"
-                  : ""
+              className={`hover:text-gray-600 transition-all ${
+                location.pathname === item.path ? "border-b-2 pb-1" : ""
               }`}
             >
               {item.label}
@@ -93,7 +93,7 @@ const NavBar = ({ forceSolid = false }) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`block text-white hover:bg-[#3d8a68] px-4 py-2 rounded-lg transition-colors ${
+                  className={`block hover:bg-[#3d8a68] px-4 py-2 rounded-lg transition-colors ${
                     location.pathname === item.path ? "bg-[#3d8a68]" : ""
                   }`}
                 >
