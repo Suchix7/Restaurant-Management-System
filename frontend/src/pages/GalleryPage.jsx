@@ -1,156 +1,183 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import axiosInstance from "@/lib/axiosInstance.js";
 
-const categories = [
-  {
-    id: "events",
-    title: "Special Events",
-    description:
-      "From intimate gatherings to grand celebrations, experience the magic of our venue through the lens of unforgettable moments.",
-    mainImage:
-      "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
-    align: "right",
-    images: [
-      {
-        src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80",
-        alt: "Corporate event setup",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=800&q=80",
-        alt: "Birthday celebration",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80",
-        alt: "Wedding reception",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80",
-        alt: "Live music night",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1528495612343-9ca9f4a4de28?auto=format&fit=crop&w=800&q=80",
-        alt: "Private party",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80",
-        alt: "Holiday celebration",
-      },
-    ],
-  },
-  {
-    id: "drinks",
-    title: "Signature Cocktails",
-    description:
-      "Discover our artisanal cocktails, crafted with precision and passion by our expert mixologists using the finest ingredients.",
-    mainImage:
-      "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1200&q=80",
-    align: "left",
-    images: [
-      {
-        src: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80",
-        alt: "Classic Mojito",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1560512823-829485b8bf24?auto=format&fit=crop&w=800&q=80",
-        alt: "Espresso Martini",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=800&q=80",
-        alt: "Craft Beer Selection",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=800&q=80",
-        alt: "Wine Collection",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&w=800&q=80",
-        alt: "Signature Cocktail",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1514361892635-6b07e31e75f9?auto=format&fit=crop&w=800&q=80",
-        alt: "Seasonal Specials",
-      },
-    ],
-  },
-  {
-    id: "venue",
-    title: "Our Space",
-    description:
-      "Step into our carefully designed space, where modern aesthetics meet comfortable sophistication.",
-    mainImage:
-      "https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1200&q=80",
-    align: "right",
-    images: [
-      {
-        src: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&w=800&q=80",
-        alt: "Main Bar Area",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1508253730651-e5ace80a7025?auto=format&fit=crop&w=800&q=80",
-        alt: "Lounge Seating",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1517940310602-26535839fe84?auto=format&fit=crop&w=800&q=80",
-        alt: "Private Booths",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
-        alt: "Outdoor Patio",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1525268323446-0505b6fe7778?auto=format&fit=crop&w=800&q=80",
-        alt: "VIP Section",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?auto=format&fit=crop&w=800&q=80",
-        alt: "Dance Floor",
-      },
-    ],
-  },
-  {
-    id: "crowd",
-    title: "Vibrant Atmosphere",
-    description:
-      "Join our diverse community of patrons and experience the energetic atmosphere that makes us unique.",
-    mainImage:
-      "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
-    align: "left",
-    images: [
-      {
-        src: "https://images.unsplash.com/photo-1485872299829-c673f5194813?auto=format&fit=crop&w=800&q=80",
-        alt: "Weekend Crowd",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1575444758702-4a6b9222336e?auto=format&fit=crop&w=800&q=80",
-        alt: "Happy Hour",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1438557068880-c5f474830377?auto=format&fit=crop&w=800&q=80",
-        alt: "Dance Night",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&w=800&q=80",
-        alt: "Social Gathering",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?auto=format&fit=crop&w=800&q=80",
-        alt: "Bar Atmosphere",
-      },
-      {
-        src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80",
-        alt: "Event Crowd",
-      },
-    ],
-  },
-];
+// const categories = [
+//   {
+//     id: "events",
+//     title: "Special Events",
+//     description:
+//       "From intimate gatherings to grand celebrations, experience the magic of our venue through the lens of unforgettable moments.",
+//     mainImage:
+//       "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
+//     align: "right",
+//     images: [
+//       {
+//         src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80",
+//         alt: "Corporate event setup",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=800&q=80",
+//         alt: "Birthday celebration",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=800&q=80",
+//         alt: "Wedding reception",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80",
+//         alt: "Live music night",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1528495612343-9ca9f4a4de28?auto=format&fit=crop&w=800&q=80",
+//         alt: "Private party",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80",
+//         alt: "Holiday celebration",
+//       },
+//     ],
+//   },
+//   {
+//     id: "drinks",
+//     title: "Signature Cocktails",
+//     description:
+//       "Discover our artisanal cocktails, crafted with precision and passion by our expert mixologists using the finest ingredients.",
+//     mainImage:
+//       "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1200&q=80",
+//     align: "left",
+//     images: [
+//       {
+//         src: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80",
+//         alt: "Classic Mojito",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1560512823-829485b8bf24?auto=format&fit=crop&w=800&q=80",
+//         alt: "Espresso Martini",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=800&q=80",
+//         alt: "Craft Beer Selection",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=800&q=80",
+//         alt: "Wine Collection",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&w=800&q=80",
+//         alt: "Signature Cocktail",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1514361892635-6b07e31e75f9?auto=format&fit=crop&w=800&q=80",
+//         alt: "Seasonal Specials",
+//       },
+//     ],
+//   },
+//   {
+//     id: "venue",
+//     title: "Our Space",
+//     description:
+//       "Step into our carefully designed space, where modern aesthetics meet comfortable sophistication.",
+//     mainImage:
+//       "https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1200&q=80",
+//     align: "right",
+//     images: [
+//       {
+//         src: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&w=800&q=80",
+//         alt: "Main Bar Area",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1508253730651-e5ace80a7025?auto=format&fit=crop&w=800&q=80",
+//         alt: "Lounge Seating",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1517940310602-26535839fe84?auto=format&fit=crop&w=800&q=80",
+//         alt: "Private Booths",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+//         alt: "Outdoor Patio",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1525268323446-0505b6fe7778?auto=format&fit=crop&w=800&q=80",
+//         alt: "VIP Section",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?auto=format&fit=crop&w=800&q=80",
+//         alt: "Dance Floor",
+//       },
+//     ],
+//   },
+//   {
+//     id: "crowd",
+//     title: "Vibrant Atmosphere",
+//     description:
+//       "Join our diverse community of patrons and experience the energetic atmosphere that makes us unique.",
+//     mainImage:
+//       "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
+//     align: "left",
+//     images: [
+//       {
+//         src: "https://images.unsplash.com/photo-1485872299829-c673f5194813?auto=format&fit=crop&w=800&q=80",
+//         alt: "Weekend Crowd",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1575444758702-4a6b9222336e?auto=format&fit=crop&w=800&q=80",
+//         alt: "Happy Hour",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1438557068880-c5f474830377?auto=format&fit=crop&w=800&q=80",
+//         alt: "Dance Night",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&w=800&q=80",
+//         alt: "Social Gathering",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?auto=format&fit=crop&w=800&q=80",
+//         alt: "Bar Atmosphere",
+//       },
+//       {
+//         src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80",
+//         alt: "Event Crowd",
+//       },
+//     ],
+//   },
+// ];
 
 const GalleryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [lightboxImage, setLightboxImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axiosInstance.get("/gallery");
+        console.log("Fetched categories:", response.data);
+        const data = response.data.map((item, index) => ({
+          id: item._id,
+          title: item.category,
+          description: item.description,
+          mainImage: item.mainImage.imageUrl,
+          align: index % 2 === 0 ? "left" : "right",
+          images: item.images.map((img) => ({
+            src: img.url,
+            alt: img.alt || "Gallery Image",
+          })),
+        }));
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching gallery categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const openLightbox = (category, index) => {
     setSelectedCategory(category);

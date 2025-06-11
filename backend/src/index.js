@@ -283,20 +283,54 @@ app.delete("/api/events/:id", async (req, res) => {
   }
 });
 
-app.post("/api/gallery", upload.array("images"), async (req, res) => {
+const uploadFields = upload.fields([
+  { name: "mainImage", maxCount: 1 },
+  { name: "images", maxCount: 20 }, // Adjust max count as needed
+]);
+
+app.post("/api/gallery", uploadFields, async (req, res) => {
   try {
-    const { category } = req.body;
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: "No images provided" });
+    const { category, description } = req.body;
+
+    if (!category || !description) {
+      return res.status(400).json({
+        message: "Category and description are required.",
+      });
     }
 
-    const uploadPromises = req.files.map((file) => {
+    const mainImageFile = req.files?.mainImage?.[0];
+    const imageFiles = req.files?.images || [];
+
+    if (!mainImageFile) {
+      return res.status(400).json({ message: "Main image is required." });
+    }
+
+    // Upload mainImage
+    const mainImageResult = await new Promise((resolve, reject) => {
+      const stream = cloudinaryV2.uploader.upload_stream(
+        {
+          folder: "gallery/main",
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      stream.end(mainImageFile.buffer);
+    });
+
+    const mainImage = {
+      imageUrl: mainImageResult.secure_url,
+      publicId: mainImageResult.public_id,
+    };
+
+    // Upload gallery images
+    const uploadPromises = imageFiles.map((file) => {
       const bufferStream = Readable.from(file.buffer);
       return new Promise((resolve, reject) => {
         const stream = cloudinaryV2.uploader.upload_stream(
           {
-            resource_type: "image",
-            folder: "gallery",
+            folder: "gallery/images",
           },
           (error, result) => {
             if (error) return reject(error);
@@ -314,6 +348,8 @@ app.post("/api/gallery", upload.array("images"), async (req, res) => {
 
     const gallery = await Gallery.create({
       category,
+      description,
+      mainImage,
       images: uploadedImages,
     });
 
@@ -354,61 +390,99 @@ app.get("/api/gallery", async (req, res) => {
   }
 });
 
-app.put("/api/gallery", upload.array("images"), async (req, res) => {
-  try {
-    const { category } = req.body;
+app.put(
+  "/api/gallery",
+  upload.fields([
+    { name: "images", maxCount: 20 },
+    { name: "mainImage", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const { category, description } = req.body;
 
-    if (!category) {
-      return res.status(400).json({ message: "Category is required" });
-    }
+      if (!category) {
+        return res.status(400).json({ message: "Category is required" });
+      }
 
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: "No images provided" });
-    }
+      const existingGallery = await Gallery.findOne({ category });
 
-    const uploadPromises = req.files.map((file) => {
-      const bufferStream = Readable.from(file.buffer);
-      return new Promise((resolve, reject) => {
-        const stream = cloudinaryV2.uploader.upload_stream(
-          {
-            resource_type: "image",
-            folder: "gallery",
-          },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve({
-              url: result.secure_url,
-              public_id: result.public_id,
-            });
-          }
-        );
-        bufferStream.pipe(stream);
+      // Upload new gallery images (if any)
+      let uploadedImages = [];
+      if (req.files?.images?.length > 0) {
+        const uploadPromises = req.files.images.map((file) => {
+          const bufferStream = Readable.from(file.buffer);
+          return new Promise((resolve, reject) => {
+            const stream = cloudinaryV2.uploader.upload_stream(
+              {
+                resource_type: "image",
+                folder: "gallery",
+              },
+              (error, result) => {
+                if (error) return reject(error);
+                resolve({
+                  url: result.secure_url,
+                  public_id: result.public_id,
+                });
+              }
+            );
+            bufferStream.pipe(stream);
+          });
+        });
+
+        uploadedImages = await Promise.all(uploadPromises);
+      }
+
+      // Upload main image (if provided)
+      let uploadedMainImage = null;
+      if (req.files?.mainImage?.length > 0) {
+        const mainFile = req.files.mainImage[0];
+        const bufferStream = Readable.from(mainFile.buffer);
+        uploadedMainImage = await new Promise((resolve, reject) => {
+          const stream = cloudinaryV2.uploader.upload_stream(
+            {
+              resource_type: "image",
+              folder: "gallery/main",
+            },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve({
+                imageUrl: result.secure_url,
+                publicId: result.public_id,
+              });
+            }
+          );
+          bufferStream.pipe(stream);
+        });
+      }
+
+      // Build update fields
+      const updateFields = {};
+      if (uploadedImages.length > 0) {
+        updateFields.$push = { images: { $each: uploadedImages } };
+      }
+      if (description !== undefined) {
+        updateFields.description = description;
+      }
+      if (uploadedMainImage) {
+        updateFields.mainImage = uploadedMainImage;
+      }
+
+      const updatedGallery = await Gallery.findOneAndUpdate(
+        { category },
+        updateFields,
+        { new: true, upsert: true } // Create new gallery if doesn't exist
+      );
+
+      res.status(200).json({
+        message: "Gallery updated successfully",
+        gallery: updatedGallery,
       });
-    });
-
-    const uploadedImages = await Promise.all(uploadPromises);
-
-    const updatedGallery = await Gallery.findOneAndUpdate(
-      { category },
-      { $push: { images: { $each: uploadedImages } } },
-      { new: true }
-    );
-
-    if (!updatedGallery) {
-      return res
-        .status(404)
-        .json({ message: "Gallery not found for this category" });
+    } catch (error) {
+      console.error("Error updating gallery:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    res.status(200).json({
-      message: "Images added to gallery successfully",
-      gallery: updatedGallery,
-    });
-  } catch (error) {
-    console.error("Error updating gallery:", error);
-    res.status(500).json({ message: "Internal server error" });
   }
-});
+);
 
 app.put("/api/gallery/reorder", async (req, res) => {
   const { category, images } = req.body;

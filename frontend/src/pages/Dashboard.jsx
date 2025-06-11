@@ -32,6 +32,7 @@ import { toast } from "react-hot-toast";
 import AddMenu from "@/components/AddMenu";
 import MenuView from "@/components/MenuView";
 import InquiriesView from "@/components/InquiriesView";
+import AddGalleryView from "@/components/AddGalleryView";
 
 // View Components (for demo)
 const DashboardView = () => (
@@ -44,116 +45,6 @@ const DashboardView = () => (
     </p>
   </div>
 );
-
-const AddGalleryView = () => {
-  const [category, setCategory] = useState("");
-  const [numImages, setNumImages] = useState(0);
-  const [images, setImages] = useState([]); // [{ file: File, preview: URL }]
-
-  const handleNumImagesChange = (e) => {
-    const count = parseInt(e.target.value) || 0;
-    setNumImages(count);
-
-    // Initialize placeholder image slots
-    setImages(Array(count).fill({ file: null, preview: null }));
-  };
-
-  const handleImageChange = (index, file) => {
-    const updatedImages = [...images];
-    const preview = URL.createObjectURL(file);
-    updatedImages[index] = { file, preview };
-    setImages(updatedImages);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!category || images.length === 0 || images.some((img) => !img.file)) {
-      toast.error("Please fill in all fields and upload all images.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("category", category);
-    images.forEach((img) => formData.append("images", img.file));
-
-    try {
-      const res = await axiosInstance.post("/gallery", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      toast.success("Gallery uploaded successfully!");
-      setCategory("");
-      setNumImages(0);
-      setImages([]);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to upload gallery.");
-    }
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create a New Gallery</CardTitle>
-        <CardDescription>
-          Specify category and number of images to upload.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            type="text"
-            placeholder="Category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          />
-          <Input
-            type="number"
-            placeholder="Number of images"
-            min="1"
-            value={numImages}
-            onChange={handleNumImagesChange}
-          />
-
-          {numImages > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {images.map((img, index) => (
-                <div
-                  key={index}
-                  className="relative w-full aspect-square border rounded flex items-center justify-center bg-slate-100"
-                >
-                  <label className="w-full h-full cursor-pointer flex items-center justify-center">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      onChange={(e) =>
-                        handleImageChange(index, e.target.files[0])
-                      }
-                    />
-                    {img.preview ? (
-                      <img
-                        src={img.preview}
-                        alt={`preview-${index}`}
-                        className="object-cover w-full h-full rounded"
-                      />
-                    ) : (
-                      <span className="text-sm text-slate-500">
-                        Click to upload
-                      </span>
-                    )}
-                  </label>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <Button type="submit">Upload Gallery</Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-};
 
 const EventsView = () => (
   <div>
