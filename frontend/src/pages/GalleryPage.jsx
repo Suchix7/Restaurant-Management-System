@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import axiosInstance from "@/lib/axiosInstance.js";
 
 const categories = [
   {
@@ -156,6 +157,7 @@ const GalleryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [lightboxImage, setLightboxImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+<<<<<<< HEAD
   const [expandedSection, setExpandedSection] = useState(() => {
     const allIds = categories.map((category) => category.id);
     return new Set(allIds);
@@ -176,6 +178,33 @@ const GalleryPage = () => {
       setDirection(1);
     }, 5000);
     return () => clearInterval(interval);
+=======
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axiosInstance.get("/gallery");
+        console.log("Fetched categories:", response.data);
+        const data = response.data.map((item, index) => ({
+          id: item._id,
+          title: item.category,
+          description: item.description,
+          mainImage: item.mainImage.imageUrl,
+          align: index % 2 === 0 ? "left" : "right",
+          images: item.images.map((img) => ({
+            src: img.url,
+            alt: img.alt || "Gallery Image",
+          })),
+        }));
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching gallery categories:", error);
+      }
+    };
+
+    fetchCategories();
+>>>>>>> 65cf35de9a7434742852319d5a3c2ee4977bda90
   }, []);
 
   const openLightbox = (category, index) => {
@@ -273,8 +302,23 @@ const GalleryPage = () => {
                     </div>
                   </div>
 
+<<<<<<< HEAD
                   <AnimatePresence initial={false}>
                     {isExpanded && (
+=======
+                {/* Category Info */}
+                <div className="w-full lg:w-1/2">
+                  <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                    {category.title}
+                  </h2>
+                  <p className="text-lg text-gray-600 mb-8">
+                    {category.description}
+                  </p>
+
+                  {/* Image Grid */}
+                  <div className="grid grid-cols-3 gap-4">
+                    {category.images.slice(0, 6).map((image, index) => (
+>>>>>>> 65cf35de9a7434742852319d5a3c2ee4977bda90
                       <motion.div
                         key="expand"
                         initial={{ opacity: 0, height: 0 }}

@@ -1,73 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Calendar, Clock, MapPin, Heart, Share2 } from "lucide-react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import toast from "react-hot-toast";
-
-// Sample events data - in a real app, this would come from an API
-const events = [
-  {
-    id: 1,
-    title: "Jazz Night with The Blue Notes",
-    date: "2024-04-15",
-    time: "20:00",
-    description:
-      "Join us for an evening of smooth jazz and signature cocktails. The Blue Notes bring their unique blend of classic and contemporary jazz to our intimate venue.",
-    image:
-      "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?q=80&w=1000&auto=format&fit=crop",
-    location: "Main Bar Area",
-    category: "Music",
-    price: "Free Entry",
-    capacity: 120,
-    rsvpCount: 85,
-  },
-  {
-    id: 2,
-    title: "Wine Tasting Experience",
-    date: "2024-04-20",
-    time: "18:30",
-    description:
-      "Discover exceptional wines from around the world, paired with carefully selected appetizers. Our sommelier will guide you through six premium wines.",
-    image:
-      "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=1000&auto=format&fit=crop",
-    location: "Private Tasting Room",
-    category: "Tasting",
-    price: "$45 per person",
-    capacity: 30,
-    rsvpCount: 22,
-  },
-  {
-    id: 3,
-    title: "Cocktail Masterclass",
-    date: "2024-04-25",
-    time: "19:00",
-    description:
-      "Learn the art of mixology from our expert bartenders. Create three signature cocktails and take home recipes to impress your friends.",
-    image:
-      "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1000&auto=format&fit=crop",
-    location: "Bar Workshop Area",
-    category: "Workshop",
-    price: "$65 per person",
-    capacity: 20,
-    rsvpCount: 12,
-  },
-  {
-    id: 4,
-    title: "Saturday Night Live Band",
-    date: "2024-04-27",
-    time: "21:00",
-    description:
-      "Experience the electrifying performance of local favorite 'The Night Owls' as they bring their unique blend of rock and soul to our stage.",
-    image:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1000&auto=format&fit=crop",
-    location: "Main Stage",
-    category: "Music",
-    price: "$10 Cover",
-    capacity: 150,
-    rsvpCount: 98,
-  },
-];
+import axiosInstance from "@/lib/axiosInstance.js";
 
 const EventCard = ({ event, onRSVP }) => {
   const [isInterested, setIsInterested] = useState(false);
@@ -110,7 +47,7 @@ const EventCard = ({ event, onRSVP }) => {
           src={
             imageError
               ? "https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1000&auto=format&fit=crop"
-              : event.image
+              : event.posterImage?.imageUrl
           }
           alt={event.title}
           onError={() => setImageError(true)}
@@ -166,7 +103,7 @@ const EventCard = ({ event, onRSVP }) => {
 
         <div className="flex items-center justify-between mb-6">
           <span className="text-lg font-semibold text-gray-900">
-            {event.price}
+            $ {event.price}
           </span>
           {isAlmostFull && (
             <span className="text-sm text-red-500 font-medium">
@@ -187,8 +124,45 @@ const EventCard = ({ event, onRSVP }) => {
 };
 
 const EventsPage = () => {
-  const handleRSVP = (event) => {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axiosInstance.get("/events");
+      console.log("Fetched events:", response.data);
+      const data = response.data.map((item, index) => ({
+        ...item,
+        id: index + 1, // Assign a unique ID based on index
+      }));
+      setEvents(data);
+    } catch (error) {
+      console.error("Failed to fetch events:", error);
+      toast.error("Failed to load events");
+    }
+  };
+  const handleRSVP = async (event) => {
     // In a real app, this would make an API call to handle the RSVP
+    try {
+      const rsvpData = JSON.parse(localStorage.getItem(`rsvp_${event._id}`));
+      if (rsvpData && Date.now() - rsvpData.timestamp < 24 * 60 * 60 * 1000) {
+        toast.error(
+          `You have already RSVP'd for ${event.title} within the last 24 hours.`
+        );
+        return;
+      }
+      const response = await axiosInstance.put(`/events/rsvp/${event._id}`);
+      console.log("RSVP response:", response.data);
+      localStorage.setItem(
+        `rsvp_${event._id}`,
+        JSON.stringify({ eventId: event._id, timestamp: Date.now() })
+      );
+    } catch (error) {
+      console.error("RSVP failed:", error);
+    }
 
     toast.success(
       `Thanks for your interest in ${event.title}! We'll be in touch soon.`
@@ -217,9 +191,10 @@ const EventsPage = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {events.map((event) => (
-              <EventCard key={event.id} event={event} onRSVP={handleRSVP} />
-            ))}
+            {events.length > 0 &&
+              events.map((event) => (
+                <EventCard key={event.id} event={event} onRSVP={handleRSVP} />
+              ))}
           </div>
         </div>
       </div>

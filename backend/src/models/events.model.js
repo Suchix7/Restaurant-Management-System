@@ -22,6 +22,26 @@ const eventSchema = new mongoose.Schema(
       imageUrl: String,
       publicId: String,
     },
+    location: {
+      type: String,
+      required: true,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: String,
+      required: true,
+    },
+    capacity: {
+      type: Number,
+      required: true,
+    },
+    rsvpCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

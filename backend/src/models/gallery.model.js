@@ -6,6 +6,14 @@ const gallerySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      required: true,
+    },
+    mainImage: {
+      imageUrl: String,
+      publicId: String,
+    },
     images: {
       type: Array,
     },

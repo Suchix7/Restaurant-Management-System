@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axiosInstance from "@/lib/axiosInstance";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-hot-toast";
 import { ReactSortable } from "react-sortablejs";
 
@@ -12,6 +13,13 @@ const ManageGallery = () => {
   const [categoryImages, setCategoryImages] = useState([]);
   const [numImages, setNumImages] = useState(0);
   const [newFiles, setNewFiles] = useState([]);
+  const [description, setDescription] = useState("");
+  const [mainImage, setMainImage] = useState(null);
+  const [newMainImage, setNewMainImage] = useState(null);
+  const [mainPreview, setMainPreview] = useState(null);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [isEditingMainImage, setIsEditingMainImage] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchGalleries();
@@ -22,14 +30,25 @@ const ManageGallery = () => {
       const res = await axiosInstance.get("/gallery");
       setGalleries(res.data || []);
     } catch (error) {
-      console.error("Error fetching galleries:", error);
       toast.error("Failed to load gallery data.");
     }
   };
 
   useEffect(() => {
     const gallery = galleries.find((g) => g.category === selectedCategory);
-    setCategoryImages(gallery?.images || []);
+    if (gallery) {
+      setCategoryImages(gallery.images || []);
+      setDescription(gallery.description || "");
+      setMainImage(gallery.mainImage || null);
+      setNewMainImage(null);
+      setMainPreview(null);
+      setIsEditingDescription(false);
+      setIsEditingMainImage(false);
+    } else {
+      setCategoryImages([]);
+      setDescription("");
+      setMainImage(null);
+    }
   }, [selectedCategory, galleries]);
 
   const uniqueCategories = [...new Set(galleries.map((g) => g.category))];
@@ -41,8 +60,7 @@ const ManageGallery = () => {
       });
       toast.success("Image deleted!");
       fetchGalleries();
-    } catch (error) {
-      console.error("Error deleting image:", error);
+    } catch {
       toast.error("Failed to delete image.");
     }
   };
@@ -53,7 +71,7 @@ const ManageGallery = () => {
       newFiles.length === 0 ||
       newFiles.some((f) => !f.file)
     ) {
-      toast.error("Please select a category and upload all images.");
+      toast.error("Please upload all new images.");
       return;
     }
 
@@ -67,23 +85,27 @@ const ManageGallery = () => {
       setNewFiles([]);
       setNumImages(0);
       fetchGalleries();
-    } catch (error) {
-      console.error("Error uploading images:", error?.response?.data || error);
+    } catch {
       toast.error("Failed to upload images.");
     }
-  };
-
-  const handleImageChange = (index, file) => {
-    const updatedFiles = [...newFiles];
-    const preview = URL.createObjectURL(file);
-    updatedFiles[index] = { file, preview };
-    setNewFiles(updatedFiles);
   };
 
   const handleNumImagesChange = (e) => {
     const count = parseInt(e.target.value) || 0;
     setNumImages(count);
     setNewFiles(Array(count).fill({ file: null, preview: null }));
+  };
+
+  const handleImageChange = (index, file) => {
+    const updated = [...newFiles];
+    const preview = URL.createObjectURL(file);
+    updated[index] = { file, preview };
+    setNewFiles(updated);
+  };
+
+  const handleMainImageChange = (file) => {
+    setNewMainImage(file);
+    setMainPreview(URL.createObjectURL(file));
   };
 
   const handleDeleteGallery = async () => {
@@ -98,11 +120,28 @@ const ManageGallery = () => {
       });
       toast.success("Gallery deleted.");
       setSelectedCategory("");
-      setCategoryImages([]);
       fetchGalleries();
-    } catch (error) {
-      console.error("Error deleting gallery:", error);
+    } catch {
       toast.error("Failed to delete gallery.");
+    }
+  };
+
+  const handleSaveMetadata = async () => {
+    const formData = new FormData();
+    formData.append("category", selectedCategory);
+    formData.append("description", description);
+    if (newMainImage) {
+      formData.append("mainImage", newMainImage);
+    }
+
+    try {
+      await axiosInstance.put("/gallery", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      toast.success("Gallery updated!");
+      fetchGalleries();
+    } catch {
+      toast.error("Failed to update gallery.");
     }
   };
 
@@ -115,7 +154,6 @@ const ManageGallery = () => {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Category Select + Delete */}
         <div className="flex flex-col md:flex-row items-center gap-3">
           <select
             value={selectedCategory}
@@ -137,7 +175,92 @@ const ManageGallery = () => {
           )}
         </div>
 
-        {/* Existing Images */}
+        {selectedCategory && (
+          <>
+            <div className="space-y-2">
+              {isEditingDescription ? (
+                <>
+                  <Textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Gallery Description"
+                    className="w-full"
+                  />
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveMetadata}>Save</Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => setIsEditingDescription(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex justify-between items-start gap-4">
+                  <p className="text-slate-700">
+                    {description || "No description added."}
+                  </p>
+                  <Button
+                    size="sm"
+                    onClick={() => setIsEditingDescription(true)}
+                  >
+                    Edit Description
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {mainImage && (
+              <div className="space-y-2">
+                <div className="relative w-72 h-72 border rounded overflow-hidden">
+                  <img
+                    src={mainPreview || mainImage.imageUrl}
+                    alt="Main"
+                    className="object-cover w-full h-full"
+                  />
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={(e) => handleMainImageChange(e.target.files[0])}
+                    className="hidden"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  {!isEditingMainImage && (
+                    <Button
+                      onClick={() => {
+                        fileInputRef.current?.click();
+                        setIsEditingMainImage(true);
+                      }}
+                    >
+                      Edit Main Image
+                    </Button>
+                  )}
+
+                  {isEditingMainImage && (
+                    <>
+                      <Button onClick={handleSaveMetadata}>Save</Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setIsEditingMainImage(false);
+                          setNewMainImage(null);
+                          setMainPreview(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
         {selectedCategory &&
           (categoryImages.length > 0 ? (
@@ -152,7 +275,6 @@ const ManageGallery = () => {
                   <div
                     key={img.public_id}
                     className="relative group border rounded overflow-hidden"
-                    data-id={img.public_id}
                   >
                     <img
                       src={img.url}
@@ -177,27 +299,22 @@ const ManageGallery = () => {
                       images: categoryImages,
                     });
                     toast.success("Image order saved.");
-                    fetchGalleries();
-                  } catch (err) {
-                    console.error(err);
+                  } catch {
                     toast.error("Failed to save image order.");
                   }
                 }}
-                className="mt-4"
-                variant="outline"
               >
                 Save Order
               </Button>
             </>
           ) : (
-            <p className="text-sm text-slate-500 italic">
+            <p className="text-sm italic text-slate-500">
               No images in this category.
             </p>
           ))}
 
-        {/* Upload New Images */}
         {selectedCategory && (
-          <div className="space-y-3">
+          <>
             <Input
               type="number"
               placeholder="Number of images"
@@ -246,8 +363,6 @@ const ManageGallery = () => {
                     </button>
                   </div>
                 ))}
-
-                {/* ➕ Add Box */}
                 <button
                   type="button"
                   onClick={() =>
@@ -260,10 +375,8 @@ const ManageGallery = () => {
               </div>
             )}
 
-            <Button onClick={handleAddImages} className="mt-2">
-              Add Images
-            </Button>
-          </div>
+            <Button onClick={handleAddImages}>Add Images</Button>
+          </>
         )}
       </CardContent>
     </Card>
