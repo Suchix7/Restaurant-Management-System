@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,24 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get("/roles");
+        console.log(response.data);
+        setRoles(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+        setLoading(false);
+      }
+    };
+    fetchRoles();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,18 +110,16 @@ const LoginPage = () => {
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-gray-200">
-                    <SelectItem
-                      value="admin"
-                      className="text-gray-900 hover:bg-[#2D6A4F]/10"
-                    >
-                      Admin
-                    </SelectItem>
-                    <SelectItem
-                      value="editor"
-                      className="text-gray-900 hover:bg-[#2D6A4F]/10"
-                    >
-                      Editor
-                    </SelectItem>
+                    {roles.length > 0 &&
+                      roles.map((role) => (
+                        <SelectItem
+                          value={role.role}
+                          key={role.role}
+                          className="text-gray-900 hover:bg-[#2D6A4F]/10"
+                        >
+                          {role.role}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>

@@ -756,6 +756,57 @@ app.get("/api/roles", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+app.get("/api/admin/roles", async (req, res) => {
+  try {
+    const roles = await UserAccess.find({});
+    res.status(200).json(roles);
+  } catch (error) {
+    console.error("Error fetching roles:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.put("/api/role/:id", async (req, res) => {
+  try {
+    const { role, password } = req.body;
+
+    if (!role || !password) {
+      return res
+        .status(400)
+        .json({ message: "Role and password are required" });
+    }
+
+    const updatedRole = await UserAccess.findByIdAndUpdate(
+      req.params.id,
+      { role, password }, // Password should be hashed in production
+      { new: true }
+    );
+
+    if (!updatedRole) {
+      return res.status(404).json({ message: "Role not found" });
+    }
+
+    res.status(200).json({ message: "Role updated successfully", updatedRole });
+  } catch (error) {
+    console.error("Error updating role:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.delete("/api/role/:id", async (req, res) => {
+  try {
+    const deletedRole = await UserAccess.findByIdAndDelete(req.params.id);
+
+    if (!deletedRole) {
+      return res.status(404).json({ message: "Role not found" });
+    }
+
+    res.status(200).json({ message: "Role deleted successfully", deletedRole });
+  } catch (error) {
+    console.error("Error deleting role:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 app.use("/api/auth", router);
 

@@ -12,6 +12,8 @@ import {
   Search,
   LogOut,
   UtensilsCrossed,
+  User,
+  User2,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance.js";
 import { Button } from "@/components/ui/button";
@@ -35,6 +37,8 @@ import InquiriesView from "@/components/InquiriesView";
 import AddGalleryView from "@/components/AddGalleryView";
 import EventsView from "@/components/EventsView";
 import AddEvents from "@/components/AddEvents";
+import AddRole from "@/components/AddRole";
+import ViewRoles from "@/components/ViewRoles";
 
 // View Components (for demo)
 const DashboardView = () => (
@@ -88,6 +92,8 @@ const Dashboard = ({ userRole }) => {
     { icon: CalendarDays, label: "Events", key: "Events" },
     { icon: ClipboardList, label: "Inquiries", key: "Inquiries" },
     { icon: Mail, label: "Email Config", key: "EmailConfig" },
+    { icon: User, label: "Add Role", key: "AddRole" },
+    { icon: User2, label: "View Roles", key: "ViewRoles" },
   ];
 
   const handleLogout = async () => {
@@ -191,6 +197,8 @@ const Dashboard = ({ userRole }) => {
             {selectedTab === "Events" && <EventsView />}
             {selectedTab === "Inquiries" && <InquiriesView />}
             {selectedTab === "EmailConfig" && <EmailConfigView />}
+            {selectedTab === "AddRole" && <AddRole />}
+            {selectedTab === "ViewRoles" && <ViewRoles />}
           </main>
         </div>
       </div>
