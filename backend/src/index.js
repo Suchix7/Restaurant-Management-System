@@ -783,7 +783,7 @@ app.post("/api/role", requirePermission("AddRole"), async (req, res) => {
   }
 });
 
-app.get("/api/roles", requirePermission("ViewRoles"), async (req, res) => {
+app.get("/api/roles", async (req, res) => {
   try {
     const roles = await UserAccess.find({}).select("-password");
     res.status(200).json(roles);
@@ -793,7 +793,7 @@ app.get("/api/roles", requirePermission("ViewRoles"), async (req, res) => {
   }
 });
 
-app.get("/api/role/:id", requirePermission("ViewRoles"), async (req, res) => {
+app.get("/api/role/:id", async (req, res) => {
   try {
     const role = await UserAccess.findById(req.params.id).select("-password");
     if (!role) {

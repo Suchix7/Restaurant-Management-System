@@ -107,7 +107,11 @@ const LoginPage = () => {
                 </label>
                 <Select value={role} onValueChange={setRole}>
                   <SelectTrigger className="bg-white border-gray-200 text-gray-900 focus:border-[#2D6A4F] focus:ring-[#2D6A4F]/20">
-                    <SelectValue placeholder="Select your role" />
+                    {loading ? (
+                      <SelectValue placeholder="Loading..." />
+                    ) : (
+                      <SelectValue placeholder="Select your role" />
+                    )}
                   </SelectTrigger>
                   <SelectContent className="bg-white border-gray-200">
                     {roles.length > 0 &&
