@@ -3,6 +3,7 @@ import axiosInstance from "@/lib/axiosInstance";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
+import features from "@/lib/features.js";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,11 @@ const ViewRoles = () => {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editRole, setEditRole] = useState(null);
-  const [editedData, setEditedData] = useState({ role: "", password: "" });
+  const [editedData, setEditedData] = useState({
+    role: "",
+    password: "",
+    permissions: [],
+  });
 
   const fetchRoles = async () => {
     try {
@@ -35,12 +40,19 @@ const ViewRoles = () => {
 
   const handleEditClick = (role) => {
     setEditRole(role);
-    setEditedData({ role: role.role, password: role.password });
+    setEditedData({
+      role: role.role,
+      password: role.password,
+      permissions: role.permissions || [],
+    });
   };
 
   const handleUpdate = async () => {
     try {
-      const res = await axiosInstance.put(`/role/${editRole._id}`, editedData);
+      const res = await axiosInstance.put(
+        `admin/role/${editRole._id}`,
+        editedData
+      );
       toast.success(res.data.message);
       setEditRole(null);
       fetchRoles();
@@ -122,6 +134,24 @@ const ViewRoles = () => {
                 setEditedData({ ...editedData, password: e.target.value })
               }
             />
+            <label className="block font-medium">Permissions</label>
+            <div className="space-y-2">
+              {features.map((feature) => (
+                <label key={feature} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={editedData.permissions.includes(feature)}
+                    onChange={() => {
+                      const updated = editedData.permissions.includes(feature)
+                        ? editedData.permissions.filter((f) => f !== feature)
+                        : [...editedData.permissions, feature];
+                      setEditedData({ ...editedData, permissions: updated });
+                    }}
+                  />
+                  <span>{feature.replaceAll("_", " ")}</span>
+                </label>
+              ))}
+            </div>
           </div>
           <DialogFooter>
             <Button onClick={handleUpdate}>Update</Button>

@@ -60,7 +60,7 @@ const LoginPage = () => {
       );
 
       toast.success("Login successful!");
-      navigate("/dashboard");
+      navigate("/dashboard", { state: { id: response.data.id } });
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Login failed. Please check your credentials.");

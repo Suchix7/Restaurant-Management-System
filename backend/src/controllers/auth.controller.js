@@ -20,6 +20,7 @@ export const checkAuth = async (req, res) => {
     const token = generateToken(userAccess._id, res);
 
     res.status(200).json({
+      id: userAccess._id,
       message: "Login successful",
       role: userAccess.role,
       token,

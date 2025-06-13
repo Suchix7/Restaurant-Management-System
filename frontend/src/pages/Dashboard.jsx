@@ -29,7 +29,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import VenueView from "@/components/VenueView";
 import Gallery from "@/components/GalleryAdmin";
 import ManageGallery from "@/components/ManageGallery";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import AddMenu from "@/components/AddMenu";
 import MenuView from "@/components/MenuView";
@@ -40,7 +40,6 @@ import AddEvents from "@/components/AddEvents";
 import AddRole from "@/components/AddRole";
 import ViewRoles from "@/components/ViewRoles";
 
-// View Components (for demo)
 const DashboardView = () => (
   <div>
     <h2 className="text-2xl font-bold text-slate-900 mb-2">
@@ -62,13 +61,32 @@ const EmailConfigView = () => (
 );
 
 const Dashboard = ({ userRole }) => {
+  const location = useLocation();
+  const id = location.state?.id;
+  const [role, setRole] = useState({ permissions: [] });
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const response = await axiosInstance.get(`/role/${id}`);
+        console.log(response.data);
+        setRole(response.data);
+      } catch (error) {
+        console.error("Error fetching role:", error);
+      }
+    };
+
+    fetchRole();
+  }, []);
+
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState("Dashboard");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   useEffect(() => {
     async function checkAuthentication() {
       try {
-        const response = await axiosInstance.get("/auth/check");
+        await axiosInstance.get("/auth/check");
         setIsAuthenticated(true);
       } catch (error) {
         console.error("Error checking authentication:", error);
@@ -80,7 +98,7 @@ const Dashboard = ({ userRole }) => {
     checkAuthentication();
   }, []);
 
-  const sidebarItems = [
+  const allSidebarItems = [
     { icon: LayoutDashboard, label: "Dashboard", key: "Dashboard" },
     { icon: Landmark, label: "Venue", key: "Venue" },
     { icon: FileText, label: "Add Menu", key: "AddMenu" },
@@ -95,6 +113,10 @@ const Dashboard = ({ userRole }) => {
     { icon: User, label: "Add Role", key: "AddRole" },
     { icon: User2, label: "View Roles", key: "ViewRoles" },
   ];
+
+  const sidebarItems = allSidebarItems.filter((item) =>
+    role.permissions.includes(item.key)
+  );
 
   const handleLogout = async () => {
     try {
@@ -127,13 +149,14 @@ const Dashboard = ({ userRole }) => {
                 key={index}
                 onClick={() => setSelectedTab(item.key)}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
-                  selectedTab === item.key
+                  selectedTab === item?.key
                     ? "bg-blue-50 text-blue-700 border border-blue-200"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
-                <item.icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
+                {item?.icon && <item.icon className="w-5 h-5" />}
+
+                <span className="font-medium">{item?.label}</span>
               </button>
             ))}
           </nav>

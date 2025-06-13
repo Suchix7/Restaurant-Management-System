@@ -17,6 +17,7 @@ import cookieParser from "cookie-parser";
 import Menu from "./models/menu.model.js";
 import Mail from "./models/mail.model.js";
 import Subscriber from "./models/subscriber.model.js";
+import { requirePermission } from "./middleware/auth.middleware.js";
 
 const app = express();
 app.use(express.json());
@@ -435,99 +436,110 @@ const uploadFields = upload.fields([
   { name: "images", maxCount: 20 }, // Adjust max count as needed
 ]);
 
-app.post("/api/gallery", uploadFields, async (req, res) => {
-  try {
-    const { category, description } = req.body;
+app.post(
+  "/api/gallery",
+  requirePermission("AddGallery"),
+  uploadFields,
+  async (req, res) => {
+    try {
+      const { category, description } = req.body;
 
-    if (!category || !description) {
-      return res.status(400).json({
-        message: "Category and description are required.",
-      });
-    }
+      if (!category || !description) {
+        return res.status(400).json({
+          message: "Category and description are required.",
+        });
+      }
 
-    const mainImageFile = req.files?.mainImage?.[0];
-    const imageFiles = req.files?.images || [];
+      const mainImageFile = req.files?.mainImage?.[0];
+      const imageFiles = req.files?.images || [];
 
-    if (!mainImageFile) {
-      return res.status(400).json({ message: "Main image is required." });
-    }
+      if (!mainImageFile) {
+        return res.status(400).json({ message: "Main image is required." });
+      }
 
-    // Upload mainImage
-    const mainImageResult = await new Promise((resolve, reject) => {
-      const stream = cloudinaryV2.uploader.upload_stream(
-        {
-          folder: "gallery/main",
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      stream.end(mainImageFile.buffer);
-    });
-
-    const mainImage = {
-      imageUrl: mainImageResult.secure_url,
-      publicId: mainImageResult.public_id,
-    };
-
-    // Upload gallery images
-    const uploadPromises = imageFiles.map((file) => {
-      const bufferStream = Readable.from(file.buffer);
-      return new Promise((resolve, reject) => {
+      // Upload mainImage
+      const mainImageResult = await new Promise((resolve, reject) => {
         const stream = cloudinaryV2.uploader.upload_stream(
           {
-            folder: "gallery/images",
+            folder: "gallery/main",
           },
           (error, result) => {
-            if (error) return reject(error);
-            resolve({
-              url: result.secure_url,
-              public_id: result.public_id,
-            });
+            if (error) reject(error);
+            else resolve(result);
           }
         );
-        bufferStream.pipe(stream);
+        stream.end(mainImageFile.buffer);
       });
-    });
 
-    const uploadedImages = await Promise.all(uploadPromises);
+      const mainImage = {
+        imageUrl: mainImageResult.secure_url,
+        publicId: mainImageResult.public_id,
+      };
 
-    const gallery = await Gallery.create({
-      category,
-      description,
-      mainImage,
-      images: uploadedImages,
-    });
+      // Upload gallery images
+      const uploadPromises = imageFiles.map((file) => {
+        const bufferStream = Readable.from(file.buffer);
+        return new Promise((resolve, reject) => {
+          const stream = cloudinaryV2.uploader.upload_stream(
+            {
+              folder: "gallery/images",
+            },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve({
+                url: result.secure_url,
+                public_id: result.public_id,
+              });
+            }
+          );
+          bufferStream.pipe(stream);
+        });
+      });
 
-    res.status(200).json({ message: "Gallery created successfully", gallery });
-  } catch (error) {
-    console.error("Gallery upload error:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+      const uploadedImages = await Promise.all(uploadPromises);
 
-app.get("/api/gallery/:category", async (req, res) => {
-  try {
-    const { category } = req.params;
+      const gallery = await Gallery.create({
+        category,
+        description,
+        mainImage,
+        images: uploadedImages,
+      });
 
-    const gallery = await Gallery.findOne({ category });
-
-    if (!gallery) {
-      return res.status(404).json({ message: "Gallery category not found" });
+      res
+        .status(200)
+        .json({ message: "Gallery created successfully", gallery });
+    } catch (error) {
+      console.error("Gallery upload error:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    res.status(200).json({
-      message: "Gallery fetched successfully",
-      images: gallery.images,
-    });
-  } catch (error) {
-    console.error("Error fetching gallery:", error);
-    res.status(500).json({ message: "Internal server error" });
   }
-});
+);
 
-app.get("/api/gallery", async (req, res) => {
+app.get(
+  "/api/gallery/:category",
+  requirePermission("Gallery"),
+  async (req, res) => {
+    try {
+      const { category } = req.params;
+
+      const gallery = await Gallery.findOne({ category });
+
+      if (!gallery) {
+        return res.status(404).json({ message: "Gallery category not found" });
+      }
+
+      res.status(200).json({
+        message: "Gallery fetched successfully",
+        images: gallery.images,
+      });
+    } catch (error) {
+      console.error("Error fetching gallery:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
+app.get("/api/gallery", requirePermission("Gallery"), async (req, res) => {
   try {
     const galleries = await Gallery.find({});
     res.status(200).json(galleries);
@@ -539,6 +551,7 @@ app.get("/api/gallery", async (req, res) => {
 
 app.put(
   "/api/gallery",
+  requirePermission("ManageGallery"),
   upload.fields([
     { name: "images", maxCount: 20 },
     { name: "mainImage", maxCount: 1 },
@@ -631,32 +644,36 @@ app.put(
   }
 );
 
-app.put("/api/gallery/reorder", async (req, res) => {
-  const { category, images } = req.body;
+app.put(
+  "/api/gallery/reorder",
+  requirePermission("ManageGallery"),
+  async (req, res) => {
+    const { category, images } = req.body;
 
-  if (!category || !Array.isArray(images)) {
-    return res
-      .status(400)
-      .json({ message: "Category and image array required." });
-  }
-
-  try {
-    const gallery = await Gallery.findOneAndUpdate(
-      { category },
-      { images }, // Replace existing array with new one
-      { new: true }
-    );
-
-    if (!gallery) {
-      return res.status(404).json({ message: "Gallery not found" });
+    if (!category || !Array.isArray(images)) {
+      return res
+        .status(400)
+        .json({ message: "Category and image array required." });
     }
 
-    res.status(200).json({ message: "Gallery reordered", gallery });
-  } catch (error) {
-    console.error("Error reordering images:", error);
-    res.status(500).json({ message: "Internal server error" });
+    try {
+      const gallery = await Gallery.findOneAndUpdate(
+        { category },
+        { images }, // Replace existing array with new one
+        { new: true }
+      );
+
+      if (!gallery) {
+        return res.status(404).json({ message: "Gallery not found" });
+      }
+
+      res.status(200).json({ message: "Gallery reordered", gallery });
+    } catch (error) {
+      console.error("Error reordering images:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
-});
+);
 
 app.delete("/api/gallery", async (req, res) => {
   try {
@@ -721,9 +738,9 @@ app.delete("/api/gallery/image", async (req, res) => {
   }
 });
 
-app.post("/api/role", async (req, res) => {
+app.post("/api/role", requirePermission("AddRole"), async (req, res) => {
   try {
-    const { role, password } = req.body;
+    const { role, password, permissions } = req.body;
     if (!role || !password) {
       return res
         .status(400)
@@ -737,7 +754,8 @@ app.post("/api/role", async (req, res) => {
 
     const newRole = await UserAccess.create({
       role,
-      password, // In a real application, you should hash the password
+      password,
+      permissions,
     });
 
     res.status(201).json({ message: "Role created successfully", newRole });
@@ -756,6 +774,20 @@ app.get("/api/roles", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+app.get("/api/role/:id", async (req, res) => {
+  try {
+    const role = await UserAccess.findById(req.params.id).select("-password");
+    if (!role) {
+      return res.status(404).json({ message: "Role not found" });
+    }
+    res.status(200).json(role);
+  } catch (error) {
+    console.error("Error fetching role:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.get("/api/admin/roles", async (req, res) => {
   try {
     const roles = await UserAccess.find({});
@@ -793,6 +825,40 @@ app.put("/api/role/:id", async (req, res) => {
   }
 });
 
+// PUT /role/:id
+app.put(
+  "/api/admin/role/:id",
+  requirePermission("ViewRoles"),
+  async (req, res) => {
+    try {
+      const { role, password, permissions } = req.body;
+
+      if (!role || !password) {
+        return res
+          .status(400)
+          .json({ message: "Role and password are required." });
+      }
+
+      const updatedRole = await UserAccess.findByIdAndUpdate(
+        req.params.id,
+        { role, password, permissions },
+        { new: true }
+      );
+
+      if (!updatedRole) {
+        return res.status(404).json({ message: "Role not found." });
+      }
+
+      res
+        .status(200)
+        .json({ message: "Role updated successfully", updatedRole });
+    } catch (error) {
+      console.error("Error updating role:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
 app.delete("/api/role/:id", async (req, res) => {
   try {
     const deletedRole = await UserAccess.findByIdAndDelete(req.params.id);
@@ -810,41 +876,46 @@ app.delete("/api/role/:id", async (req, res) => {
 
 app.use("/api/auth", router);
 
-app.post("/api/menu", upload.single("menu-image"), async (req, res) => {
-  try {
-    const { category } = req.body;
-    const file = req.file;
+app.post(
+  "/api/menu",
+  requirePermission("AddMenu"),
+  upload.single("menu-image"),
+  async (req, res) => {
+    try {
+      const { category } = req.body;
+      const file = req.file;
 
-    if (!file) {
-      return res.status(400).json({ message: "No image provided" });
+      if (!file) {
+        return res.status(400).json({ message: "No image provided" });
+      }
+
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinaryV2.uploader.upload_stream(
+          {
+            folder: "menu-images",
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(file.buffer);
+      });
+
+      const newMenu = await Menu.create({
+        category,
+        imageUrl: result.secure_url,
+      });
+
+      res.status(201).json(newMenu);
+    } catch (error) {
+      console.error("Error uploading menu:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    const result = await new Promise((resolve, reject) => {
-      const stream = cloudinaryV2.uploader.upload_stream(
-        {
-          folder: "menu-images",
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      stream.end(file.buffer);
-    });
-
-    const newMenu = await Menu.create({
-      category,
-      imageUrl: result.secure_url,
-    });
-
-    res.status(201).json(newMenu);
-  } catch (error) {
-    console.error("Error uploading menu:", error);
-    res.status(500).json({ message: "Internal server error" });
   }
-});
+);
 
-app.get("/api/menu", async (req, res) => {
+app.get("/api/menu", requirePermission("Menu"), async (req, res) => {
   try {
     const menus = await Menu.find({});
     res.status(200).json(menus);
@@ -854,7 +925,7 @@ app.get("/api/menu", async (req, res) => {
   }
 });
 
-app.delete("/api/menu/:id", async (req, res) => {
+app.delete("/api/menu/:id", requirePermission("Menu"), async (req, res) => {
   try {
     const menu = await Menu.findById(req.params.id);
     if (!menu) {
@@ -879,53 +950,58 @@ app.delete("/api/menu/:id", async (req, res) => {
   }
 });
 
-app.put("/api/menu/:id", upload.single("menu-image"), async (req, res) => {
-  try {
-    const { category } = req.body;
-    const file = req.file;
+app.put(
+  "/api/menu/:id",
+  requirePermission("Menu"),
+  upload.single("menu-image"),
+  async (req, res) => {
+    try {
+      const { category } = req.body;
+      const file = req.file;
 
-    if (!category) {
-      return res.status(400).json({ message: "Category is required" });
+      if (!category) {
+        return res.status(400).json({ message: "Category is required" });
+      }
+
+      // Find existing menu item first
+      const existingMenu = await Menu.findById(req.params.id);
+      if (!existingMenu) {
+        return res.status(404).json({ message: "Menu item not found" });
+      }
+
+      let imageUrl = existingMenu.imageUrl; // default to existing
+
+      // If a new file is uploaded, upload to Cloudinary
+      if (file) {
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinaryV2.uploader.upload_stream(
+            {
+              folder: "menu-images",
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          stream.end(file.buffer);
+        });
+
+        imageUrl = result.secure_url; // override with new image URL
+      }
+
+      const updatedMenu = await Menu.findByIdAndUpdate(
+        req.params.id,
+        { category, imageUrl },
+        { new: true }
+      );
+
+      res.status(200).json(updatedMenu);
+    } catch (error) {
+      console.error("Error updating menu:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    // Find existing menu item first
-    const existingMenu = await Menu.findById(req.params.id);
-    if (!existingMenu) {
-      return res.status(404).json({ message: "Menu item not found" });
-    }
-
-    let imageUrl = existingMenu.imageUrl; // default to existing
-
-    // If a new file is uploaded, upload to Cloudinary
-    if (file) {
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinaryV2.uploader.upload_stream(
-          {
-            folder: "menu-images",
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-        stream.end(file.buffer);
-      });
-
-      imageUrl = result.secure_url; // override with new image URL
-    }
-
-    const updatedMenu = await Menu.findByIdAndUpdate(
-      req.params.id,
-      { category, imageUrl },
-      { new: true }
-    );
-
-    res.status(200).json(updatedMenu);
-  } catch (error) {
-    console.error("Error updating menu:", error);
-    res.status(500).json({ message: "Internal server error" });
   }
-});
+);
 
 app.post("/api/mail", async (req, res) => {
   try {

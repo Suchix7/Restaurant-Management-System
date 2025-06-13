@@ -10,6 +10,7 @@ const userAccessSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    permissions: [String],
   },
   { timestamps: true }
 );

@@ -4,11 +4,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import toast from "react-hot-toast";
+import features from "@/lib/features.js";
 
 const AddRole = () => {
   const [role, setRole] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [editedData, setEditedData] = useState({
+    permissions: [],
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,10 +23,15 @@ const AddRole = () => {
     }
     try {
       setLoading(true);
-      const res = await axiosInstance.post("/role", { role, password });
+      const res = await axiosInstance.post("/role", {
+        role,
+        password,
+        permissions: editedData.permissions,
+      });
       toast.success(res.data.message);
       setRole("");
       setPassword("");
+      setEditedData({ permissions: [] });
     } catch (error) {
       toast.error(
         error.response?.data?.message || "Failed to create role. Try again."
@@ -55,6 +65,25 @@ const AddRole = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <label className="block font-medium">Permissions</label>
+            <div className="space-y-2">
+              {features.map((feature) => (
+                <label key={feature} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={editedData.permissions.includes(feature)}
+                    onChange={(e) => {
+                      const newPerms = editedData.permissions.includes(feature)
+                        ? editedData.permissions.filter((f) => f !== feature)
+                        : [...editedData.permissions, feature];
+                      setEditedData({ ...editedData, permissions: newPerms });
+                    }}
+                  />
+                  <span>{feature.replaceAll("_", " ")}</span>
+                </label>
+              ))}
+            </div>
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Creating..." : "Create Role"}
             </Button>
