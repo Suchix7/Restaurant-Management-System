@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Loader } from "lucide-react";
 
 const AddEvents = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ const AddEvents = () => {
   });
   const [posterImage, setPosterImage] = useState(null);
   const [posterPreview, setPosterPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,6 +36,7 @@ const AddEvents = () => {
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
 
     const data = new FormData();
@@ -60,9 +63,11 @@ const AddEvents = () => {
       });
       setPosterImage(null);
       setPosterPreview(null);
+      setLoading(false);
     } catch (error) {
       console.error("Error creating event:", error);
       toast.error("Failed to create event");
+      setLoading(false);
     }
   };
 
@@ -147,8 +152,16 @@ const AddEvents = () => {
             />
           )}
         </div>
-
-        <Button type="submit">Create Event</Button>
+        {loading ? (
+          <Button disabled className="bg-blue-500">
+            <Loader className="animate-spin" />
+            Create Event
+          </Button>
+        ) : (
+          <Button type="submit" className="bg-blue-500 cursor-pointer">
+            Create Event
+          </Button>
+        )}
       </form>
     </div>
   );

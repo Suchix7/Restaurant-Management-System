@@ -141,6 +141,19 @@ app.get("/api/venue-reservations/:id", async (req, res) => {
   }
 });
 
+app.delete("/api/venue-reservations/:id", async (req, res) => {
+  try {
+    const reservation = await Venue.findByIdAndDelete(req.params.id);
+    if (!reservation) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+    res.status(200).json(reservation);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.put("/api/venue-reservations/:id", async (req, res) => {
   try {
     const { status } = req.body;

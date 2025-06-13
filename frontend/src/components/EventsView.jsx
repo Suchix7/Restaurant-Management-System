@@ -4,12 +4,14 @@ import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Loader } from "lucide-react";
 
 const EventsView = () => {
   const [events, setEvents] = useState([]);
   const [editingEvent, setEditingEvent] = useState(null);
   const [posterImageFile, setPosterImageFile] = useState(null);
   const [posterPreview, setPosterPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -74,6 +76,7 @@ const EventsView = () => {
 
   const handleUpdate = async () => {
     try {
+      setLoading(true);
       const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
         data.append(key, value);
@@ -89,9 +92,11 @@ const EventsView = () => {
       toast.success("Event updated successfully");
       setEditingEvent(null);
       fetchEvents();
+      setLoading(false);
     } catch (error) {
       console.error("Update failed:", error);
       toast.error("Failed to update event");
+      setLoading(false);
     }
   };
 
@@ -117,9 +122,9 @@ const EventsView = () => {
                 </h3>
                 <div className="flex gap-2">
                   <Button
-                    variant="outline"
                     size="sm"
                     onClick={() => handleEditClick(event)}
+                    className="bg-yellow-400"
                   >
                     Edit
                   </Button>
@@ -127,6 +132,7 @@ const EventsView = () => {
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDelete(event._id)}
+                    className="bg-red-500"
                   >
                     Delete
                   </Button>
@@ -250,8 +256,27 @@ const EventsView = () => {
             </div>
 
             <div className="flex justify-end gap-2 sticky bottom-0 bg-white pt-4 pb-2">
-              <Button onClick={handleUpdate}>Update</Button>
-              <Button variant="ghost" onClick={() => setEditingEvent(null)}>
+              {loading ? (
+                <Button
+                  onClick={handleUpdate}
+                  className="bg-blue-400 cursor-pointer"
+                >
+                  <Loader className="animate-spin" />
+                  Update
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleUpdate}
+                  className="bg-blue-400 cursor-pointer"
+                >
+                  Update
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                onClick={() => setEditingEvent(null)}
+                className="cursor-pointer"
+              >
                 Cancel
               </Button>
             </div>

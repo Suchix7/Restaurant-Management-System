@@ -4,11 +4,13 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
+import { Loader } from "lucide-react";
 
 const AddMenu = () => {
   const [category, setCategory] = useState("");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
@@ -18,6 +20,7 @@ const AddMenu = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     if (!category || !file) {
       toast.error("Please enter a category and select an image.");
@@ -34,9 +37,11 @@ const AddMenu = () => {
       setCategory("");
       setFile(null);
       setPreview(null);
+      setLoading(false);
     } catch (err) {
       console.error("Error adding menu:", err);
       toast.error("Failed to add menu.");
+      setLoading(false);
     }
   };
 
@@ -64,7 +69,14 @@ const AddMenu = () => {
             />
           )}
 
-          <Button type="submit">Add Menu</Button>
+          {loading ? (
+            <Button type="submit">
+              <Loader className="animate-spin" />
+              Add Menu
+            </Button>
+          ) : (
+            <Button type="submit">Add Menu</Button>
+          )}
         </form>
       </CardContent>
     </Card>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-hot-toast";
 import { ReactSortable } from "react-sortablejs";
+import { Loader } from "lucide-react";
 
 const ManageGallery = () => {
   const [galleries, setGalleries] = useState([]);
@@ -19,6 +20,7 @@ const ManageGallery = () => {
   const [mainPreview, setMainPreview] = useState(null);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [isEditingMainImage, setIsEditingMainImage] = useState(false);
+  const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -66,6 +68,7 @@ const ManageGallery = () => {
   };
 
   const handleAddImages = async () => {
+    setLoading(true);
     if (
       !selectedCategory ||
       newFiles.length === 0 ||
@@ -85,8 +88,10 @@ const ManageGallery = () => {
       setNewFiles([]);
       setNumImages(0);
       fetchGalleries();
+      setLoading(false);
     } catch {
       toast.error("Failed to upload images.");
+      setLoading(false);
     }
   };
 
@@ -187,7 +192,12 @@ const ManageGallery = () => {
                     className="w-full"
                   />
                   <div className="flex gap-2">
-                    <Button onClick={handleSaveMetadata}>Save</Button>
+                    <Button
+                      onClick={handleSaveMetadata}
+                      className="bg-yellow-400"
+                    >
+                      Save
+                    </Button>
                     <Button
                       variant="ghost"
                       onClick={() => setIsEditingDescription(false)}
@@ -204,6 +214,7 @@ const ManageGallery = () => {
                   <Button
                     size="sm"
                     onClick={() => setIsEditingDescription(true)}
+                    className="bg-yellow-300"
                   >
                     Edit Description
                   </Button>
@@ -236,6 +247,7 @@ const ManageGallery = () => {
                         fileInputRef.current?.click();
                         setIsEditingMainImage(true);
                       }}
+                      className="bg-yellow-300"
                     >
                       Edit Main Image
                     </Button>
@@ -243,7 +255,12 @@ const ManageGallery = () => {
 
                   {isEditingMainImage && (
                     <>
-                      <Button onClick={handleSaveMetadata}>Save</Button>
+                      <Button
+                        onClick={handleSaveMetadata}
+                        className="bg-yellow-400"
+                      >
+                        Save
+                      </Button>
                       <Button
                         variant="ghost"
                         onClick={() => {
@@ -251,6 +268,7 @@ const ManageGallery = () => {
                           setNewMainImage(null);
                           setMainPreview(null);
                         }}
+                        className="bg-red-500"
                       >
                         Cancel
                       </Button>
@@ -303,6 +321,7 @@ const ManageGallery = () => {
                     toast.error("Failed to save image order.");
                   }
                 }}
+                className="bg-yellow-400"
               >
                 Save Order
               </Button>
@@ -374,8 +393,16 @@ const ManageGallery = () => {
                 </button>
               </div>
             )}
-
-            <Button onClick={handleAddImages}>Add Images</Button>
+            {loading ? (
+              <Button onClick={handleAddImages} className="bg-blue-500">
+                <Loader className="animate-spin" />
+                Add Images
+              </Button>
+            ) : (
+              <Button onClick={handleAddImages} className="bg-blue-500">
+                Add Images
+              </Button>
+            )}
           </>
         )}
       </CardContent>

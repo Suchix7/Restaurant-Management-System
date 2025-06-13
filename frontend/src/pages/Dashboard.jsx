@@ -133,8 +133,8 @@ const Dashboard = ({ userRole }) => {
     isAuthenticated && (
       <div className="min-h-screen bg-slate-50 flex">
         {/* Sidebar */}
-        <div className="w-64 bg-white border-r border-slate-200 shadow-sm">
-          <div className="p-6 border-b border-slate-200">
+        <div className="w-64 bg-white border-r border-slate-200 shadow-sm fixed min-h-screen">
+          <div className="px-6 py-4 border-b border-slate-200">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <LayoutDashboard className="w-4 h-4 text-white" />
@@ -163,7 +163,7 @@ const Dashboard = ({ userRole }) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col ml-64">
           {/* Header */}
           <header className="bg-white border-b border-slate-200 px-6 py-4">
             <div className="flex items-center justify-between">

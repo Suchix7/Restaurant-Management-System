@@ -26,53 +26,18 @@ const getStatusColor = (status) => {
 const VenueView = () => {
   const [reservations, setReservations] = useState([]);
 
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get("/venue-reservations");
+      const data = response.data || [];
+      setReservations(data);
+    } catch (error) {
+      console.error("Error fetching reservations:", error);
+      setReservations([]);
+      toast.error("Error fetching reservations.");
+    }
+  };
   useEffect(() => {
-    // Replace with real API call
-    const fetchData = async () => {
-      // const data = [
-      //   {
-      //     _id: "1",
-      //     name: "Anish Shrestha",
-      //     email: "anish@example.com",
-      //     bookingType: "Birthday",
-      //     phone: "9800000000",
-      //     eventType: "Party",
-      //     estimatedGuests: 50,
-      //     reserveDate: "2025-06-15",
-      //     startTime: "18:00",
-      //     endTime: "22:00",
-      //     specialRequests: "Vegan food",
-      //     file: "",
-      //     status: "pending",
-      //   },
-      //   {
-      //     _id: "2",
-      //     name: "Ram Bahadur",
-      //     email: "ram@example.com",
-      //     bookingType: "Wedding",
-      //     phone: "9812345678",
-      //     eventType: "Reception",
-      //     estimatedGuests: 120,
-      //     reserveDate: "2025-06-20",
-      //     startTime: "14:00",
-      //     endTime: "20:00",
-      //     specialRequests: "",
-      //     file: "",
-      //     status: "confirmed",
-      //   },
-      // ];
-
-      try {
-        const response = await axiosInstance.get("/venue-reservations");
-        const data = response.data || [];
-        setReservations(data);
-      } catch (error) {
-        console.error("Error fetching reservations:", error);
-        setReservations([]);
-        // Handle error (e.g., show toast notification)
-      }
-    };
-
     fetchData();
   }, []);
 
@@ -91,7 +56,6 @@ const VenueView = () => {
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update status.");
-      // Revert the status change in case of error
       setReservations((prev) =>
         prev.map((item) =>
           item._id === id ? { ...item, status: item.status } : item
@@ -99,8 +63,22 @@ const VenueView = () => {
       );
     }
 
-    // TODO: Update on server
     console.log(`Updated ${id} to ${newStatus}`);
+  };
+
+  const handleDelete = (id) => {
+    if (!confirm("Are you sure you want to delete this reservation?")) {
+      return;
+    }
+    try {
+      const response = axiosInstance.delete(`/venue-reservations/${id}`);
+
+      toast.success("Reservation deleted successfully!");
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting reservation:", error);
+      toast.error("Failed to delete reservation.");
+    }
   };
 
   const handleExport = () => {
@@ -166,7 +144,13 @@ const VenueView = () => {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {reservations.map((res) => (
-            <Card key={res._id} className="border-slate-200 shadow-sm">
+            <Card key={res._id} className="border-slate-200 shadow-sm relative">
+              <Button
+                className="absolute right-3 top-3 bg-red-500 text-white cursor-pointer"
+                onClick={() => handleDelete(res._id)}
+              >
+                Delete
+              </Button>
               <CardHeader>
                 <CardTitle className="text-slate-900">{res.name}</CardTitle>
                 <p className="text-sm text-slate-500">

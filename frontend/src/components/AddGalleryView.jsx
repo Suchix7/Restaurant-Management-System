@@ -179,7 +179,12 @@ const AddGalleryView = () => {
               </Button>
             </>
           ) : (
-            <Button type="submit">Upload Gallery</Button>
+            <Button
+              type="submit"
+              className="bg-blue-500 text-white cursor-pointer"
+            >
+              Upload Gallery
+            </Button>
           )}
         </form>
       </CardContent>
