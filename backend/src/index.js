@@ -210,64 +210,69 @@ app.delete("/api/contact/:id", async (req, res) => {
   }
 });
 
-app.post("/api/events", upload.single("posterImage"), async (req, res) => {
-  try {
-    const {
-      title,
-      date,
-      time,
-      description,
-      location,
-      category,
-      price,
-      capacity,
-      rsvpCount,
-    } = req.body;
-    const file = req.file;
+app.post(
+  "/api/events",
+  requirePermission("AddEvents"),
+  upload.single("posterImage"),
+  async (req, res) => {
+    try {
+      const {
+        title,
+        date,
+        time,
+        description,
+        location,
+        category,
+        price,
+        capacity,
+        rsvpCount,
+      } = req.body;
+      const file = req.file;
 
-    if (!file) {
-      return res.status(400).json({ message: "No poster image provided" });
-    }
+      if (!file) {
+        return res.status(400).json({ message: "No poster image provided" });
+      }
 
-    const result = await new Promise((resolve, reject) => {
-      const stream = cloudinaryV2.uploader.upload_stream(
-        {
-          folder: "event-posters",
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinaryV2.uploader.upload_stream(
+          {
+            folder: "event-posters",
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(file.buffer);
+      });
+
+      const newEvent = await Event.create({
+        title,
+        date,
+        time,
+        description,
+        posterImage: {
+          imageUrl: result.secure_url,
+          publicId: result.public_id,
         },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      stream.end(file.buffer);
-    });
+        location,
+        category,
+        price,
+        capacity: parseInt(capacity, 10),
+        rsvpCount: parseInt(rsvpCount, 10) || 0,
+      });
 
-    const newEvent = await Event.create({
-      title,
-      date,
-      time,
-      description,
-      posterImage: {
-        imageUrl: result.secure_url,
-        publicId: result.public_id,
-      },
-      location,
-      category,
-      price,
-      capacity: parseInt(capacity, 10),
-      rsvpCount: parseInt(rsvpCount, 10) || 0,
-    });
-
-    res
-      .status(201)
-      .json({ message: "Event created successfully", event: newEvent });
-  } catch (error) {
-    console.error("Error uploading event poster:", error);
-    res.status(500).json({ message: "Internal server error" });
+      res
+        .status(201)
+        .json({ message: "Event created successfully", event: newEvent });
+    } catch (error) {
+      console.error("Error uploading event poster:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
-});
+);
 
-app.get("/api/events", async (req, res) => {
+app.get("/api/events", requirePermission("Events"), async (req, res) => {
   try {
     const events = await Event.find({});
     return res.status(200).json(events);
@@ -277,7 +282,7 @@ app.get("/api/events", async (req, res) => {
   }
 });
 
-app.get("/api/events/:id", async (req, res) => {
+app.get("/api/events/:id", requirePermission("Events"), async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
@@ -290,7 +295,7 @@ app.get("/api/events/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/events/:id", async (req, res) => {
+app.delete("/api/events/:id", requirePermission("Events"), async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
@@ -314,75 +319,13 @@ app.delete("/api/events/:id", async (req, res) => {
   }
 });
 
-app.put("/api/events/:id", upload.single("posterImage"), async (req, res) => {
-  try {
-    const {
-      title,
-      date,
-      time,
-      description,
-      location,
-      category,
-      price,
-      capacity,
-    } = req.body;
-
-    if (
-      !title ||
-      !date ||
-      !time ||
-      !description ||
-      !location ||
-      !category ||
-      !price ||
-      !capacity
-    ) {
-      return res.status(400).json({ message: "All fields are required." });
-    }
-
-    const event = await Event.findById(req.params.id);
-    if (!event) {
-      return res.status(404).json({ message: "Event not found." });
-    }
-
-    let newPosterImage = event.posterImage;
-
-    if (req.file) {
-      // Delete old image from Cloudinary if exists
-      if (event.posterImage?.publicId) {
-        await cloudinaryV2.uploader.destroy(event.posterImage.publicId, {
-          resource_type: "image",
-        });
-      }
-
-      // Upload new poster image
-      const streamUpload = () =>
-        new Promise((resolve, reject) => {
-          const stream = cloudinaryV2.uploader.upload_stream(
-            {
-              folder: "events/posters",
-              resource_type: "image",
-            },
-            (error, result) => {
-              if (error) reject(error);
-              else
-                resolve({
-                  imageUrl: result.secure_url,
-                  publicId: result.public_id,
-                });
-            }
-          );
-
-          Readable.from(req.file.buffer).pipe(stream);
-        });
-
-      newPosterImage = await streamUpload();
-    }
-
-    // Update event
-    const updatedEvent = await Event.findByIdAndUpdate(
-      req.params.id,
-      {
+app.put(
+  "/api/events/:id",
+  requirePermission("Events"),
+  upload.single("posterImage"),
+  async (req, res) => {
+    try {
+      const {
         title,
         date,
         time,
@@ -390,21 +333,88 @@ app.put("/api/events/:id", upload.single("posterImage"), async (req, res) => {
         location,
         category,
         price,
-        capacity: parseInt(capacity, 10) || 0,
-        posterImage: newPosterImage,
-      },
-      { new: true }
-    );
+        capacity,
+      } = req.body;
 
-    res.status(200).json({
-      message: "Event updated successfully.",
-      event: updatedEvent,
-    });
-  } catch (error) {
-    console.error("Error updating event:", error);
-    res.status(500).json({ message: "Internal server error." });
+      if (
+        !title ||
+        !date ||
+        !time ||
+        !description ||
+        !location ||
+        !category ||
+        !price ||
+        !capacity
+      ) {
+        return res.status(400).json({ message: "All fields are required." });
+      }
+
+      const event = await Event.findById(req.params.id);
+      if (!event) {
+        return res.status(404).json({ message: "Event not found." });
+      }
+
+      let newPosterImage = event.posterImage;
+
+      if (req.file) {
+        // Delete old image from Cloudinary if exists
+        if (event.posterImage?.publicId) {
+          await cloudinaryV2.uploader.destroy(event.posterImage.publicId, {
+            resource_type: "image",
+          });
+        }
+
+        // Upload new poster image
+        const streamUpload = () =>
+          new Promise((resolve, reject) => {
+            const stream = cloudinaryV2.uploader.upload_stream(
+              {
+                folder: "events/posters",
+                resource_type: "image",
+              },
+              (error, result) => {
+                if (error) reject(error);
+                else
+                  resolve({
+                    imageUrl: result.secure_url,
+                    publicId: result.public_id,
+                  });
+              }
+            );
+
+            Readable.from(req.file.buffer).pipe(stream);
+          });
+
+        newPosterImage = await streamUpload();
+      }
+
+      // Update event
+      const updatedEvent = await Event.findByIdAndUpdate(
+        req.params.id,
+        {
+          title,
+          date,
+          time,
+          description,
+          location,
+          category,
+          price,
+          capacity: parseInt(capacity, 10) || 0,
+          posterImage: newPosterImage,
+        },
+        { new: true }
+      );
+
+      res.status(200).json({
+        message: "Event updated successfully.",
+        event: updatedEvent,
+      });
+    } catch (error) {
+      console.error("Error updating event:", error);
+      res.status(500).json({ message: "Internal server error." });
+    }
   }
-});
+);
 
 app.put("/api/events/rsvp/:id", async (req, res) => {
   try {
@@ -675,68 +685,76 @@ app.put(
   }
 );
 
-app.delete("/api/gallery", async (req, res) => {
-  try {
-    const { category } = req.body;
+app.delete(
+  "/api/gallery",
+  requirePermission("ManageGallery"),
+  async (req, res) => {
+    try {
+      const { category } = req.body;
 
-    if (!category) {
-      return res.status(400).json({ message: "Category is required" });
+      if (!category) {
+        return res.status(400).json({ message: "Category is required" });
+      }
+
+      const deletedGallery = await Gallery.findOneAndDelete({ category });
+
+      if (!deletedGallery) {
+        return res.status(404).json({ message: "Gallery category not found" });
+      }
+
+      // Optionally, delete all images from Cloudinary
+      for (const image of deletedGallery.images) {
+        await cloudinaryV2.uploader.destroy(image.public_id);
+      }
+
+      res.status(200).json({
+        message: "Gallery deleted successfully",
+        gallery: deletedGallery,
+      });
+    } catch (error) {
+      console.error("Error deleting gallery:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    const deletedGallery = await Gallery.findOneAndDelete({ category });
-
-    if (!deletedGallery) {
-      return res.status(404).json({ message: "Gallery category not found" });
-    }
-
-    // Optionally, delete all images from Cloudinary
-    for (const image of deletedGallery.images) {
-      await cloudinaryV2.uploader.destroy(image.public_id);
-    }
-
-    res.status(200).json({
-      message: "Gallery deleted successfully",
-      gallery: deletedGallery,
-    });
-  } catch (error) {
-    console.error("Error deleting gallery:", error);
-    res.status(500).json({ message: "Internal server error" });
   }
-});
+);
 
-app.delete("/api/gallery/image", async (req, res) => {
-  try {
-    const { category, public_id } = req.body;
+app.delete(
+  "/api/gallery/image",
+  requirePermission("ManageGallery"),
+  async (req, res) => {
+    try {
+      const { category, public_id } = req.body;
 
-    if (!category || !public_id) {
-      return res
-        .status(400)
-        .json({ message: "category and public_id are required" });
+      if (!category || !public_id) {
+        return res
+          .status(400)
+          .json({ message: "category and public_id are required" });
+      }
+
+      // Delete from Cloudinary
+      await cloudinaryV2.uploader.destroy(public_id);
+
+      // Remove image from the array in the gallery document
+      const updatedGallery = await Gallery.findOneAndUpdate(
+        { category },
+        { $pull: { images: { public_id } } },
+        { new: true }
+      );
+
+      if (!updatedGallery) {
+        return res.status(404).json({ message: "Gallery category not found" });
+      }
+
+      res.status(200).json({
+        message: "Image deleted successfully",
+        gallery: updatedGallery,
+      });
+    } catch (error) {
+      console.error("Image delete error:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    // Delete from Cloudinary
-    await cloudinaryV2.uploader.destroy(public_id);
-
-    // Remove image from the array in the gallery document
-    const updatedGallery = await Gallery.findOneAndUpdate(
-      { category },
-      { $pull: { images: { public_id } } },
-      { new: true }
-    );
-
-    if (!updatedGallery) {
-      return res.status(404).json({ message: "Gallery category not found" });
-    }
-
-    res.status(200).json({
-      message: "Image deleted successfully",
-      gallery: updatedGallery,
-    });
-  } catch (error) {
-    console.error("Image delete error:", error);
-    res.status(500).json({ message: "Internal server error" });
   }
-});
+);
 
 app.post("/api/role", requirePermission("AddRole"), async (req, res) => {
   try {
@@ -765,7 +783,7 @@ app.post("/api/role", requirePermission("AddRole"), async (req, res) => {
   }
 });
 
-app.get("/api/roles", async (req, res) => {
+app.get("/api/roles", requirePermission("ViewRoles"), async (req, res) => {
   try {
     const roles = await UserAccess.find({}).select("-password");
     res.status(200).json(roles);
@@ -775,7 +793,7 @@ app.get("/api/roles", async (req, res) => {
   }
 });
 
-app.get("/api/role/:id", async (req, res) => {
+app.get("/api/role/:id", requirePermission("ViewRoles"), async (req, res) => {
   try {
     const role = await UserAccess.findById(req.params.id).select("-password");
     if (!role) {
@@ -788,17 +806,21 @@ app.get("/api/role/:id", async (req, res) => {
   }
 });
 
-app.get("/api/admin/roles", async (req, res) => {
-  try {
-    const roles = await UserAccess.find({});
-    res.status(200).json(roles);
-  } catch (error) {
-    console.error("Error fetching roles:", error);
-    res.status(500).json({ message: "Internal server error" });
+app.get(
+  "/api/admin/roles",
+  requirePermission("ViewRoles"),
+  async (req, res) => {
+    try {
+      const roles = await UserAccess.find({});
+      res.status(200).json(roles);
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
-});
+);
 
-app.put("/api/role/:id", async (req, res) => {
+app.put("/api/role/:id", requirePermission("ViewRoles"), async (req, res) => {
   try {
     const { role, password } = req.body;
 
@@ -859,20 +881,26 @@ app.put(
   }
 );
 
-app.delete("/api/role/:id", async (req, res) => {
-  try {
-    const deletedRole = await UserAccess.findByIdAndDelete(req.params.id);
+app.delete(
+  "/api/role/:id",
+  requirePermission("ViewRoles"),
+  async (req, res) => {
+    try {
+      const deletedRole = await UserAccess.findByIdAndDelete(req.params.id);
 
-    if (!deletedRole) {
-      return res.status(404).json({ message: "Role not found" });
+      if (!deletedRole) {
+        return res.status(404).json({ message: "Role not found" });
+      }
+
+      res
+        .status(200)
+        .json({ message: "Role deleted successfully", deletedRole });
+    } catch (error) {
+      console.error("Error deleting role:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    res.status(200).json({ message: "Role deleted successfully", deletedRole });
-  } catch (error) {
-    console.error("Error deleting role:", error);
-    res.status(500).json({ message: "Internal server error" });
   }
-});
+);
 
 app.use("/api/auth", router);
 
