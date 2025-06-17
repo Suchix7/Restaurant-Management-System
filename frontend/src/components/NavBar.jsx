@@ -24,11 +24,10 @@ const NavBar = ({ forceSolid = false }) => {
 
   const menuItems = [
     { path: "/", label: "HOME" },
-    { path: "/reserve", label: "RESERVE" },
+    { path: "/booking", label: "BOOKING" },
     { path: "/menu", label: "MENU" },
     { path: "/gallery", label: "GALLERY" },
     { path: "/events", label: "EVENTS" },
-    { path: "/reserve-venue", label: "VENUE" },
     { path: "/contact", label: "CONTACT" },
   ];
 

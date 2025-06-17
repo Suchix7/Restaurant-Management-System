@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar } from "lucide-react";
+import { X, Calendar, Martini } from "lucide-react";
 
 import NavBar from "@/components/NavBar";
 import Hero from "@/components/Hero";
@@ -39,15 +39,27 @@ function LandingPage() {
       <BrandSection />
       <Footer />
 
-      {/* Sticky Daily Special Button */}
       <button
         onClick={() => setShowPopup(true)}
-        className="fixed bottom-6 left-4 md:left-20 md:-translate-y-1/2 z-50 bg-yellow-400 hover:bg-yellow-300 text-black font-semibold px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
-      >
-        <Calendar className="w-4 h-4 md:w-4 md:h-4" />
-        <span className="hidden md:inline">See Daily Special</span>
-        <span className="md:hidden">Special</span>
-      </button>
+        className="fixed bottom-6 left-4 md:left-20 md:-translate-y-1/2 z-50 font-semibold transition-all hover:scale-105 active:scale-95 flex items-center justify-center"
+        style={{
+          clipPath:
+            "polygon(50% 0%, 90% 0%, 60% 40%, 60% 65%, 70% 80%, 30% 80%, 40% 65%, 40% 40%, 10% 0%)",
+          width: "80px",
+          height: "120px",
+          background: `
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1)),
+      radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.4), transparent),
+      rgba(255, 255, 255, 0.05)
+    `,
+          backdropFilter: "blur(4px)",
+          WebkitBackdropFilter: "blur(4px)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
+          borderRadius: "14px",
+          color: "#ffffff",
+        }}
+      ></button>
 
       {/* Popup Modal */}
       <AnimatePresence>
