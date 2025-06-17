@@ -20,9 +20,7 @@ import Subscriber from "./models/subscriber.model.js";
 import { requirePermission } from "./middleware/auth.middleware.js";
 
 const app = express();
-app.use(express.json());
-app.use(cookieParser());
-app.use(urlencoded({ extended: true }));
+dotenv.config();
 const origins =
   process.env.NODE_ENV === "production"
     ? [
@@ -44,7 +42,9 @@ app.use(
     credentials: true,
   })
 );
-dotenv.config();
+app.use(express.json());
+app.use(cookieParser());
+app.use(urlencoded({ extended: true }));
 
 const upload = multer({ storage: multer.memoryStorage() });
 
