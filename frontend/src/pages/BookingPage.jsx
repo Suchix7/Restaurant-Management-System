@@ -36,7 +36,7 @@ const BookingPage = () => {
             </h1>
             <p className="text-lg text-gray-600">
               Choose between reserving a table or booking our venue for your
-              special event
+              special events
             </p>
           </div>
 
