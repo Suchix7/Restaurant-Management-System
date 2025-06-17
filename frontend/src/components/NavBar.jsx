@@ -35,7 +35,7 @@ const NavBar = ({ forceSolid = false }) => {
     <nav
       className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${
         scrolled || forceSolid || isOpen
-          ? "bg-[#ffffff] shadow-md text-black"
+          ? "bg-[#788A78] shadow-md text-white"
           : "bg-transparent text-white"
       }`}
     >
@@ -46,9 +46,7 @@ const NavBar = ({ forceSolid = false }) => {
             <img
               src="/logo.png"
               alt="4 Donkeys"
-              className={`h-10 w-auto object-contain transition duration-300 ${
-                scrolled || forceSolid || isOpen ? "invert" : ""
-              }`}
+              className={`h-10 w-auto object-contain transition duration-300 `}
             />
           </Link>
         </div>

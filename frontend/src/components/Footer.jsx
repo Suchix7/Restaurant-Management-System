@@ -29,7 +29,7 @@ const Footer = () => {
     }
   };
   return (
-    <footer className="bg-[#2D6A4F] text-white pt-16">
+    <footer className="bg-[#435644] text-white pt-16">
       {/* Newsletter Signup */}
       <div className="max-w-4xl mx-auto px-6 text-center">
         <h2 className="text-3xl font-bold mb-2">Subscribe to Our Newsletter</h2>
@@ -46,11 +46,11 @@ const Footer = () => {
               className="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
             {!loading ? (
-              <button className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
+              <button className="bg-[#A0AE9F] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#556D53] transition">
                 Subscribe
               </button>
             ) : (
-              <button className="bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
+              <button className="bg-[#A0AE9F] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#556D53] transition">
                 Subscribe
                 <Loader className="animate-spin w-5 h-5 inline-block ml-2" />
               </button>

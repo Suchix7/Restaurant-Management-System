@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 const ContentSection = () => {
   return (
-    <section className="bg-[#610633] text-white py-20 relative overflow-hidden">
+    <section className="bg-[#90A5A0] text-white py-20 relative overflow-hidden">
       <div className="max-w-[1600px] mx-auto px-6 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         {/* Left Content */}
         <motion.div
@@ -12,15 +12,15 @@ const ContentSection = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-snug text-[#F4CE14]">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-snug text-[#10110E ]">
             Welcome to 4 Donkeys Bar
           </h2>
-          <p className="text-lg mb-5 leading-relaxed text-gray-200">
+          <p className="text-lg mb-5 leading-relaxed text-gray-100">
             At 4 Donkeys Bar, we blend bold flavors, timeless vibes, and genuine
             hospitality to create an atmosphere where good times are always on
             tap.
           </p>
-          <p className="text-lg mb-10 leading-relaxed text-gray-300">
+          <p className="text-lg mb-10 leading-relaxed text-gray-100">
             Our bartenders pour passion into every cocktail. From crafted
             classics to unique seasonal blends, every drink tells a story worth
             sipping.
@@ -28,13 +28,13 @@ const ContentSection = () => {
 
           <div className="space-y-6">
             <div>
-              <h3 className="text-[#F4CE14] font-semibold text-base uppercase">
+              <h3 className="text-white font-semibold text-base uppercase">
                 Operating Hours
               </h3>
-              <p className="text-sm text-gray-300">Open Daily: 5 PM – 1 AM</p>
+              <p className="text-sm text-gray-100">Open Daily: 5 PM – 1 AM</p>
             </div>
             <div>
-              <h3 className="text-[#F4CE14] font-semibold text-base uppercase">
+              <h3 className="text-white font-semibold text-base uppercase">
                 Location
               </h3>
               <p className="text-sm text-gray-300">
@@ -42,10 +42,10 @@ const ContentSection = () => {
               </p>
             </div>
             <div>
-              <h3 className="text-[#F4CE14] font-semibold text-base uppercase">
+              <h3 className="text-white font-semibold text-base uppercase">
                 Featured Cocktail
               </h3>
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-gray-100">
                 "Golden Mule" – our signature tropical blend
               </p>
             </div>

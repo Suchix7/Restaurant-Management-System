@@ -38,13 +38,11 @@ const Gallery = () => {
   }, []);
 
   return (
-    <section className="bg-[#fad987] py-20">
+    <section className="bg-[#556D53] py-20">
       <div className="max-w-[1600px] mx-auto px-6 md:px-8">
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-bold text-[#2D6A4F]">
-            Signature Moments
-          </h2>
-          <p className="mt-2 text-gray-600 text-sm">
+          <h2 className="text-4xl font-bold text-white">Signature Moments</h2>
+          <p className="mt-2 text-gray-100 text-sm">
             Capturing the flavor, mood, and magic of 4 Donkeys Bar
           </p>
         </div>
