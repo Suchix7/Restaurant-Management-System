@@ -26,12 +26,10 @@ app.use(urlencoded({ extended: true }));
 const origins =
   process.env.NODE_ENV === "production"
     ? [
-        "https://yug-tech-rve5.vercel.app",
-        "https://yugindustries.com.np",
-        "https://www.yugindustries.com.np",
-        "https://yugtech.onrender.com",
+        "https://reservation-system-f28uhp7p9.vercel.app",
+        "https://restaurant-management-system-y7o4.onrender.com",
       ]
-    : ["http://localhost:8080", "http://localhost:5173"];
+    : ["http://localhost:3000", "http://localhost:5173"];
 
 app.use(
   cors({
