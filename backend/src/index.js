@@ -562,7 +562,7 @@ app.get(
   }
 );
 
-app.get("/api/gallery", requirePermission("Gallery"), async (req, res) => {
+app.get("/api/gallery", async (req, res) => {
   try {
     const galleries = await Gallery.find({});
     res.status(200).json(galleries);
@@ -956,7 +956,7 @@ app.post(
   }
 );
 
-app.get("/api/menu", requirePermission("Menu"), async (req, res) => {
+app.get("/api/menu", async (req, res) => {
   try {
     const menus = await Menu.find({});
     res.status(200).json(menus);
