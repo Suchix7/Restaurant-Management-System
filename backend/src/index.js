@@ -20,6 +20,7 @@ import Subscriber from "./models/subscriber.model.js";
 import { requirePermission } from "./middleware/auth.middleware.js";
 
 const app = express();
+app.set("trust proxy", true);
 dotenv.config();
 const origins =
   process.env.NODE_ENV === "production"
