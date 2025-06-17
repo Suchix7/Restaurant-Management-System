@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
-const ReservePage = () => {
+const ReservePage = ({ onSwitchToVenue }) => {
   const [formData, setFormData] = useState({
     date: "",
     time: "",
@@ -61,23 +61,8 @@ const ReservePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      <NavBar forceSolid={true} />
-
-      {/* Background Pattern */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(45, 106, 79, 0.1), rgba(45, 106, 79, 0.2)),
-            url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 16.5c-2.5 0-4.5 2-4.5 4.5s2 4.5 4.5 4.5 4.5-2 4.5-4.5-2-4.5-4.5-4.5zm0 18c-7.5 0-13.5-6-13.5-13.5S22.5 7.5 30 7.5s13.5 6 13.5 13.5S37.5 34.5 30 34.5zm0-27C19.5 7.5 11.25 15.75 11.25 26.25s8.25 18.75 18.75 18.75 18.75-8.25 18.75-18.75S40.5 7.5 30 7.5z' fill='%232D6A4F' fill-opacity='0.1'/%3E%3C/svg%3E"),
-            url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 5a15 15 0 0 1 0 30 15 15 0 0 1 0-30zm0 5a5 5 0 0 0-5 5v10a5 5 0 0 0 10 0V15a5 5 0 0 0-5-5z' fill='%232D6A4F' fill-opacity='0.05'/%3E%3C/svg%3E")
-          `,
-          backgroundSize: "60px 60px, 40px 40px",
-        }}
-      />
-
-      <div className="relative z-10 container mx-auto px-4 pt-24 pb-16">
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 pt-8 pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -94,7 +79,7 @@ const ReservePage = () => {
             </p>
           </div>
 
-          <div className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl p-8 border border-gray-200">
+          <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-200">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Date Selection */}
@@ -233,20 +218,18 @@ const ReservePage = () => {
 
                 <p className="text-center text-gray-600">
                   Larger event or private function?{" "}
-                  <Link
-                    to="/venue"
+                  <button
+                    onClick={onSwitchToVenue}
                     className="text-[#2D6A4F] hover:underline font-medium"
                   >
                     Click here to book the full venue
-                  </Link>
+                  </button>
                 </p>
               </div>
             </form>
           </div>
         </motion.div>
       </div>
-
-      <Footer />
     </div>
   );
 };
