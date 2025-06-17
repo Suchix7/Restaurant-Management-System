@@ -122,7 +122,7 @@ function LandingPage() {
                 />
                 <div className="p-6">
                   <h2 className="text-2xl font-bold mb-3 text-[#2D6A4F]">
-                    🎶 Live Music Tonight
+                    🎶 Live Music Tonight!
                   </h2>
                   <p className="text-base text-gray-700 mb-4">
                     Join us at 4 Donkeys Bar for an unforgettable jazz night.
