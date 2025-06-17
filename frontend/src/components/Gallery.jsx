@@ -19,13 +19,15 @@ const Gallery = () => {
     const fetchGalleryImages = async () => {
       try {
         const response = await axiosInstance.get("/gallery");
-        const data = response.data.flatMap((item, index) =>
-          item.images.map((img) => ({
-            src: img.url,
-            alt: img.alt || "Gallery Image",
-            rowSpan: rowspans[index % rowspans.length],
-          }))
-        );
+        const data = response.data
+          .flatMap((item, index) =>
+            item.images.map((img) => ({
+              src: img.url,
+              alt: img.alt || "Gallery Image",
+              rowSpan: rowspans[index % rowspans.length],
+            }))
+          )
+          .slice(0, 6);
         console.log(data);
         setGalleryImages(data);
       } catch (error) {
