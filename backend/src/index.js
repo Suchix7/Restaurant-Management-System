@@ -38,6 +38,7 @@ app.use(
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
+        console.log("Origin not allowed by CORS:", origin);
       }
     },
     credentials: true,
@@ -55,6 +56,10 @@ cloudinaryV2.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true,
+});
+
+app.get("/", (req, res) => {
+  res.send("Server is running");
 });
 
 app.post("/api/reserve-venue", upload.single("file"), async (req, res) => {
@@ -285,7 +290,7 @@ app.post(
   }
 );
 
-app.get("/api/events", requirePermission("Events"), async (req, res) => {
+app.get("/api/events", async (req, res) => {
   try {
     const events = await Event.find({});
     return res.status(200).json(events);
@@ -295,7 +300,7 @@ app.get("/api/events", requirePermission("Events"), async (req, res) => {
   }
 });
 
-app.get("/api/events/:id", requirePermission("Events"), async (req, res) => {
+app.get("/api/events/:id", async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
@@ -538,31 +543,27 @@ app.post(
   }
 );
 
-app.get(
-  "/api/gallery/:category",
-  requirePermission("Gallery"),
-  async (req, res) => {
-    try {
-      const { category } = req.params;
+app.get("/api/gallery/:category", async (req, res) => {
+  try {
+    const { category } = req.params;
 
-      const gallery = await Gallery.findOne({ category });
+    const gallery = await Gallery.findOne({ category });
 
-      if (!gallery) {
-        return res.status(404).json({ message: "Gallery category not found" });
-      }
-
-      res.status(200).json({
-        message: "Gallery fetched successfully",
-        images: gallery.images,
-      });
-    } catch (error) {
-      console.error("Error fetching gallery:", error);
-      res.status(500).json({ message: "Internal server error" });
+    if (!gallery) {
+      return res.status(404).json({ message: "Gallery category not found" });
     }
-  }
-);
 
-app.get("/api/gallery", requirePermission("Gallery"), async (req, res) => {
+    res.status(200).json({
+      message: "Gallery fetched successfully",
+      images: gallery.images,
+    });
+  } catch (error) {
+    console.error("Error fetching gallery:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/gallery", async (req, res) => {
   try {
     const galleries = await Gallery.find({});
     res.status(200).json(galleries);
@@ -956,13 +957,13 @@ app.post(
   }
 );
 
-app.get("/api/menu", requirePermission("Menu"), async (req, res) => {
+app.get("/api/menu", async (req, res) => {
   try {
     const menus = await Menu.find({});
     res.status(200).json(menus);
   } catch (error) {
     console.error("Error fetching menus:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error });
   }
 });
 
