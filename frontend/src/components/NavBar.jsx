@@ -57,7 +57,7 @@ const NavBar = ({ forceSolid = false }) => {
             <Link
               key={item.path}
               to={item.path}
-              className={`hover:text-gray-600 transition-all ${
+              className={`hover:text-[#8ed189] transition-all ${
                 location.pathname === item.path ? "border-b-2 pb-1" : ""
               }`}
             >
