@@ -35,7 +35,6 @@ const LoginPage = () => {
       try {
         setLoading(true);
         const response = await axiosInstance.get("/roles");
-        console.log(response.data);
         setRoles(response.data);
         setLoading(false);
       } catch (error) {

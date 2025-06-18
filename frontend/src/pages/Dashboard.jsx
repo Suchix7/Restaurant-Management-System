@@ -69,7 +69,6 @@ const Dashboard = ({ userRole }) => {
     const fetchRole = async () => {
       try {
         const response = await axiosInstance.get(`/role/${id}`);
-        console.log(response.data);
         setRole(response.data);
       } catch (error) {
         console.error("Error fetching role:", error);
