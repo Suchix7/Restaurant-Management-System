@@ -543,6 +543,59 @@ app.post(
   }
 );
 
+app.post("/api/main-gallery", upload.array("images", 6), async (req, res) => {
+  try {
+    if (!req.files || req.files.length !== 6) {
+      return res
+        .status(400)
+        .json({ message: "Exactly 6 images are required." });
+    }
+
+    const uploadedImages = [];
+
+    for (const file of req.files) {
+      const result = await cloudinary.uploader.upload_stream(
+        { folder: "main-gallery" },
+        (error, result) => {
+          if (error) throw error;
+          uploadedImages.push({
+            imageUrl: result.secure_url,
+            publicId: result.public_id,
+          });
+
+          // Send response only after all uploads
+          if (uploadedImages.length === 6) {
+            return res.status(201).json({ images: uploadedImages });
+          }
+        }
+      );
+
+      // Pipe file buffer to upload_stream
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: "main-gallery",
+        },
+        (error, result) => {
+          if (error) throw error;
+          uploadedImages.push({
+            imageUrl: result.secure_url,
+            publicId: result.public_id,
+          });
+
+          if (uploadedImages.length === 6) {
+            return res.status(201).json({ images: uploadedImages });
+          }
+        }
+      );
+
+      stream.end(file.buffer);
+    }
+  } catch (err) {
+    console.error("Upload failed:", err);
+    res.status(500).json({ message: "Server error during image upload." });
+  }
+});
+
 app.get("/api/gallery/:category", async (req, res) => {
   try {
     const { category } = req.params;

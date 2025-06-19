@@ -39,6 +39,7 @@ import EventsView from "@/components/EventsView";
 import AddEvents from "@/components/AddEvents";
 import AddRole from "@/components/AddRole";
 import ViewRoles from "@/components/ViewRoles";
+import MainGallery from "@/components/MainGallery";
 
 const DashboardView = () => (
   <div>
@@ -102,6 +103,7 @@ const Dashboard = ({ userRole }) => {
     { icon: Landmark, label: "Venue", key: "Venue" },
     { icon: FileText, label: "Add Menu", key: "AddMenu" },
     { icon: UtensilsCrossed, label: "Menu", key: "Menu" },
+    { icon: GalleryIcon, label: "Main Gallery", key: "MainGallery" },
     { icon: GalleryIcon, label: "Gallery", key: "Gallery" },
     { icon: GalleryIcon, label: "Add Gallery", key: "AddGallery" },
     { icon: FileText, label: "Manage Gallery", key: "ManageGallery" },
@@ -212,6 +214,7 @@ const Dashboard = ({ userRole }) => {
             {selectedTab === "Venue" && <VenueView />}
             {selectedTab === "AddMenu" && <AddMenu />}
             {selectedTab === "Menu" && <MenuView />}
+            {selectedTab === "MainGallery" && <MainGallery />}
             {selectedTab === "Gallery" && <Gallery />}
             {selectedTab === "AddGallery" && <AddGalleryView />}
             {selectedTab === "ManageGallery" && <ManageGallery />}
