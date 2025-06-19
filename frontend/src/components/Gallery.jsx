@@ -18,17 +18,15 @@ const Gallery = () => {
   useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
-        const response = await axiosInstance.get("/gallery");
-        const data = response.data
-          .flatMap((item, index) =>
-            item.images.map((img) => ({
-              src: img.url,
-              alt: img.alt || "Gallery Image",
-              rowSpan: rowspans[index % rowspans.length],
-            }))
-          )
-          .slice(0, 6);
-        console.log(data);
+        const response = await axiosInstance.get("/main-gallery");
+        console.log(response.data);
+        const data = response.data.images.map((item, index) => {
+          return {
+            src: item.imageUrl,
+            alt: item.alt || "Gallery Image",
+            rowSpan: rowspans[index % rowspans.length],
+          };
+        });
         setGalleryImages(data);
       } catch (error) {
         console.error("Error fetching gallery images:", error);
@@ -69,9 +67,9 @@ const Gallery = () => {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition duration-300" />
-                <div className="absolute bottom-3 left-3 text-white text-sm font-semibold opacity-0 group-hover:opacity-100 transition">
+                {/* <div className="absolute bottom-3 left-3 text-white text-sm font-semibold opacity-0 group-hover:opacity-100 transition">
                   {image.alt}
-                </div>
+                </div> */}
               </motion.div>
             ))
           ) : (

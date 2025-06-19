@@ -18,6 +18,7 @@ import Menu from "./models/menu.model.js";
 import Mail from "./models/mail.model.js";
 import Subscriber from "./models/subscriber.model.js";
 import { requirePermission } from "./middleware/auth.middleware.js";
+import MainGallery from "./models/maingallery.model.js";
 
 const app = express();
 app.set("trust proxy", true);
@@ -551,48 +552,124 @@ app.post("/api/main-gallery", upload.array("images", 6), async (req, res) => {
         .json({ message: "Exactly 6 images are required." });
     }
 
+    const uploadToCloudinary = (fileBuffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinaryV2.uploader.upload_stream(
+          { folder: "main-gallery" },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve({
+              imageUrl: result.secure_url,
+              publicId: result.public_id,
+            });
+          }
+        );
+        stream.end(fileBuffer);
+      });
+    };
+
     const uploadedImages = [];
 
     for (const file of req.files) {
-      const result = await cloudinary.uploader.upload_stream(
-        { folder: "main-gallery" },
-        (error, result) => {
-          if (error) throw error;
-          uploadedImages.push({
-            imageUrl: result.secure_url,
-            publicId: result.public_id,
-          });
-
-          // Send response only after all uploads
-          if (uploadedImages.length === 6) {
-            return res.status(201).json({ images: uploadedImages });
-          }
-        }
-      );
-
-      // Pipe file buffer to upload_stream
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: "main-gallery",
-        },
-        (error, result) => {
-          if (error) throw error;
-          uploadedImages.push({
-            imageUrl: result.secure_url,
-            publicId: result.public_id,
-          });
-
-          if (uploadedImages.length === 6) {
-            return res.status(201).json({ images: uploadedImages });
-          }
-        }
-      );
-
-      stream.end(file.buffer);
+      const uploaded = await uploadToCloudinary(file.buffer);
+      uploadedImages.push(uploaded);
     }
+
+    // Save to MongoDB
+    const savedGallery = await MainGallery.create({ images: uploadedImages });
+
+    res.status(201).json({
+      message: "Images uploaded and saved to DB successfully.",
+      gallery: savedGallery,
+    });
   } catch (err) {
     console.error("Upload failed:", err);
     res.status(500).json({ message: "Server error during image upload." });
+  }
+});
+
+app.get("/api/main-gallery", async (req, res) => {
+  try {
+    const gallery = await MainGallery.findOne({});
+    if (!gallery) {
+      return res.status(404).json({ message: "Main gallery not found" });
+    }
+    res.status(200).json({
+      message: "Main gallery fetched successfully",
+      images: gallery.images,
+    });
+  } catch (error) {
+    console.error("Error fetching main gallery:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.put("/api/main-gallery", upload.array("images"), async (req, res) => {
+  try {
+    const replaceIndexes = req.body.replaceIndexes
+      ? JSON.parse(req.body.replaceIndexes)
+      : [];
+
+    if (!req.files || req.files.length !== replaceIndexes.length) {
+      return res.status(400).json({
+        message: "Mismatch between uploaded files and replaceIndexes",
+      });
+    }
+
+    const existingGallery = await MainGallery.findOne({});
+    if (!existingGallery) {
+      return res.status(404).json({ message: "Gallery not found" });
+    }
+
+    const updatedImages = [...existingGallery.images]; // Copy of current images
+
+    // Helper: Upload to Cloudinary using stream + Promise
+    const uploadToCloudinary = (fileBuffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinaryV2.uploader.upload_stream(
+          { folder: "main-gallery" },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve({
+              imageUrl: result.secure_url,
+              publicId: result.public_id,
+            });
+          }
+        );
+        stream.end(fileBuffer);
+      });
+    };
+
+    // Replace specified indexes
+    for (let i = 0; i < replaceIndexes.length; i++) {
+      const index = replaceIndexes[i];
+      const file = req.files[i];
+
+      if (index < 0 || index > 5) {
+        return res.status(400).json({ message: "Invalid index " + index });
+      }
+
+      const uploaded = await uploadToCloudinary(file.buffer);
+
+      // Optional: delete old image from Cloudinary
+      if (updatedImages[index]?.publicId) {
+        await cloudinaryV2.uploader.destroy(updatedImages[index].publicId);
+      }
+
+      updatedImages[index] = uploaded;
+    }
+
+    // Update in DB
+    existingGallery.images = updatedImages;
+    await existingGallery.save();
+
+    res.status(200).json({
+      message: "Gallery updated successfully",
+      images: updatedImages,
+    });
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

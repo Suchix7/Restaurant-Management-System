@@ -3,6 +3,7 @@ const features = [
   "Venue",
   "AddMenu",
   "Menu",
+  "MainGallery",
   "Gallery",
   "AddGallery",
   "ManageGallery",
