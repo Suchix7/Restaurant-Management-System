@@ -1,8 +1,9 @@
 import nodemailer from "nodemailer";
-import Mail from "../models/mail.model.js";
+// import Mail from "../models/mail.model.js";
+import MailConfig from "../models/mailconfig.model.js";
 export const getMailCredentials = async () => {
   try {
-    const mail = await Mail.findOne();
+    const mail = await MailConfig.findOne();
     if (!mail) {
       throw new Error("Mail credentials not found");
     }
@@ -29,7 +30,7 @@ export const sendEmailNotification = async (name, email, subject, message) => {
   });
   const mailOptions = {
     from: `${name} <${email}>`,
-    to: "testproject7828@gmail.com",
+    to: user,
     subject,
     text: `You have received a new message from ${name} (${email}):\n\n${message}`,
   };

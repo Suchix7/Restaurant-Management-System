@@ -19,6 +19,7 @@ import Mail from "./models/mail.model.js";
 import Subscriber from "./models/subscriber.model.js";
 import { requirePermission } from "./middleware/auth.middleware.js";
 import MainGallery from "./models/maingallery.model.js";
+import mailRouter from "./routes/mail.route.js";
 
 const app = express();
 app.set("trust proxy", true);
@@ -58,6 +59,8 @@ cloudinaryV2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true,
 });
+
+app.use("/api/mail-config", mailRouter);
 
 app.get("/", (req, res) => {
   res.send("Server is running");

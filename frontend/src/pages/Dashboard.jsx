@@ -14,6 +14,7 @@ import {
   UtensilsCrossed,
   User,
   User2,
+  MessageCircle,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance.js";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ import AddEvents from "@/components/AddEvents";
 import AddRole from "@/components/AddRole";
 import ViewRoles from "@/components/ViewRoles";
 import MainGallery from "@/components/MainGallery";
+import MailConfigForm from "@/components/MailConfigForm";
 
 const DashboardView = () => (
   <div>
@@ -49,15 +51,6 @@ const DashboardView = () => (
     <p className="text-slate-600">
       Overview of analytics, stats, and quick summaries.
     </p>
-  </div>
-);
-
-const EmailConfigView = () => (
-  <div>
-    <h2 className="text-2xl font-bold text-slate-900 mb-2">
-      Email Configuration
-    </h2>
-    <p className="text-slate-600">Manage email settings and SMTP configs.</p>
   </div>
 );
 
@@ -134,7 +127,7 @@ const Dashboard = ({ userRole }) => {
     isAuthenticated && (
       <div className="min-h-screen bg-slate-50 flex">
         {/* Sidebar */}
-        <div className="w-64 bg-white border-r border-slate-200 shadow-sm fixed min-h-screen">
+        <div className="w-64 bg-white border-r border-slate-200 shadow-sm fixed h-screen overflow-y-auto">
           <div className="px-6 py-4 border-b border-slate-200">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -156,7 +149,6 @@ const Dashboard = ({ userRole }) => {
                 }`}
               >
                 {item?.icon && <item.icon className="w-5 h-5" />}
-
                 <span className="font-medium">{item?.label}</span>
               </button>
             ))}
@@ -221,7 +213,7 @@ const Dashboard = ({ userRole }) => {
             {selectedTab === "AddEvents" && <AddEvents />}
             {selectedTab === "Events" && <EventsView />}
             {selectedTab === "Inquiries" && <InquiriesView />}
-            {selectedTab === "EmailConfig" && <EmailConfigView />}
+            {selectedTab === "EmailConfig" && <MailConfigForm />}
             {selectedTab === "AddRole" && <AddRole />}
             {selectedTab === "ViewRoles" && <ViewRoles />}
           </main>
