@@ -127,7 +127,7 @@ const Dashboard = ({ userRole }) => {
     isAuthenticated && (
       <div className="min-h-screen bg-slate-50 flex">
         {/* Sidebar */}
-        <div className="w-64 bg-white border-r border-slate-200 shadow-sm fixed h-screen overflow-y-auto">
+        <div className="w-64 bg-white border-r border-slate-200 shadow-sm fixed h-screen overflow-y-auto hide-scrollbar">
           <div className="px-6 py-4 border-b border-slate-200">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
