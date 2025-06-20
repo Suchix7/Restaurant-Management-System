@@ -201,7 +201,7 @@ const VenueView = () => {
                     <SelectTrigger className="w-[140px] border-slate-300">
                       <SelectValue placeholder="Change status" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white">
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="confirmed">Confirmed</SelectItem>
                       <SelectItem value="cancelled">Cancelled</SelectItem>
