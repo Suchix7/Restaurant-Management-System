@@ -102,7 +102,7 @@ const AddGalleryView = () => {
             {/* Main Image */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Main Image</label>
-              <div className="relative border rounded w-full aspect-square flex items-center justify-center bg-slate-100 overflow-hidden">
+              <div className="relative border rounded w-70 aspect-square flex items-center justify-center bg-slate-100 overflow-hidden">
                 <input
                   type="file"
                   accept="image/*"
@@ -124,6 +124,7 @@ const AddGalleryView = () => {
             </div>
 
             {/* Supporting Images */}
+            <label className="text-sm font-medium">Gallery Images</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {images.map((img, index) => (
                 <div
