@@ -103,69 +103,75 @@ const MainGallery = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-6">
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {images.map((image, index) => (
-          <div
-            key={index}
-            className="relative border-2 border-dashed border-gray-300 rounded-lg h-40 w-full overflow-hidden flex items-center justify-center group"
-          >
-            {image ? (
-              <>
-                <img
-                  src={image.preview}
-                  alt={`Preview ${index + 1}`}
-                  className="object-cover w-full h-full"
-                />
-                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <label
-                    htmlFor={`upload-${index}`}
-                    className="bg-white p-1 rounded shadow cursor-pointer text-xs"
-                    title="Edit"
-                  >
-                    ✏️
-                    <input
-                      type="file"
-                      accept="image/*"
-                      id={`upload-${index}`}
-                      onChange={(e) => handleImageChange(e, index)}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-              </>
-            ) : (
-              <label
-                htmlFor={`upload-${index}`}
-                className="cursor-pointer text-gray-400 text-sm hover:text-gray-600 flex items-center justify-center w-full h-full"
-              >
-                Click to upload
-                <input
-                  id={`upload-${index}`}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageChange(e, index)}
-                  className="hidden"
-                />
-              </label>
-            )}
-          </div>
-        ))}
-      </div>
+    <div>
+      <h2 className="text-2xl font-bold text-slate-900 mb-2">Main Gallery</h2>
+      <p className="text-slate-600 mb-6">
+        Upload or update main gallery images.
+      </p>
+      <div className="max-w-xl mx-auto mt-6">
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {images.map((image, index) => (
+            <div
+              key={index}
+              className="relative border-2 border-dashed border-gray-300 rounded-lg h-40 w-full overflow-hidden flex items-center justify-center group"
+            >
+              {image ? (
+                <>
+                  <img
+                    src={image.preview}
+                    alt={`Preview ${index + 1}`}
+                    className="object-cover w-full h-full"
+                  />
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <label
+                      htmlFor={`upload-${index}`}
+                      className="bg-white p-1 rounded shadow cursor-pointer text-xs"
+                      title="Edit"
+                    >
+                      ✏️
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id={`upload-${index}`}
+                        onChange={(e) => handleImageChange(e, index)}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </>
+              ) : (
+                <label
+                  htmlFor={`upload-${index}`}
+                  className="cursor-pointer text-gray-400 text-sm hover:text-gray-600 flex items-center justify-center w-full h-full"
+                >
+                  Click to upload
+                  <input
+                    id={`upload-${index}`}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(e, index)}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          ))}
+        </div>
 
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        className={`w-full py-2 px-4 text-white rounded ${
-          loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-        }`}
-      >
-        {loading
-          ? "Uploading..."
-          : isGalleryExisting
-          ? "Update Gallery"
-          : "Submit Gallery"}
-      </button>
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className={`w-full py-2 px-4 text-white rounded ${
+            loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          {loading
+            ? "Uploading..."
+            : isGalleryExisting
+            ? "Update Gallery"
+            : "Submit Gallery"}
+        </button>
+      </div>
     </div>
   );
 };

@@ -42,54 +42,55 @@ const AddRole = () => {
   };
 
   return (
-    <div className="flex justify-center">
-      <Card className="w-full max-w-sm shadow-md">
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold text-center">
-            Add New Role
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="text"
-              placeholder="Role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <label className="block font-medium">Permissions</label>
-            <div className="space-y-2">
-              {features.map((feature) => (
-                <label key={feature} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={editedData.permissions.includes(feature)}
-                    onChange={(e) => {
-                      const newPerms = editedData.permissions.includes(feature)
-                        ? editedData.permissions.filter((f) => f !== feature)
-                        : [...editedData.permissions, feature];
-                      setEditedData({ ...editedData, permissions: newPerms });
-                    }}
-                  />
-                  <span>{feature.replaceAll("_", " ")}</span>
-                </label>
-              ))}
-            </div>
+    <div>
+      <h2 className="text-2xl font-bold text-slate-900 mb-2">Add Role</h2>
+      <p className="text-slate-600 mb-6">Create role and assign permissions</p>
+      <div className="flex justify-center">
+        <Card className="w-full max-w-sm shadow-md">
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                type="text"
+                placeholder="Role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                required
+              />
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <label className="block font-medium">Permissions</label>
+              <div className="space-y-2">
+                {features.map((feature) => (
+                  <label key={feature} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={editedData.permissions.includes(feature)}
+                      onChange={(e) => {
+                        const newPerms = editedData.permissions.includes(
+                          feature
+                        )
+                          ? editedData.permissions.filter((f) => f !== feature)
+                          : [...editedData.permissions, feature];
+                        setEditedData({ ...editedData, permissions: newPerms });
+                      }}
+                    />
+                    <span>{feature.replaceAll("_", " ")}</span>
+                  </label>
+                ))}
+              </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating..." : "Create Role"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Creating..." : "Create Role"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

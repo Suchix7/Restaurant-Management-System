@@ -25,9 +25,11 @@ const getStatusColor = (status) => {
 
 const VenueView = () => {
   const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchData = async () => {
     try {
+      setLoading(true);
       const response = await axiosInstance.get("/venue-reservations");
       const data = response.data || [];
       setReservations(data);
@@ -35,6 +37,8 @@ const VenueView = () => {
       console.error("Error fetching reservations:", error);
       setReservations([]);
       toast.error("Error fetching reservations.");
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -139,7 +143,9 @@ const VenueView = () => {
         </Button>
       </div>
 
-      {reservations.length === 0 ? (
+      {loading ? (
+        <p className="text-slate-600">Loading...</p>
+      ) : reservations.length === 0 ? (
         <p className="text-slate-600">No reservations found.</p>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

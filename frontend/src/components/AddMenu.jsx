@@ -46,40 +46,41 @@ const AddMenu = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Add Menu Item</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            type="text"
-            placeholder="Category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          />
-
-          <Input type="file" accept="image/*" onChange={handleFileChange} />
-
-          {preview && (
-            <img
-              src={preview}
-              alt="preview"
-              className="h-80 w-full object-contain rounded border"
+    <div>
+      <h2 className="text-2xl font-bold text-slate-900 mb-2">Add Menu</h2>
+      <p className="text-slate-600 mb-6">Create the menu.</p>
+      <Card>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              type="text"
+              placeholder="Category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
             />
-          )}
 
-          {loading ? (
-            <Button type="submit">
-              <Loader className="animate-spin" />
-              Add Menu
-            </Button>
-          ) : (
-            <Button type="submit">Add Menu</Button>
-          )}
-        </form>
-      </CardContent>
-    </Card>
+            <Input type="file" accept="image/*" onChange={handleFileChange} />
+
+            {preview && (
+              <img
+                src={preview}
+                alt="preview"
+                className="h-80 w-full object-contain rounded border"
+              />
+            )}
+
+            {loading ? (
+              <Button type="submit">
+                <Loader className="animate-spin" />
+                Add Menu
+              </Button>
+            ) : (
+              <Button type="submit">Add Menu</Button>
+            )}
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

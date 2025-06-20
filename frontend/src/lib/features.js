@@ -13,7 +13,6 @@ const features = [
   "EmailConfig",
   "AddRole",
   "ViewRoles",
-  "EmailConfig",
 ];
 
 export default features;

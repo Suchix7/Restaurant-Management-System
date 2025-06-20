@@ -73,8 +73,11 @@ const ViewRoles = () => {
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">Roles Management</h2>
+    <div>
+      <h2 className="text-2xl font-bold text-slate-900 mb-2">
+        Role Management
+      </h2>
+      <p className="text-slate-600 mb-6">View and Update Roles</p>
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -94,13 +97,18 @@ const ViewRoles = () => {
                 <td className="border px-4 py-2">{role.role}</td>
                 <td className="border px-4 py-2">{role.password}</td>
                 <td className="border px-4 py-2 space-x-2">
-                  <Button size="sm" onClick={() => handleEditClick(role)}>
+                  <Button
+                    size="sm"
+                    onClick={() => handleEditClick(role)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+                  >
                     Edit
                   </Button>
                   <Button
                     size="sm"
                     variant="destructive"
                     onClick={() => handleDelete(role._id)}
+                    className="bg-red-500 hover:bg-red-600 text-white cursor-pointer"
                   >
                     Delete
                   </Button>
@@ -113,11 +121,11 @@ const ViewRoles = () => {
 
       {/* Edit Modal */}
       <Dialog open={!!editRole} onOpenChange={() => setEditRole(null)}>
-        <DialogContent>
+        <DialogContent className="bg-white h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Role</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 mt-4">
             <Input
               type="text"
               placeholder="Role"
@@ -153,8 +161,13 @@ const ViewRoles = () => {
               ))}
             </div>
           </div>
-          <DialogFooter>
-            <Button onClick={handleUpdate}>Update</Button>
+          <DialogFooter className="mt-6">
+            <Button
+              onClick={handleUpdate}
+              className="bg-green-500 hover:bg-green-600 text-white cursor-pointer"
+            >
+              Update
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

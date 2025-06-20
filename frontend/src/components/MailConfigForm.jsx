@@ -50,48 +50,56 @@ const MailConfigForm = () => {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-md">
-      <h2 className="text-xl font-semibold mb-4">
-        {isExisting ? "Edit Mail Configuration" : "Add Mail Configuration"}
+    <div>
+      <h2 className="text-2xl font-bold text-slate-900 mb-2">
+        Email Configuration
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block font-medium mb-1">Email:</label>
-          <input
-            type="email"
-            className="w-full border rounded px-3 py-2"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+      <p className="text-slate-600 mb-6">
+        Set or update the primary email and pass.
+      </p>
+      <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-md">
+        <h2 className="text-xl font-semibold mb-4">
+          {isExisting ? "Edit Mail Configuration" : "Add Mail Configuration"}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block font-medium mb-1">Email:</label>
+            <input
+              type="email"
+              className="w-full border rounded px-3 py-2"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-        <div className="relative">
-          <label className="block font-medium mb-1">Password:</label>
-          <input
-            type={showPass ? "text" : "password"}
-            className="w-full border rounded px-3 py-2 pr-10"
-            value={pass}
-            onChange={(e) => setPass(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <label className="block font-medium mb-1">Password:</label>
+            <input
+              type={showPass ? "text" : "password"}
+              className="w-full border rounded px-3 py-2 pr-10"
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass(!showPass)}
+              className="absolute top-9 right-3 text-gray-500 hover:text-gray-700"
+              tabIndex={-1}
+            >
+              {showPass ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+            </button>
+          </div>
+
           <button
-            type="button"
-            onClick={() => setShowPass(!showPass)}
-            className="absolute top-9 right-3 text-gray-500 hover:text-gray-700"
-            tabIndex={-1}
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
           >
-            {showPass ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+            {isExisting ? "Update" : "Save"}
           </button>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-        >
-          {isExisting ? "Update" : "Save"}
-        </button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

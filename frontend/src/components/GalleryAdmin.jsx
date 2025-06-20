@@ -40,84 +40,87 @@ const GalleryAdmin = () => {
   const uniqueCategories = [...new Set(galleries.map((g) => g.category))];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Gallery</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Category Selector */}
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring"
-        >
-          <option value="">Select Category</option>
-          {uniqueCategories.map((category, index) => (
-            <option key={index} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
+    <div>
+      <h2 className="text-2xl font-bold text-slate-900 mb-2">Gallery</h2>
+      <p className="text-slate-600 mb-6">View the details of the gallery.</p>
+      <Card>
+        <CardContent className="space-y-4">
+          {/* Category Selector */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring"
+          >
+            <option value="">Select Category</option>
+            {uniqueCategories.map((category, index) => (
+              <option key={index} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
 
-        {/* Description and Main Image */}
-        {selectedCategory && (
-          <>
-            {description && (
-              <>
-                <h2 className="text-xl font-semibold text-slate-800 mb-2">
-                  Description:
-                </h2>
-                <p className="text-slate-700 text-base italic">{description}</p>
-              </>
-            )}
+          {/* Description and Main Image */}
+          {selectedCategory && (
+            <>
+              {description && (
+                <>
+                  <h2 className="text-xl font-semibold text-slate-800 mb-2">
+                    Description:
+                  </h2>
+                  <p className="text-slate-700 text-base italic">
+                    {description}
+                  </p>
+                </>
+              )}
 
-            {mainImage && (
-              <>
-                <h2 className="text-xl font-semibold text-slate-800 mb-2">
-                  Main Image:
-                </h2>
-                <div className="w-full max-w-md h-72 rounded border overflow-hidden">
-                  <img
-                    src={mainImage.imageUrl}
-                    alt="Main"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </>
-            )}
-          </>
-        )}
+              {mainImage && (
+                <>
+                  <h2 className="text-xl font-semibold text-slate-800 mb-2">
+                    Main Image:
+                  </h2>
+                  <div className="w-full max-w-md h-72 rounded border overflow-hidden">
+                    <img
+                      src={mainImage.imageUrl}
+                      alt="Main"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </>
+              )}
+            </>
+          )}
 
-        {/* Gallery Grid */}
-        {filteredImages.length > 0 ? (
-          <>
-            <h2 className="text-xl font-semibold text-slate-800 mb-4">
-              Images in {selectedCategory} Category:
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {filteredImages.map((img, idx) => (
-                <div
-                  key={idx}
-                  className="w-full h-80 overflow-hidden rounded border"
-                >
-                  <img
-                    src={img.url}
-                    alt={`gallery-${idx}`}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              ))}
-            </div>
-          </>
-        ) : selectedCategory ? (
-          <p className="text-slate-500">No images found for this category.</p>
-        ) : (
-          <p className="text-slate-500">
-            Please select a category to view images.
-          </p>
-        )}
-      </CardContent>
-    </Card>
+          {/* Gallery Grid */}
+          {filteredImages.length > 0 ? (
+            <>
+              <h2 className="text-xl font-semibold text-slate-800 mb-4">
+                Images in {selectedCategory} Category:
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {filteredImages.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="w-full h-80 overflow-hidden rounded border"
+                  >
+                    <img
+                      src={img.url}
+                      alt={`gallery-${idx}`}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : selectedCategory ? (
+            <p className="text-slate-500">No images found for this category.</p>
+          ) : (
+            <p className="text-slate-500">
+              Please select a category to view images.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

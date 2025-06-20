@@ -72,97 +72,102 @@ const AddEvents = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-6 rounded shadow">
-      <h2 className="text-xl font-bold text-slate-800 mb-4">Add New Event</h2>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          name="title"
-          placeholder="Title"
-          value={formData.title || ""}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          name="date"
-          type="date"
-          value={formData.date || ""}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          name="time"
-          type="time"
-          value={formData.time || ""}
-          onChange={handleChange}
-          required
-        />
-        <Textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description || ""}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          name="location"
-          placeholder="Location"
-          value={formData.location || ""}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          name="category"
-          placeholder="Category"
-          value={formData.category || ""}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          name="price"
-          placeholder="Price"
-          value={formData.price || ""}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          name="capacity"
-          type="number"
-          placeholder="Capacity"
-          value={formData.capacity ?? ""}
-          onChange={handleChange}
-          required
-        />
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700">
-            Poster Image
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
+    <div>
+      <h2 className="text-2xl font-bold text-slate-900 mb-2">Add Events</h2>
+      <p className="text-slate-600 mb-6">Create new events</p>
+      <div className="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            name="title"
+            placeholder="Title"
+            value={formData.title || ""}
+            onChange={handleChange}
             required
           />
-          {posterPreview && (
-            <img
-              src={posterPreview}
-              alt="Poster Preview"
-              className="mt-2 w-full max-w-xs h-48 object-cover rounded shadow"
+          <Input
+            name="date"
+            type="date"
+            value={formData.date || ""}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="time"
+            type="time"
+            value={formData.time || ""}
+            onChange={handleChange}
+            required
+          />
+          <Textarea
+            name="description"
+            placeholder="Description"
+            value={formData.description || ""}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="location"
+            placeholder="Location"
+            value={formData.location || ""}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="category"
+            placeholder="Category"
+            value={formData.category || ""}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="price"
+            placeholder="Price"
+            value={formData.price || ""}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            name="capacity"
+            type="number"
+            placeholder="Capacity"
+            value={formData.capacity ?? ""}
+            onChange={handleChange}
+            required
+          />
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Poster Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              required
             />
+            {posterPreview && (
+              <img
+                src={posterPreview}
+                alt="Poster Preview"
+                className="mt-2 w-full max-w-xs h-48 object-cover rounded shadow"
+              />
+            )}
+          </div>
+          {loading ? (
+            <Button disabled className="bg-blue-500">
+              <Loader className="animate-spin" />
+              Create Event
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              className="bg-blue-500 cursor-pointer text-white"
+            >
+              Create Event
+            </Button>
           )}
-        </div>
-        {loading ? (
-          <Button disabled className="bg-blue-500">
-            <Loader className="animate-spin" />
-            Create Event
-          </Button>
-        ) : (
-          <Button type="submit" className="bg-blue-500 cursor-pointer">
-            Create Event
-          </Button>
-        )}
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

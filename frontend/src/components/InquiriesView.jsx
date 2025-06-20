@@ -5,13 +5,17 @@ import { toast } from "react-hot-toast";
 
 const InquiriesView = () => {
   const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchInquiries = async () => {
     try {
+      setLoading(true);
       const res = await axiosInstance.get("/contact");
       setInquiries(res.data || []);
     } catch (error) {
       console.error("Error fetching inquiries:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,7 +44,9 @@ const InquiriesView = () => {
       <h2 className="text-2xl font-bold text-slate-900">Customer Inquiries</h2>
       <p className="text-slate-600">Review and respond to user inquiries.</p>
 
-      {inquiries.length > 0 ? (
+      {loading ? (
+        <p>Loading...</p>
+      ) : inquiries.length > 0 ? (
         <div className="overflow-x-auto rounded border">
           <table className="min-w-full table-auto text-sm text-left text-slate-700">
             <thead className="bg-slate-100 text-slate-800 font-medium">
