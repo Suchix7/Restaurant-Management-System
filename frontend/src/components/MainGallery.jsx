@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "@/lib/axiosInstance.js";
+import toast from "react-hot-toast";
 
 const MainGallery = () => {
   const [images, setImages] = useState(Array(6).fill(null));
