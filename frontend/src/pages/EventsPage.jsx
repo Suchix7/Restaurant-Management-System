@@ -107,7 +107,7 @@ const EventCard = ({ event, onRSVP }) => {
           </span>
           {isAlmostFull && (
             <span className="text-sm text-red-500 font-medium">
-              Only {spotsLeft} spots left!
+              Only {spotsLeft} spots left
             </span>
           )}
         </div>
