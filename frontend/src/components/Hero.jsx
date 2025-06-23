@@ -4,8 +4,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const heroImages = [
-  "/images/hero1.jpg",
-  "/images/hero2.jpg",
+  "/images/newhero1.jpg",
+  "/images/newhero2.jpg",
   "/images/hero3.jpg",
   "/images/hero4.jpg",
 ];
