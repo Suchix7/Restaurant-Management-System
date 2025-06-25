@@ -10,31 +10,51 @@ import { Card, CardContent } from "@/components/ui/card";
 import Gallery from "@/components/Gallery";
 import BrandSection from "@/components/BrandSection";
 import Footer from "@/components/Footer";
+import axiosInstance from "@/lib/axiosInstance.js";
 
 function LandingPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [hasSeenPopup, setHasSeenPopup] = useState(false);
+  const [events, setEvents] = useState([]);
   // Carousel state (moved out of conditional rendering)
-  const events = [
-    {
-      title: "🎶 Live Music Tonight",
-      description:
-        "Join us at 4 Donkeys Bar for an unforgettable jazz night. Enjoy signature cocktails and a live band from 7PM till late. Be there early to grab your favorite spot!",
-      image: "/images/section.jpg",
-    },
-    {
-      title: "🍹 Ladies Night Thursday",
-      description:
-        "Free cocktails for ladies from 6PM to 9PM. Dance, laugh, and enjoy the best beats from our live DJ all evening!",
-      image: "/images/cocktail1.jpg",
-    },
-    {
-      title: "🎉 Weekend Bash",
-      description:
-        "Don’t miss our weekend bash this Friday! Fire shows, drink specials, and guest DJs to turn the night into a memory.",
-      image: "/images/cocktail4.jpg",
-    },
-  ];
+  // const events = [
+  //   {
+  //     title: "🎶 Live Music Tonight",
+  //     description:
+  //       "Join us at 4 Donkeys Bar for an unforgettable jazz night. Enjoy signature cocktails and a live band from 7PM till late. Be there early to grab your favorite spot!",
+  //     image: "/images/section.jpg",
+  //   },
+  //   {
+  //     title: "🍹 Ladies Night Thursday",
+  //     description:
+  //       "Free cocktails for ladies from 6PM to 9PM. Dance, laugh, and enjoy the best beats from our live DJ all evening!",
+  //     image: "/images/cocktail1.jpg",
+  //   },
+  //   {
+  //     title: "🎉 Weekend Bash",
+  //     description:
+  //       "Don’t miss our weekend bash this Friday! Fire shows, drink specials, and guest DJs to turn the night into a memory.",
+  //     image: "/images/cocktail4.jpg",
+  //   },
+  // ];
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axiosInstance.get("/events");
+      const data = response.data.map((item) => ({
+        title: item.title,
+        description: item.description,
+        image: item.posterImage.imageUrl,
+      }));
+      setEvents(data);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
   const [slideIndex, setSlideIndex] = useState(0);
   const currentEvent = events[slideIndex];
@@ -103,7 +123,7 @@ function LandingPage() {
 
       {/* Popup Modal */}
       <AnimatePresence>
-        {showPopup && (
+        {showPopup && events.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
