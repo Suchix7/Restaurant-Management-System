@@ -14,7 +14,47 @@ import Footer from "@/components/Footer";
 function LandingPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [hasSeenPopup, setHasSeenPopup] = useState(false);
+  // Carousel state (moved out of conditional rendering)
+  const events = [
+    {
+      title: "🎶 Live Music Tonight",
+      description:
+        "Join us at 4 Donkeys Bar for an unforgettable jazz night. Enjoy signature cocktails and a live band from 7PM till late. Be there early to grab your favorite spot!",
+      image: "/images/section.jpg",
+    },
+    {
+      title: "🍹 Ladies Night Thursday",
+      description:
+        "Free cocktails for ladies from 6PM to 9PM. Dance, laugh, and enjoy the best beats from our live DJ all evening!",
+      image: "/images/cocktail1.jpg",
+    },
+    {
+      title: "🎉 Weekend Bash",
+      description:
+        "Don’t miss our weekend bash this Friday! Fire shows, drink specials, and guest DJs to turn the night into a memory.",
+      image: "/images/cocktail4.jpg",
+    },
+  ];
 
+  const [slideIndex, setSlideIndex] = useState(0);
+  const currentEvent = events[slideIndex];
+
+  const nextSlide = () => setSlideIndex((prev) => (prev + 1) % events.length);
+  const prevSlide = () =>
+    setSlideIndex((prev) => (prev === 0 ? events.length - 1 : prev - 1));
+
+  useEffect(() => {
+    const seen = sessionStorage.getItem("seen-event-popup");
+    if (!seen) {
+      const timeout = setTimeout(() => {
+        setShowPopup(true);
+        setHasSeenPopup(true);
+        sessionStorage.setItem("seen-event-popup", "true");
+      }, 5000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, []);
   // Show popup once on first load
   // Show popup after 5 seconds on first load
   useEffect(() => {
@@ -41,25 +81,25 @@ function LandingPage() {
 
       <button
         onClick={() => setShowPopup(true)}
-        className="fixed bottom-6 left-4 md:left-20 md:-translate-y-1/2 z-50 font-semibold transition-all hover:scale-105 active:scale-95 flex items-center justify-center"
+        className="fixed bottom-6 left-4 md:left-20 md:-translate-y-1/2 z-50 transition-all hover:scale-105 active:scale-95"
         style={{
-          clipPath:
-            "polygon(50% 0%, 90% 0%, 60% 40%, 60% 65%, 70% 80%, 30% 80%, 40% 65%, 40% 40%, 10% 0%)",
-          width: "80px",
-          height: "120px",
-          background: `
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1)),
-      radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.4), transparent),
-      rgba(255, 255, 255, 0.05)
-    `,
-          backdropFilter: "blur(4px)",
-          WebkitBackdropFilter: "blur(4px)",
-          border: "1px solid rgba(255, 255, 255, 0.3)",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
-          borderRadius: "14px",
-          color: "#ffffff",
+          width: "160px",
+          background: "transparent",
+          padding: 0,
+          border: "none",
         }}
-      ></button>
+      >
+        <img
+          src="/images/cocktaillogo.png"
+          alt="Cocktail Logo"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            filter: "drop-shadow(0 0 12px rgba(255, 255, 255, 0.5))", // Glow that follows transparency
+          }}
+        />
+      </button>
 
       {/* Popup Modal */}
       <AnimatePresence>
@@ -90,25 +130,27 @@ function LandingPage() {
               <div className="md:hidden">
                 <div className="flex flex-col">
                   <img
-                    src="/images/section.jpg"
-                    alt="Today's Event"
-                    className="w-full h-48 object-cover"
+                    src={currentEvent.image}
+                    alt={currentEvent.title}
+                    className="w-full h-72 object-cover" // Increased height
                   />
-                  <div className="p-5">
-                    <h2 className="text-xl font-bold mb-3 text-[#2D6A4F]">
-                      🎶 Live Music Tonight
+                  <div className="p-6">
+                    <h2 className="text-2xl font-bold mb-4 text-[#2D6A4F]">
+                      {currentEvent.title}
                     </h2>
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      Join us at 4 Donkeys Bar for an unforgettable jazz night.
-                      Enjoy signature cocktails and a live band from 7PM till
-                      late. Be there early to grab your favorite spot!
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      {currentEvent.description}
                     </p>
                     <button
                       onClick={() => setShowPopup(false)}
-                      className="mt-4 w-full bg-[#2D6A4F] text-white py-3 rounded-lg font-semibold hover:bg-[#235040] transition-colors"
+                      className="mt-5 w-full bg-[#2D6A4F] text-white py-3 rounded-lg font-semibold hover:bg-[#235040] transition-colors"
                     >
                       Reserve Your Spot
                     </button>
+                    <div className="flex justify-between mt-5 text-base text-[#2D6A4F] font-semibold">
+                      <button onClick={prevSlide}>← Previous</button>
+                      <button onClick={nextSlide}>Next →</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -116,18 +158,16 @@ function LandingPage() {
               {/* Desktop View */}
               <div className="hidden md:block">
                 <img
-                  src="/images/section.jpg"
-                  alt="Today's Event"
+                  src={currentEvent.image}
+                  alt={currentEvent.title}
                   className="w-full h-[600px] object-cover"
                 />
                 <div className="p-6">
                   <h2 className="text-2xl font-bold mb-3 text-[#2D6A4F]">
-                    🎶 Live Music Tonight!
+                    {currentEvent.title}
                   </h2>
                   <p className="text-base text-gray-700 mb-4">
-                    Join us at 4 Donkeys Bar for an unforgettable jazz night.
-                    Enjoy signature cocktails and a live band from 7PM till
-                    late. Be there early to grab your favorite spot!
+                    {currentEvent.description}
                   </p>
                   <button
                     onClick={() => setShowPopup(false)}
@@ -135,6 +175,10 @@ function LandingPage() {
                   >
                     Reserve Your Spot
                   </button>
+                  <div className="flex justify-between mt-4 text-[#2D6A4F] font-semibold">
+                    <button onClick={prevSlide}>← Previous</button>
+                    <button onClick={nextSlide}>Next →</button>
+                  </div>
                 </div>
               </div>
             </motion.div>
