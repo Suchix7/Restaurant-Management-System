@@ -11,6 +11,7 @@ import Gallery from "@/components/Gallery";
 import BrandSection from "@/components/BrandSection";
 import Footer from "@/components/Footer";
 import axiosInstance from "@/lib/axiosInstance.js";
+import toast from "react-hot-toast";
 
 function LandingPage() {
   const [showPopup, setShowPopup] = useState(false);
@@ -42,6 +43,7 @@ function LandingPage() {
     try {
       const response = await axiosInstance.get("/events");
       const data = response.data.map((item) => ({
+        id: item._id,
         title: item.title,
         description: item.description,
         image: item.posterImage.imageUrl,
@@ -55,6 +57,31 @@ function LandingPage() {
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  const handleRSVP = async (event) => {
+    console.log(event);
+    try {
+      const rsvpData = JSON.parse(localStorage.getItem(`rsvp_${event.id}`));
+      if (rsvpData && Date.now() - rsvpData.timestamp < 24 * 60 * 60 * 1000) {
+        toast.error(
+          `You have already RSVP'd for ${event.title} within the last 24 hours.`
+        );
+        return;
+      }
+      const response = await axiosInstance.put(`/events/rsvp/${event.id}`);
+      console.log("RSVP response:", response.data);
+      localStorage.setItem(
+        `rsvp_${event.id}`,
+        JSON.stringify({ eventId: event.id, timestamp: Date.now() })
+      );
+    } catch (error) {
+      console.error("RSVP failed:", error);
+    }
+
+    toast.success(
+      `Thanks for your interest in ${event.title}! We'll be in touch soon.`
+    );
+  };
 
   const [slideIndex, setSlideIndex] = useState(0);
   const currentEvent = events[slideIndex];
@@ -162,7 +189,10 @@ function LandingPage() {
                       {currentEvent.description}
                     </p>
                     <button
-                      onClick={() => setShowPopup(false)}
+                      onClick={() => {
+                        handleRSVP(currentEvent);
+                        setShowPopup(false);
+                      }}
                       className="mt-5 w-full bg-[#2D6A4F] text-white py-3 rounded-lg font-semibold hover:bg-[#235040] transition-colors"
                     >
                       Reserve Your Spot
@@ -190,7 +220,10 @@ function LandingPage() {
                     {currentEvent.description}
                   </p>
                   <button
-                    onClick={() => setShowPopup(false)}
+                    onClick={() => {
+                      handleRSVP(currentEvent);
+                      setShowPopup(false);
+                    }}
                     className="w-full bg-[#2D6A4F] text-white py-3 rounded-lg font-semibold hover:bg-[#235040] transition-colors"
                   >
                     Reserve Your Spot
