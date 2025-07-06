@@ -5,6 +5,8 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import toast from "react-hot-toast";
 import axiosInstance from "@/lib/axiosInstance.js";
+import Popup from "@/components/Popup";
+import EventLogoButton from "@/components/EventLogoButton";
 
 const EventCard = ({ event, onRSVP }) => {
   const [isInterested, setIsInterested] = useState(false);
@@ -124,6 +126,8 @@ const EventCard = ({ event, onRSVP }) => {
 };
 
 const EventsPage = () => {
+  const [showPopup, setShowPopup] = useState(false);
+
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -198,7 +202,11 @@ const EventsPage = () => {
           </div>
         </div>
       </div>
-
+      {/* Show only on medium (md) and up */}
+      <div className="hidden md:block">
+        <EventLogoButton onClick={() => setShowPopup(true)} />
+        <Popup show={showPopup} onClose={() => setShowPopup(false)} />
+      </div>
       <Footer />
     </div>
   );

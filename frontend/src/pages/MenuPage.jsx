@@ -4,8 +4,15 @@ import { ChevronLeft, ChevronRight, ZoomIn, X } from "lucide-react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import axiosInstance from "@/lib/axiosInstance"; // Adjust the import based on your project structure
-
+import Popup from "@/components/Popup";
+import EventLogoButton from "@/components/EventLogoButton";
 const MenuPage = () => {
+  const [showPopup, setShowPopup] = useState(false);
+  const [hasSeenPopup, setHasSeenPopup] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const currentEvent = events[slideIndex];
+
   const [currentPage, setCurrentPage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [menuPages, setMenuPages] = useState([]);
@@ -167,7 +174,13 @@ const MenuPage = () => {
       </div>
 
       <Footer />
+      <div className="hidden md:block">
+        {/* Cocktail Floating Button */}
+        <EventLogoButton onClick={() => setShowPopup(true)} />
 
+        {/* Popup Component */}
+        <Popup show={showPopup} onClose={() => setShowPopup(false)} />
+      </div>
       {/* Fullscreen Zoom View */}
       <AnimatePresence>
         {isZoomed && (

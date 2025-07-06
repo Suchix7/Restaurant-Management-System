@@ -1,10 +1,19 @@
+import { useEffect, useState } from "react";
 import React from "react";
 import { motion } from "framer-motion";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import ReserveVenuePage from "./ReserveVenuePage";
+import Popup from "@/components/Popup";
+import EventLogoButton from "@/components/EventLogoButton";
 
 const BookingPage = () => {
+  const [showPopup, setShowPopup] = useState(false);
+  const [hasSeenPopup, setHasSeenPopup] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const currentEvent = events[slideIndex];
+
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
       <NavBar forceSolid={true} />
@@ -28,7 +37,10 @@ const BookingPage = () => {
           <ReserveVenuePage />
         </motion.div>
       </div>
-
+      <div className="hidden md:block">
+        <EventLogoButton onClick={() => setShowPopup(true)} />
+        <Popup show={showPopup} onClose={() => setShowPopup(false)} />
+      </div>
       <Footer />
     </div>
   );

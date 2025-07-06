@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from "lucide-react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import toast from "react-hot-toast";
 import axiosInstance from "@/lib/axiosInstance.js";
-
+import Popup from "@/components/Popup";
+import EventLogoButton from "@/components/EventLogoButton";
 const ContactInfo = () => (
   <div className="bg-white rounded-2xl shadow-lg p-8">
     <h3 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h3>
@@ -204,6 +205,8 @@ const GoogleMap = () => (
 );
 
 const ContactPage = () => {
+  const [showPopup, setShowPopup] = useState(false);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar forceSolid={true} />
@@ -251,8 +254,11 @@ const ContactPage = () => {
           </motion.div>
         </div>
       </div>
-
-      <Footer />
+      {/* Show only on medium (md) and up */}
+      <div className="hidden md:block">
+        <EventLogoButton onClick={() => setShowPopup(true)} />
+        <Popup show={showPopup} onClose={() => setShowPopup(false)} />
+      </div>
     </div>
   );
 };
