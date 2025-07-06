@@ -56,6 +56,31 @@ function LandingPage() {
     fetchEvents();
   }, []);
 
+  const handleRSVP = async (event) => {
+    // In a real app, this would make an API call to handle the RSVP
+    try {
+      const rsvpData = JSON.parse(localStorage.getItem(`rsvp_${event._id}`));
+      if (rsvpData && Date.now() - rsvpData.timestamp < 24 * 60 * 60 * 1000) {
+        toast.error(
+          `You have already RSVP'd for ${event.title} within the last 24 hours.`
+        );
+        return;
+      }
+      const response = await axiosInstance.put(`/events/rsvp/${event._id}`);
+      console.log("RSVP response:", response.data);
+      localStorage.setItem(
+        `rsvp_${event._id}`,
+        JSON.stringify({ eventId: event._id, timestamp: Date.now() })
+      );
+    } catch (error) {
+      console.error("RSVP failed:", error);
+    }
+
+    toast.success(
+      `Thanks for your interest ingi ${event.title}! We'll be in touch soon.`
+    );
+  };
+
   const [slideIndex, setSlideIndex] = useState(0);
   const currentEvent = events[slideIndex];
 
@@ -162,7 +187,10 @@ function LandingPage() {
                       {currentEvent.description}
                     </p>
                     <button
-                      onClick={() => setShowPopup(false)}
+                      onClick={() => {
+                        handleRSVP(currentEvent);
+                        setShowPopup(false);
+                      }}
                       className="mt-5 w-full bg-[#2D6A4F] text-white py-3 rounded-lg font-semibold hover:bg-[#235040] transition-colors"
                     >
                       Reserve Your Spot
