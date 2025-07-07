@@ -20,6 +20,7 @@ import Subscriber from "./models/subscriber.model.js";
 import { requirePermission } from "./middleware/auth.middleware.js";
 import MainGallery from "./models/maingallery.model.js";
 import mailRouter from "./routes/mail.route.js";
+import Specials from "./models/specials.model.js";
 
 const app = express();
 app.set("trust proxy", true);
@@ -229,6 +230,241 @@ app.delete("/api/contact/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.post(
+  "/api/specials",
+  requirePermission("AddSpecials"),
+  upload.single("posterImage"),
+  async (req, res) => {
+    try {
+      const {
+        title,
+        date,
+        time,
+        description,
+        location,
+        category,
+        price,
+        capacity,
+        rsvpCount,
+      } = req.body;
+      const file = req.file;
+
+      if (!file) {
+        return res.status(400).json({ message: "No poster image provided" });
+      }
+
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinaryV2.uploader.upload_stream(
+          {
+            folder: "specials-posters",
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(file.buffer);
+      });
+
+      const newEvent = await Specials.create({
+        title,
+        date,
+        time,
+        description,
+        posterImage: {
+          imageUrl: result.secure_url,
+          publicId: result.public_id,
+        },
+        location,
+        category,
+        price,
+        capacity: parseInt(capacity, 10),
+        rsvpCount: parseInt(rsvpCount, 10) || 0,
+      });
+
+      res
+        .status(201)
+        .json({ message: "Special created successfully", event: newEvent });
+    } catch (error) {
+      console.error("Error uploading event poster:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
+app.get("/api/specials", async (req, res) => {
+  try {
+    const specials = await Specials.find({});
+    return res.status(200).json(specials);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/specials/:id", async (req, res) => {
+  try {
+    const special = await Specials.findById(req.params.id);
+    if (!special) {
+      return res.status(404).json({ message: "Special not found" });
+    }
+    res.status(200).json(special);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.delete(
+  "/api/specials/:id",
+  requirePermission("Specials"),
+  async (req, res) => {
+    try {
+      const event = await Specials.findById(req.params.id);
+      if (!event) {
+        return res.status(404).json({ message: "Special not found" });
+      }
+
+      // Delete image from Cloudinary if it exists
+      if (event.posterImage && event.posterImage.publicId) {
+        await cloudinary.v2.uploader.destroy(event.posterImage.publicId, {
+          resource_type: "image",
+        });
+      }
+
+      // Delete the event from MongoDB
+      await Event.findByIdAndDelete(req.params.id);
+
+      res.status(200).json({ message: "Event deleted successfully" });
+    } catch (error) {
+      console.error("Event delete error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
+app.put(
+  "/api/specials/:id",
+  requirePermission("Specials"),
+  upload.single("posterImage"),
+  async (req, res) => {
+    try {
+      const {
+        title,
+        date,
+        time,
+        description,
+        location,
+        category,
+        price,
+        capacity,
+      } = req.body;
+
+      if (
+        !title ||
+        !date ||
+        !time ||
+        !description ||
+        !location ||
+        !category ||
+        !price ||
+        !capacity
+      ) {
+        return res.status(400).json({ message: "All fields are required." });
+      }
+
+      const event = await Specials.findById(req.params.id);
+      if (!event) {
+        return res.status(404).json({ message: "Event not found." });
+      }
+
+      let newPosterImage = event.posterImage;
+
+      if (req.file) {
+        // Delete old image from Cloudinary if exists
+        if (event.posterImage?.publicId) {
+          await cloudinaryV2.uploader.destroy(event.posterImage.publicId, {
+            resource_type: "image",
+          });
+        }
+
+        // Upload new poster image
+        const streamUpload = () =>
+          new Promise((resolve, reject) => {
+            const stream = cloudinaryV2.uploader.upload_stream(
+              {
+                folder: "specilas/posters",
+                resource_type: "image",
+              },
+              (error, result) => {
+                if (error) reject(error);
+                else
+                  resolve({
+                    imageUrl: result.secure_url,
+                    publicId: result.public_id,
+                  });
+              }
+            );
+
+            Readable.from(req.file.buffer).pipe(stream);
+          });
+
+        newPosterImage = await streamUpload();
+      }
+
+      // Update event
+      const updatedEvent = await Specials.findByIdAndUpdate(
+        req.params.id,
+        {
+          title,
+          date,
+          time,
+          description,
+          location,
+          category,
+          price,
+          capacity: parseInt(capacity, 10) || 0,
+          posterImage: newPosterImage,
+        },
+        { new: true }
+      );
+
+      res.status(200).json({
+        message: "Special updated successfully.",
+        event: updatedEvent,
+      });
+    } catch (error) {
+      console.error("Error updating event:", error);
+      res.status(500).json({ message: "Internal server error." });
+    }
+  }
+);
+
+app.put("/api/specials/rsvp/:id", async (req, res) => {
+  try {
+    const event = await Specials.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found." });
+    }
+
+    event.rsvpCount = (event.rsvpCount || 0) + 1;
+    if (event.capacity && event.rsvpCount > event.capacity) {
+      return res.status(400).json({
+        message: "RSVP limit exceeded. Please contact us for more information.",
+      });
+    }
+    await event.save();
+
+    res.status(200).json({
+      message: "RSVP updated successfully.",
+      rsvpCount: event.rsvpCount,
+    });
+  } catch (error) {
+    console.error("Error updating RSVP:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
