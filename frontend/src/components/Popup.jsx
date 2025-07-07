@@ -13,7 +13,7 @@ function Popup({ show, onClose }) {
 
   const fetchEvents = async () => {
     try {
-      const response = await axiosInstance.get("/events");
+      const response = await axiosInstance.get("/specials");
       const data = response.data.map((item) => ({
         id: item._id,
         title: item.title,
@@ -39,7 +39,7 @@ function Popup({ show, onClose }) {
         );
         return;
       }
-      const response = await axiosInstance.put(`/events/rsvp/${event.id}`);
+      const response = await axiosInstance.put(`/specials/rsvp/${event.id}`);
       console.log("RSVP response:", response.data);
       localStorage.setItem(
         `rsvp_${event.id}`,

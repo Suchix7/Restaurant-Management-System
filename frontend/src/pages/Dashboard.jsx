@@ -42,6 +42,8 @@ import AddRole from "@/components/AddRole";
 import ViewRoles from "@/components/ViewRoles";
 import MainGallery from "@/components/MainGallery";
 import MailConfigForm from "@/components/MailConfigForm";
+import AddSpecials from "@/components/AddSpecials";
+import Specials from "@/components/Specials";
 
 const DashboardView = () => (
   <div>
@@ -102,6 +104,8 @@ const Dashboard = ({ userRole }) => {
     { icon: FileText, label: "Manage Gallery", key: "ManageGallery" },
     { icon: FileText, label: "Add Events", key: "AddEvents" },
     { icon: CalendarDays, label: "Events", key: "Events" },
+    { icon: FileText, label: "Add Specials", key: "AddSpecials" },
+    { icon: CalendarDays, label: "Specials", key: "Specials" },
     { icon: ClipboardList, label: "Inquiries", key: "Inquiries" },
     { icon: Mail, label: "Email Config", key: "EmailConfig" },
     { icon: User, label: "Add Role", key: "AddRole" },
@@ -212,6 +216,8 @@ const Dashboard = ({ userRole }) => {
             {selectedTab === "ManageGallery" && <ManageGallery />}
             {selectedTab === "AddEvents" && <AddEvents />}
             {selectedTab === "Events" && <EventsView />}
+            {selectedTab === "AddSpecials" && <AddSpecials />}
+            {selectedTab === "Specials" && <Specials />}
             {selectedTab === "Inquiries" && <InquiriesView />}
             {selectedTab === "EmailConfig" && <MailConfigForm />}
             {selectedTab === "AddRole" && <AddRole />}

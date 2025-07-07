@@ -9,6 +9,8 @@ const features = [
   "ManageGallery",
   "AddEvents",
   "Events",
+  "AddSpecials",
+  "Specials",
   "Inquiries",
   "EmailConfig",
   "AddRole",
