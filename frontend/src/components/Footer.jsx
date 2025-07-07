@@ -29,9 +29,9 @@ const Footer = () => {
     }
   };
   return (
-    <footer className="bg-[#435644] text-white pt-16">
+    <footer className="bg-[#435644] text-white ">
       {/* Newsletter Signup */}
-      <div className="max-w-4xl mx-auto px-6 text-center">
+      {/* <div className="max-w-4xl mx-auto px-6 text-center">
         <h2 className="text-3xl font-bold mb-2">Subscribe to Our Newsletter</h2>
         <p className="mb-6 text-sm">
           Be the first to hear about upcoming events, specials, and more.
@@ -57,10 +57,10 @@ const Footer = () => {
             )}
           </div>
         </form>
-      </div>
+      </div> */}
 
       {/* Info Grid */}
-      <div className="max-w-[1600px] mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-10 mt-12 border-t border-white/20">
+      <div className="max-w-[1600px] mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-10  ">
         {/* Quick Links */}
         <div>
           <h4 className="text-lg font-semibold mb-4">Quick Links</h4>

@@ -5,7 +5,7 @@ function EventLogoButton({ onClick }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-6 left-4 md:left-20 md:-translate-y-1/2 z-50 transition-all hover:scale-105 active:scale-95"
+      className="fixed bottom-6 left-4 cursor-pointer md:left-20 md:-translate-y-1/2 z-50 transition-all hover:scale-105 active:scale-95"
       style={{
         width: "160px",
         background: "transparent",

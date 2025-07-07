@@ -85,7 +85,7 @@ const MenuPage = () => {
           </div>
 
           {/* Menu Navigation */}
-          <div className="flex justify-center gap-4 mb-8">
+          {/* <div className="flex justify-center gap-4 mb-8">
             {menuPages.map((page, index) => (
               <button
                 key={page.id}
@@ -99,7 +99,7 @@ const MenuPage = () => {
                 {page.title}
               </button>
             ))}
-          </div>
+          </div> */}
 
           {/* Menu Display */}
           {menuPages.length > 0 && (
