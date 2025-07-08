@@ -13,6 +13,7 @@ import Footer from "@/components/Footer";
 import axiosInstance from "@/lib/axiosInstance.js";
 import Popup from "@/components/Popup";
 import EventLogoButton from "@/components/EventLogoButton";
+import Spinner from "@/components/Spinner";
 
 const GalleryPage = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -122,7 +123,7 @@ const GalleryPage = () => {
               collection
             </p>
           </motion.div>
-          {categories.length > 0 && (
+          {categories.length > 0 ? (
             <div className="py-4 mb-6">
               <div className="container mx-auto px-4 flex flex-wrap gap-3 justify-center">
                 {categories.map((category) => (
@@ -152,6 +153,10 @@ const GalleryPage = () => {
                   </button>
                 ))}
               </div>
+            </div>
+          ) : (
+            <div className="flex justify-center items-center h-64">
+              <Spinner color="gray" />
             </div>
           )}
 

@@ -70,7 +70,7 @@ const Gallery = () => {
             ))
           ) : (
             <div className="col-span-full flex justify-center items-center h-[300px]">
-              <Spinner color="green" />
+              <Spinner />
             </div>
           )}
         </div>

@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import axiosInstance from "@/lib/axiosInstance.js";
 import Popup from "@/components/Popup";
 import EventLogoButton from "@/components/EventLogoButton";
+import Spinner from "@/components/Spinner";
 
 const EventCard = ({ event, onRSVP }) => {
   const [isInterested, setIsInterested] = useState(false);
@@ -140,14 +141,17 @@ const EventsPage = () => {
       console.log("Fetched events:", response.data);
       const data = response.data.map((item, index) => ({
         ...item,
-        id: index + 1, // Assign a unique ID based on index
+        id: index + 1,
       }));
       setEvents(data);
     } catch (error) {
       console.error("Failed to fetch events:", error);
       toast.error("Failed to load events");
+    } finally {
+      setLoading(false); // ✅ add this
     }
   };
+
   const handleRSVP = async (event) => {
     // In a real app, this would make an API call to handle the RSVP
     try {
@@ -194,12 +198,23 @@ const EventsPage = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {events.length > 0 &&
-              events.map((event) => (
-                <EventCard key={event.id} event={event} onRSVP={handleRSVP} />
-              ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center items-center min-h-[300px]">
+              <Spinner color="green" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {events.length > 0 ? (
+                events.map((event) => (
+                  <EventCard key={event.id} event={event} onRSVP={handleRSVP} />
+                ))
+              ) : (
+                <p className="col-span-full text-center text-gray-500">
+                  No upcoming events found.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
       {/* Show only on medium (md) and up */}

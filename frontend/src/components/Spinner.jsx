@@ -6,10 +6,11 @@ const colorMap = {
   green: "border-green-500",
   yellow: "border-yellow-400",
   gray: "border-gray-400",
+  white: "border-white",
 };
 
 const Spinner = ({ color = "blue" }) => {
-  const borderClass = colorMap[color] || colorMap.blue;
+  const borderClass = colorMap[color] || colorMap.white;
 
   return (
     <div className="flex justify-center items-center py-10">
