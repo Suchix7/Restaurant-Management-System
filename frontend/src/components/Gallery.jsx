@@ -44,7 +44,7 @@ const Gallery = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 [grid-auto-rows:10px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 [grid-auto-rows:10px] min-h-[300px]">
           {galleryImages.length > 0 ? (
             galleryImages.map((image, i) => (
               <motion.div
@@ -66,14 +66,11 @@ const Gallery = () => {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition duration-300" />
-                {/* <div className="absolute bottom-3 left-3 text-white text-sm font-semibold opacity-0 group-hover:opacity-100 transition">
-                  {image.alt}
-                </div> */}
               </motion.div>
             ))
           ) : (
-            <div className="flex justify-center items-center h-64">
-              <Spinner color="green-600" />
+            <div className="col-span-full flex justify-center items-center h-[300px]">
+              <Spinner color="green" />
             </div>
           )}
         </div>
