@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import axiosInstance from "@/lib/axiosInstance.js";
 import { Loader } from "lucide-react";
+import Spinner from "./Spinner";
 
 // const galleryImages = [
 //   { src: "/images/cocktail1.jpg", alt: "Cocktail1", rowSpan: 20 },
@@ -14,9 +15,10 @@ import { Loader } from "lucide-react";
 const Gallery = () => {
   const [galleryImages, setGalleryImages] = useState([]);
   const rowspans = [20, 30, 20, 40, 30];
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchGalleryImages = async () => {
+      setLoading(true);
       try {
         const response = await axiosInstance.get("/main-gallery");
         console.log(response.data);
@@ -30,11 +32,13 @@ const Gallery = () => {
         setGalleryImages(data);
       } catch (error) {
         console.error("Error fetching gallery images:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchGalleryImages();
   }, []);
-
+  if (loading) return <Spinner />;
   return (
     <section className="bg-[#556D53] py-20">
       <div className="max-w-[1600px] mx-auto px-6 md:px-8">
