@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { useRef } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import axiosInstance from "@/lib/axiosInstance.js";
@@ -20,6 +21,7 @@ const GalleryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categories, setCategories] = useState([]);
   const [expandedSection, setExpandedSection] = useState(new Set());
+  const sectionRefs = useRef({});
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -40,6 +42,13 @@ const GalleryPage = () => {
         }));
         setCategories(data);
         setExpandedSection(new Set(data.map((category) => category.id)));
+
+        // create refs
+        const refs = {};
+        data.forEach((cat) => {
+          refs[cat.id] = React.createRef();
+        });
+        sectionRefs.current = refs;
       } catch (error) {
         console.error("Error fetching gallery:", error);
       }
@@ -103,7 +112,7 @@ const GalleryPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-16"
+            className="text-center mb-4"
           >
             <h1 className="text-5xl font-bold text-gray-900 mb-4">
               Our Gallery
@@ -113,12 +122,48 @@ const GalleryPage = () => {
               collection
             </p>
           </motion.div>
+          {categories.length > 0 && (
+            <div className="py-4 mb-6">
+              <div className="container mx-auto px-4 flex flex-wrap gap-3 justify-center">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => {
+                      setExpandedSection((prev) =>
+                        new Set(prev).add(category.id)
+                      );
+                      setTimeout(() => {
+                        const ref = sectionRefs.current[category.id]?.current;
+                        if (ref) {
+                          const offsetTop =
+                            ref.getBoundingClientRect().top +
+                            window.scrollY -
+                            100;
+                          window.scrollTo({
+                            top: offsetTop,
+                            behavior: "smooth",
+                          });
+                        }
+                      }, 300);
+                    }}
+                    className="bg-[#788A78] text-white text-base px-6 py-2.5 rounded-lg hover:bg-green-800 transition-all shadow-sm hover:shadow-md font-medium tracking-wide border border-gray-300"
+                  >
+                    {category.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="space-y-8">
             {categories.map((category) => {
               const isExpanded = expandedSection.has(category.id);
               return (
-                <div key={category.id} className="border-b pb-6">
+                <div
+                  key={category.id}
+                  ref={sectionRefs.current[category.id]}
+                  className="border-b pb-6"
+                >
                   <div
                     onClick={() => toggleSection(category.id)}
                     className="flex items-center justify-between cursor-pointer py-4 px-6 bg-gray-100 hover:bg-gray-200 rounded-md transition"
