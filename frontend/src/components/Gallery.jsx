@@ -77,10 +77,7 @@ const Gallery = () => {
               </motion.div>
             ))
           ) : (
-            <p className="flex items-center justify-center text-gray-600 gap-3">
-              <Loader className="animate-spin" />
-              Loading gallery images...
-            </p>
+            <Spinner />
           )}
         </div>
       </div>
