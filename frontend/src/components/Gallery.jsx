@@ -15,10 +15,8 @@ import Spinner from "./Spinner";
 const Gallery = () => {
   const [galleryImages, setGalleryImages] = useState([]);
   const rowspans = [20, 30, 20, 40, 30];
-  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchGalleryImages = async () => {
-      setLoading(true);
       try {
         const response = await axiosInstance.get("/main-gallery");
         console.log(response.data);
@@ -32,13 +30,10 @@ const Gallery = () => {
         setGalleryImages(data);
       } catch (error) {
         console.error("Error fetching gallery images:", error);
-      } finally {
-        setLoading(false);
       }
     };
     fetchGalleryImages();
   }, []);
-  if (loading) return <Spinner />;
   return (
     <section className="bg-[#556D53] py-20">
       <div className="max-w-[1600px] mx-auto px-6 md:px-8">
@@ -77,7 +72,9 @@ const Gallery = () => {
               </motion.div>
             ))
           ) : (
-            <Spinner />
+            <div className="flex justify-center items-center h-64">
+              <Spinner />
+            </div>
           )}
         </div>
       </div>
