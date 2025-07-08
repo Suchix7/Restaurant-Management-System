@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import axiosInstance from "@/lib/axiosInstance"; // Adjust the import based on your project structure
 import Popup from "@/components/Popup";
 import EventLogoButton from "@/components/EventLogoButton";
+import Spinner from "@/components/Spinner"; // Adjust the import based on your project structure
 const MenuPage = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [hasSeenPopup, setHasSeenPopup] = useState(false);
@@ -102,7 +103,7 @@ const MenuPage = () => {
           </div> */}
 
           {/* Menu Display */}
-          {menuPages.length > 0 && (
+          {menuPages.length > 0 ? (
             <>
               <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden">
                 <AnimatePresence mode="wait">
@@ -169,6 +170,10 @@ const MenuPage = () => {
                 </p>
               </div>
             </>
+          ) : (
+            <div className="flex justify-center items-center h-64">
+              <Spinner />
+            </div>
           )}
         </motion.div>
       </div>
