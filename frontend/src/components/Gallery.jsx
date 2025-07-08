@@ -73,7 +73,7 @@ const Gallery = () => {
             ))
           ) : (
             <div className="flex justify-center items-center h-64">
-              <Spinner />
+              <Spinner color="green-600" />
             </div>
           )}
         </div>
