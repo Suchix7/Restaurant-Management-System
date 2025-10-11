@@ -24,7 +24,11 @@ const NavBar = ({ forceSolid = false }) => {
 
   const menuItems = [
     { path: "/", label: "HOME" },
-    { path: "/booking", label: "BOOKING" },
+    // { path: "/booking", label: "BOOKING" },
+    {
+      path: "https://www.opentable.com.au/booking/restref/availability?lang=en-AU&correlationId=d49fa09e-516d-4d70-a75c-b841fe12adf7&restRef=264575&otSource=Restaurant%20website",
+      label: "RESERVE",
+    },
     { path: "/menu", label: "MENU" },
     { path: "/gallery", label: "GALLERY" },
     { path: "/events", label: "EVENTS" },
@@ -53,17 +57,31 @@ const NavBar = ({ forceSolid = false }) => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
-          {menuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`hover:text-[#8ed189] transition-all ${
-                location.pathname === item.path ? "border-b-2 pb-1" : ""
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {menuItems.map((item) =>
+            item.label === "RESERVE" ? (
+              <a
+                key={item.path}
+                href={item.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`hover:text-[#8ed189] transition-all ${
+                  location.pathname === item.path ? "border-b-2 pb-1" : ""
+                }`}
+              >
+                {item.label}
+              </a>
+            ) : (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`hover:text-[#8ed189] transition-all ${
+                  location.pathname === item.path ? "border-b-2 pb-1" : ""
+                }`}
+              >
+                {item.label}
+              </Link>
+            )
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -86,17 +104,31 @@ const NavBar = ({ forceSolid = false }) => {
             className="md:hidden bg-[#2D6A4F] overflow-hidden"
           >
             <div className="px-6 py-4 space-y-4">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`block hover:bg-[#3d8a68] px-4 py-2 rounded-lg transition-colors ${
-                    location.pathname === item.path ? "bg-[#3d8a68]" : ""
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {menuItems.map((item) =>
+                item.label === "RESERVE" ? (
+                  <a
+                    key={item.path}
+                    href={item.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`hover:text-[#8ed189] transition-all ${
+                      location.pathname === item.path ? "border-b-2 pb-1" : ""
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`hover:text-[#8ed189] transition-all ${
+                      location.pathname === item.path ? "border-b-2 pb-1" : ""
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              )}
             </div>
           </motion.div>
         )}

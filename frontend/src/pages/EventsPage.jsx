@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Calendar, Clock, MapPin, Heart, Share2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, Clock, MapPin, Heart, X } from "lucide-react"; // Import X icon
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import toast from "react-hot-toast";
 import axiosInstance from "@/lib/axiosInstance.js";
-import Popup from "@/components/Popup";
-import EventLogoButton from "@/components/EventLogoButton";
 import Spinner from "@/components/Spinner";
 
-const EventCard = ({ event, onRSVP }) => {
-  const [isInterested, setIsInterested] = useState(false);
+const EventCard = ({ event, onClick }) => {
   const [imageError, setImageError] = useState(false);
   const spotsLeft = event.capacity - event.rsvpCount;
-  const isAlmostFull = spotsLeft <= event.capacity * 0.2; // 20% or less spots remaining
+  const isAlmostFull = spotsLeft <= event.capacity * 0.2;
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -25,25 +22,14 @@ const EventCard = ({ event, onRSVP }) => {
     });
   };
 
-  const handleShare = async () => {
-    try {
-      await navigator.share({
-        title: event.title,
-        text: `Check out ${event.title} at 4 Donkeys Bar!`,
-        url: window.location.href,
-      });
-    } catch (error) {
-      toast.error("Sharing failed. Try copying the URL instead.");
-    }
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-2xl shadow-lg overflow-hidden"
+      onClick={() => onClick(event)}
+      className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-transform"
     >
       <div className="relative group overflow-hidden">
         <img
@@ -57,26 +43,6 @@ const EventCard = ({ event, onRSVP }) => {
           className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300" />
-        <div className="absolute top-4 right-4 flex gap-2">
-          <button
-            onClick={() => setIsInterested(!isInterested)}
-            className={`p-2 rounded-full ${
-              isInterested ? "bg-red-500" : "bg-white/20 hover:bg-white/30"
-            } backdrop-blur-sm transition-colors duration-300`}
-          >
-            <Heart
-              className={`w-5 h-5 ${
-                isInterested ? "text-white fill-current" : "text-white"
-              }`}
-            />
-          </button>
-          <button
-            onClick={handleShare}
-            className="p-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-colors duration-300"
-          >
-            <Share2 className="w-5 h-5 text-white" />
-          </button>
-        </div>
         <div className="absolute bottom-4 left-4">
           <span className="px-3 py-1 bg-[#2D6A4F] text-white text-sm font-medium rounded-full">
             {event.category}
@@ -87,50 +53,38 @@ const EventCard = ({ event, onRSVP }) => {
       <div className="p-6">
         <h3 className="text-2xl font-bold text-gray-900 mb-2">{event.title}</h3>
 
-        <div className="space-y-3 mb-4">
-          <div className="flex items-center text-gray-600">
+        <div className="space-y-3 mb-4 text-gray-600">
+          <div className="flex items-center">
             <Calendar className="w-5 h-5 mr-2" />
             <span>{formatDate(event.date)}</span>
           </div>
-          <div className="flex items-center text-gray-600">
+          <div className="flex items-center">
             <Clock className="w-5 h-5 mr-2" />
             <span>{event.time}</span>
           </div>
-          <div className="flex items-center text-gray-600">
+          <div className="flex items-center">
             <MapPin className="w-5 h-5 mr-2" />
             <span>{event.location}</span>
           </div>
         </div>
 
-        <p className="text-gray-600 mb-6">{event.description}</p>
+        <p className="text-gray-600 line-clamp-2">{event.description}</p>
 
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mt-4">
           <span className="text-lg font-semibold text-gray-900">
-            $ {event.price}
+            ${event.price}
           </span>
-          {isAlmostFull && (
-            <span className="text-sm text-red-500 font-medium">
-              Only {spotsLeft} spots left
-            </span>
-          )}
         </div>
-
-        <button
-          onClick={() => onRSVP(event)}
-          className="w-full py-3 px-4 bg-[#2D6A4F] text-white font-medium rounded-lg hover:bg-[#235340] transition-colors duration-300 flex items-center justify-center gap-2"
-        >
-          RSVP Now
-        </button>
       </div>
     </motion.div>
   );
 };
 
 const EventsPage = () => {
-  const [showPopup, setShowPopup] = useState(false);
-
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   useEffect(() => {
     fetchEvents();
   }, []);
@@ -138,44 +92,42 @@ const EventsPage = () => {
   const fetchEvents = async () => {
     try {
       const response = await axiosInstance.get("/events");
-      console.log("Fetched events:", response.data);
       const data = response.data.map((item, index) => ({
         ...item,
         id: index + 1,
       }));
       setEvents(data);
     } catch (error) {
-      console.error("Failed to fetch events:", error);
       toast.error("Failed to load events");
     } finally {
-      setLoading(false); // ✅ add this
+      setLoading(false);
     }
   };
 
-  const handleRSVP = async (event) => {
-    // In a real app, this would make an API call to handle the RSVP
-    try {
-      const rsvpData = JSON.parse(localStorage.getItem(`rsvp_${event._id}`));
-      if (rsvpData && Date.now() - rsvpData.timestamp < 24 * 60 * 60 * 1000) {
-        toast.error(
-          `You have already RSVP'd for ${event.title} within the last 24 hours.`
-        );
-        return;
+  // Add click outside functionality
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setSelectedEvent(null);
       }
-      const response = await axiosInstance.put(`/events/rsvp/${event._id}`);
-      console.log("RSVP response:", response.data);
-      localStorage.setItem(
-        `rsvp_${event._id}`,
-        JSON.stringify({ eventId: event._id, timestamp: Date.now() })
-      );
-    } catch (error) {
-      console.error("RSVP failed:", error);
+    };
+
+    const handleOutsideClick = (event) => {
+      if (selectedEvent && !event.target.closest(".modal-content")) {
+        setSelectedEvent(null);
+      }
+    };
+
+    if (selectedEvent) {
+      document.addEventListener("keydown", handleEscape);
+      document.addEventListener("mousedown", handleOutsideClick);
     }
 
-    toast.success(
-      `Thanks for your interest in ${event.title}! We'll be in touch soon.`
-    );
-  };
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [selectedEvent]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -206,7 +158,11 @@ const EventsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {events.length > 0 ? (
                 events.map((event) => (
-                  <EventCard key={event.id} event={event} onRSVP={handleRSVP} />
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onClick={setSelectedEvent}
+                  />
                 ))
               ) : (
                 <p className="col-span-full text-center text-gray-500">
@@ -217,11 +173,54 @@ const EventsPage = () => {
           )}
         </div>
       </div>
-      {/* Show only on medium (md) and up */}
-      <div className="hidden md:block">
-        <EventLogoButton onClick={() => setShowPopup(true)} />
-        <Popup show={showPopup} onClose={() => setShowPopup(false)} />
-      </div>
+
+      <AnimatePresence>
+        {selectedEvent && (
+          <motion.div
+            className="fixed inset-0 bg-black/60 flex justify-center items-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="modal-content bg-white rounded-2xl shadow-lg p-6 max-w-2xl w-full relative"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+            >
+              <button
+                onClick={() => setSelectedEvent(null)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-red-500 text-white hover:bg-red-300 cursor-pointer transition-colors"
+                aria-label="Close modal"
+              >
+                <X size={24} />
+              </button>
+              <img
+                src={selectedEvent.posterImage?.imageUrl}
+                alt={selectedEvent.title}
+                className="w-full h-64 object-cover rounded-lg mb-6"
+              />
+              <h2 className="text-3xl font-bold mb-4">{selectedEvent.title}</h2>
+              <p className="text-gray-700 mb-4">{selectedEvent.description}</p>
+              <div className="space-y-2 text-gray-600">
+                <div>
+                  <strong>Date:</strong> {selectedEvent.date}
+                </div>
+                <div>
+                  <strong>Time:</strong> {selectedEvent.time}
+                </div>
+                <div>
+                  <strong>Location:</strong> {selectedEvent.location}
+                </div>
+                <div>
+                  <strong>Price:</strong> ${selectedEvent.price}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Footer />
     </div>
   );

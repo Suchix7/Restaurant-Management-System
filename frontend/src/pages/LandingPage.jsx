@@ -64,7 +64,7 @@ function LandingPage() {
       <Hero />
       <ContentSection />
       <Gallery />
-      <BrandSection />
+      {/* <BrandSection /> */}
       <Footer />
 
       {/* Cocktail Floating Button */}

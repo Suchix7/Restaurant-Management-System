@@ -35,7 +35,7 @@ const Gallery = () => {
     fetchGalleryImages();
   }, []);
   return (
-    <section className="bg-[#556D53] py-20">
+    <section className="bg-[#345731] py-20">
       <div className="max-w-[1600px] mx-auto px-6 md:px-8">
         <div className="mb-12 text-center">
           <h2 className="text-4xl font-bold text-white">Signature Moments</h2>

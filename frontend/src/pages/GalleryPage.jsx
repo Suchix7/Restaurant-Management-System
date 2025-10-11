@@ -11,12 +11,10 @@ import { useRef } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import axiosInstance from "@/lib/axiosInstance.js";
-import Popup from "@/components/Popup";
 import EventLogoButton from "@/components/EventLogoButton";
 import Spinner from "@/components/Spinner";
 
 const GalleryPage = () => {
-  const [showPopup, setShowPopup] = useState(false);
   const [lightboxImage, setLightboxImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -224,10 +222,6 @@ const GalleryPage = () => {
       </div>
 
       <Footer />
-      <div className="hidden md:block">
-        <EventLogoButton onClick={() => setShowPopup(true)} />
-        <Popup show={showPopup} onClose={() => setShowPopup(false)} />
-      </div>
 
       <AnimatePresence>
         {lightboxImage && (

@@ -7,7 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
-import BookingPage from "./pages/BookingPageNew";
+// import BookingPage from "./pages/BookingPageNew";
 import MenuPage from "./pages/MenuPage";
 import GalleryPage from "./pages/GalleryPage";
 import EventsPage from "./pages/EventsPage";
@@ -24,7 +24,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/booking" element={<BookingPage />} />
+        {/* <Route path="/booking" element={<BookingPage />} /> */}
         <Route path="/menu" element={<MenuPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/gallery/:section" element={<MoreGallery />} />
