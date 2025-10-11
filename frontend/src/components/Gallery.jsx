@@ -20,12 +20,18 @@ const Gallery = () => {
       try {
         const response = await axiosInstance.get("/main-gallery");
         console.log(response.data);
-        const data = response.data.images.map((item, index) => {
-          return {
+        const rawImages = response.data.images;
+        const data = rawImages.map((item, index) => {
+          const image = {
             src: item.imageUrl,
             alt: item.alt || "Gallery Image",
             rowSpan: rowspans[index % rowspans.length],
-          };
+          }; // If it's the last image, set colSpan to 2
+
+          if (index === rawImages.length - 1) {
+            image.colSpan = 2;
+          }
+          return image;
         });
         setGalleryImages(data);
       } catch (error) {

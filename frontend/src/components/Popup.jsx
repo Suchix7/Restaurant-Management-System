@@ -78,9 +78,9 @@ function Popup({ show, onClose }) {
           >
             <button
               onClick={onClose}
-              className="absolute top-3 right-3 z-10 md:top-4 md:right-4 bg-black/50 hover:bg-black/70 md:bg-transparent md:hover:bg-transparent p-2 md:p-0 rounded-full md:rounded-none transition-colors"
+              className="absolute top-3 right-3 z-10 md:top-4 md:right-4 bg-white p-2 rounded-full md:bg-white "
             >
-              <X className="w-5 h-5 text-white md:text-gray-700 md:hover:text-black" />
+              <X className="w-5 h-5  text-red-600 md:text-red-600 md:hover:text-red-200" />
             </button>
 
             {/* Mobile View */}
@@ -98,12 +98,12 @@ function Popup({ show, onClose }) {
                   <p className="text-base text-gray-700 leading-relaxed">
                     {currentEvent.description}
                   </p>
-                  <button
+                  {/* <button
                     onClick={() => handleRSVP(currentEvent)}
                     className="mt-5 w-full bg-[#2D6A4F] text-white py-3 rounded-lg font-semibold hover:bg-[#235040] transition-colors"
                   >
                     Reserve Your Spot
-                  </button>
+                  </button> */}
                   <div className="flex justify-between mt-5 text-base text-[#2D6A4F] font-semibold">
                     <button onClick={prevSlide}>← Previous</button>
                     <button onClick={nextSlide}>Next →</button>
@@ -126,12 +126,12 @@ function Popup({ show, onClose }) {
                 <p className="text-base text-gray-700 mb-4">
                   {currentEvent.description}
                 </p>
-                <button
+                {/* <button
                   onClick={() => handleRSVP(currentEvent)}
                   className="w-full bg-[#2D6A4F] text-white py-3 rounded-lg font-semibold hover:bg-[#235040] transition-colors"
                 >
                   Reserve Your Spot
-                </button>
+                </button> */}
                 <div className="flex justify-between mt-4 text-[#2D6A4F] font-semibold">
                   <button onClick={prevSlide}>← Previous</button>
                   <button onClick={nextSlide}>Next →</button>

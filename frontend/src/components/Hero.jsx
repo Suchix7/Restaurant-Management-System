@@ -80,8 +80,8 @@ const Hero = () => {
         </AnimatePresence>
 
         {/* Overlay Text & CTAs */}
-        <div className="absolute inset-0 z-10 flex flex-col justify-center items-start p-6 sm:p-12 md:p-20 lg:p-32 text-white max-w-[1600px]">
-          <div className="w-full max-w-xl">
+        <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-white">
+          <div className="w-full max-w-[1600px] px-6 sm:px-12 md:px-8 lg:px-8">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 leading-tight">
               "Great evenings begin with great spaces."
             </h1>
@@ -90,12 +90,6 @@ const Hero = () => {
               Donkeys Bar.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-              {/* <button
-                onClick={() => navigate("/reserve")}
-                className="w-full sm:w-auto bg-white text-black px-6 py-3.5 text-sm font-semibold hover:bg-gray-200 transition rounded-md shadow-lg hover:shadow-xl"
-              >
-                Reserve a Table
-              </button> */}
               <button
                 onClick={() =>
                   window.open(
