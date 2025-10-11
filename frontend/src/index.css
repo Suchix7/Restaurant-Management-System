@@ -1,6 +1,4 @@
 @import "tailwindcss";
-@import "@fortawesome/fontawesome-free/css/all.min.css";
-
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
