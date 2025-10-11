@@ -21,6 +21,7 @@ import { requirePermission } from "./middleware/auth.middleware.js";
 import MainGallery from "./models/maingallery.model.js";
 import mailRouter from "./routes/mail.route.js";
 import Specials from "./models/specials.model.js";
+import Contactus from "./models/contactus.model.js";
 
 const app = express();
 app.set("trust proxy", true);
@@ -710,6 +711,14 @@ app.post(
   uploadFields,
   async (req, res) => {
     try {
+      const galleryCheck = Gallery.find({});
+      if (galleryCheck.length >= 5) {
+        return res
+          .status(400)
+          .json({
+            message: "Gallery limit reached. Cannot add more galleries.",
+          });
+      }
       const { category, description } = req.body;
 
       if (!category || !description) {
@@ -1139,6 +1148,42 @@ app.delete(
   }
 );
 
+app.post("/api/gallery-tagline", async (req, res) => {
+  try {
+    const { tagline } = req.body;
+    if (!tagline) {
+      return res.status(400).json({ message: "Tagline is required" });
+    }
+    const existing = await MainGallery.findOne({});
+    if (existing) {
+      existing.tagline = tagline;
+      await existing.save();
+      return res
+        .status(200)
+        .json({ message: "Tagline updated successfully", tagline: existing });
+    }
+  } catch (error) {
+    console.log("Error while saving tagline:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/gallery-tagline", async (req, res) => {
+  try {
+    const gallery = await MainGallery.findOne({});
+    if (!gallery || !gallery.tagline) {
+      return res.status(404).json({ message: "Tagline not found" });
+    }
+    res.status(200).json({
+      message: "Tagline fetched successfully",
+      tagline: gallery.tagline,
+    });
+  } catch (error) {
+    console.log("Error while fetching tagline:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.post("/api/role", requirePermission("AddRole"), async (req, res) => {
   try {
     const { role, password, permissions } = req.body;
@@ -1521,6 +1566,93 @@ app.get("/api/subscribers", async (req, res) => {
   } catch (error) {
     console.error("Error fetching subscribers:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// GET single contact
+app.get("/api/contactus", async (req, res) => {
+  try {
+    const doc = await Contactus.findOne();
+    if (!doc) return res.status(404).json({ message: "Contact not set yet." });
+    res.json(doc);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch contact.", error: err.message });
+  }
+});
+
+// CREATE single contact (fails if one already exists)
+app.post("/api/contactus", async (req, res) => {
+  try {
+    const count = await Contactus.countDocuments();
+    if (count > 0) {
+      const existing = await Contactus.findOne().select("_id updatedAt");
+      return res.status(409).json({
+        message: "A contact document already exists.",
+        id: existing?._id,
+      });
+    }
+    const created = await Contact.create(req.body);
+    res.status(201).json(created);
+  } catch (err) {
+    res
+      .status(400)
+      .json({ message: "Failed to create contact.", error: err.message });
+  }
+});
+
+// REPLACE/UPSERT the single contact (idempotent)
+app.put("/api/contactus", async (req, res) => {
+  try {
+    const updated = await Contactus.findOneAndUpdate(
+      {}, // singleton
+      req.body, // full replacement payload
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
+        setDefaultsOnInsert: true,
+      }
+    );
+    res.json(updated);
+  } catch (err) {
+    res
+      .status(400)
+      .json({ message: "Failed to upsert contact.", error: err.message });
+  }
+});
+
+// PARTIAL UPDATE the single contact
+app.patch("/api/contactus", async (req, res) => {
+  try {
+    const updated = await Contactus.findOneAndUpdate(
+      {},
+      { $set: req.body },
+      { new: true, runValidators: true }
+    );
+    if (!updated)
+      return res.status(404).json({ message: "Contact not set yet." });
+    res.json(updated);
+  } catch (err) {
+    res
+      .status(400)
+      .json({ message: "Failed to update contact.", error: err.message });
+  }
+});
+
+// DELETE the single contact (removes any accidental duplicates too)
+app.delete("/api/contactus", async (req, res) => {
+  try {
+    const result = await Contact.deleteMany({});
+    res.json({
+      message: "Deleted contact document(s).",
+      deletedCount: result.deletedCount,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to delete contact.", error: err.message });
   }
 });
 

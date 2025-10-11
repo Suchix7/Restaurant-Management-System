@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const mainGallerySchema = {
+  tagline: {
+    type: String,
+    required: true,
+  },
   images: [
     {
       imageUrl: String,

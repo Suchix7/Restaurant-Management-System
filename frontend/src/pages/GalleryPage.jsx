@@ -20,6 +20,7 @@ const GalleryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categories, setCategories] = useState([]);
   const [expandedSection, setExpandedSection] = useState(new Set());
+  const [tagline, setTagline] = useState("");
   const sectionRefs = useRef({});
 
   useEffect(() => {
@@ -53,7 +54,18 @@ const GalleryPage = () => {
       }
     };
 
+    const fetchTagline = async () => {
+      try {
+        const res = await axiosInstance.get("/gallery-tagline");
+        setTagline(res.data.tagline || "");
+      } catch (error) {
+        toast.error("Failed to load tagline.");
+        setTagline("");
+      }
+    };
+
     fetchCategories();
+    fetchTagline();
   }, []);
 
   const openLightbox = (category, index) => {
@@ -117,8 +129,7 @@ const GalleryPage = () => {
               Our Gallery
             </h1>
             <p className="text-xl text-gray-600">
-              Explore the essence of 4 Donkeys Bar through our curated
-              collection
+              {tagline || "A glimpse into our world"}
             </p>
           </motion.div>
           {categories.length > 0 ? (

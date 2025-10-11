@@ -21,10 +21,12 @@ const ManageGallery = () => {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [isEditingMainImage, setIsEditingMainImage] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [tagline, setTagline] = useState("");
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchGalleries();
+    fetchTagline();
   }, []);
 
   const fetchGalleries = async () => {
@@ -33,6 +35,16 @@ const ManageGallery = () => {
       setGalleries(res.data || []);
     } catch (error) {
       toast.error("Failed to load gallery data.");
+    }
+  };
+
+  const fetchTagline = async () => {
+    try {
+      const res = await axiosInstance.get("/gallery-tagline");
+      setTagline(res.data.tagline || "");
+    } catch (error) {
+      toast.error("Failed to load tagline.");
+      setTagline("");
     }
   };
 
@@ -150,6 +162,22 @@ const ManageGallery = () => {
     }
   };
 
+  const submitTagline = async (e) => {
+    e.preventDefault();
+    const tagline = e.target.tagline.value.trim();
+    if (!tagline) {
+      toast.error("Tagline cannot be empty.");
+      return;
+    }
+    try {
+      await axiosInstance.post("/gallery-tagline", { tagline });
+      toast.success("Tagline saved!");
+      e.target.tagline.value = "";
+    } catch {
+      toast.error("Failed to save tagline.");
+    }
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold text-slate-900 mb-2">Manage Gallery</h2>
@@ -158,6 +186,28 @@ const ManageGallery = () => {
       </p>
 
       <Card className="bg-white shadow-sm">
+        <CardContent>
+          <form method="POST" onSubmit={submitTagline}>
+            <label for="tagline" className="mb-0.5 font-bold">
+              Gallery Tagline:
+            </label>
+            <br />
+            <input
+              type="text"
+              name="tagline"
+              id="tagline"
+              value={tagline || ""}
+              onChange={(e) => setTagline(e.target.value)}
+              className="w-full md:w-1/2 border border-slate-300 rounded px-3 py-2"
+              placeholder="Enter the tagline"
+            />
+            <input
+              type="submit"
+              value="Save"
+              className="ml-1 px-3 py-2 bg-blue-500 text-white rounded cursor-pointer"
+            />
+          </form>
+        </CardContent>
         <CardContent className="space-y-6">
           <div className="flex flex-col md:flex-row items-center gap-3">
             <select

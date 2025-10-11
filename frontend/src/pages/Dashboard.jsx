@@ -14,6 +14,7 @@ import {
   UtensilsCrossed,
   User,
   User2,
+  Contact,
   MessageCircle,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance.js";
@@ -44,17 +45,7 @@ import MainGallery from "@/components/MainGallery";
 import MailConfigForm from "@/components/MailConfigForm";
 import AddSpecials from "@/components/AddSpecials";
 import Specials from "@/components/Specials";
-
-const DashboardView = () => (
-  <div>
-    <h2 className="text-2xl font-bold text-slate-900 mb-2">
-      Dashboard Overview
-    </h2>
-    <p className="text-slate-600">
-      Overview of analytics, stats, and quick summaries.
-    </p>
-  </div>
-);
+import ContactSettings from "@/components/ManageContact";
 
 const Dashboard = ({ userRole }) => {
   const location = useLocation();
@@ -75,7 +66,7 @@ const Dashboard = ({ userRole }) => {
   }, []);
 
   const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState("Dashboard");
+  const [selectedTab, setSelectedTab] = useState("Venue");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -94,7 +85,6 @@ const Dashboard = ({ userRole }) => {
   }, []);
 
   const allSidebarItems = [
-    { icon: LayoutDashboard, label: "Dashboard", key: "Dashboard" },
     { icon: Landmark, label: "Venue", key: "Venue" },
     { icon: FileText, label: "Add Menu", key: "AddMenu" },
     { icon: UtensilsCrossed, label: "Menu", key: "Menu" },
@@ -110,6 +100,7 @@ const Dashboard = ({ userRole }) => {
     { icon: Mail, label: "Email Config", key: "EmailConfig" },
     { icon: User, label: "Add Role", key: "AddRole" },
     { icon: User2, label: "View Roles", key: "ViewRoles" },
+    { icon: Contact, label: "Manage ContactUs", key: "ManageContactUs" },
   ];
 
   const sidebarItems = allSidebarItems.filter((item) =>
@@ -206,7 +197,6 @@ const Dashboard = ({ userRole }) => {
 
           {/* Content Section */}
           <main className="flex-1 p-6 space-y-6">
-            {selectedTab === "Dashboard" && <DashboardView />}
             {selectedTab === "Venue" && <VenueView />}
             {selectedTab === "AddMenu" && <AddMenu />}
             {selectedTab === "Menu" && <MenuView />}
@@ -222,6 +212,7 @@ const Dashboard = ({ userRole }) => {
             {selectedTab === "EmailConfig" && <MailConfigForm />}
             {selectedTab === "AddRole" && <AddRole />}
             {selectedTab === "ViewRoles" && <ViewRoles />}
+            {selectedTab === "ManageContactUs" && <ContactSettings />}
           </main>
         </div>
       </div>

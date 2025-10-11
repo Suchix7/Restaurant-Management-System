@@ -1,5 +1,4 @@
 const features = [
-  "Dashboard",
   "Venue",
   "AddMenu",
   "Menu",
@@ -15,6 +14,7 @@ const features = [
   "EmailConfig",
   "AddRole",
   "ViewRoles",
+  "ManageContactUs",
 ];
 
 export default features;

@@ -6,64 +6,152 @@ import Footer from "@/components/Footer";
 import toast from "react-hot-toast";
 import axiosInstance from "@/lib/axiosInstance.js";
 import EventLogoButton from "@/components/EventLogoButton";
-const ContactInfo = () => (
-  <div className="bg-white rounded-2xl shadow-lg p-8">
-    <h3 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h3>
 
-    <div className="space-y-6">
-      <div className="flex items-start space-x-4">
-        <div className="bg-[#2D6A4F] p-3 rounded-lg">
-          <MapPin className="w-6 h-6 text-white" />
-        </div>
-        <div>
-          <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
-          <p className="text-gray-600">
-            123 Bar Street
-            <br />
-            Sydney, NSW 2000
-            <br />
-            Australia
-          </p>
-        </div>
-      </div>
+const dayAbbrev = {
+  Monday: "Mon",
+  Tuesday: "Tue",
+  Wednesday: "Wed",
+  Thursday: "Thu",
+  Friday: "Fri",
+  Saturday: "Sat",
+  Sunday: "Sun",
+};
 
-      <div className="flex items-start space-x-4">
-        <div className="bg-[#2D6A4F] p-3 rounded-lg">
-          <Phone className="w-6 h-6 text-white" />
-        </div>
-        <div>
-          <h4 className="font-semibold text-gray-900 mb-1">Phone</h4>
-          <p className="text-gray-600">+61 2 1234 5678</p>
-        </div>
-      </div>
+const to12h = (hhmm) => {
+  if (!hhmm) return "";
+  const [hStr, mStr] = hhmm.split(":");
+  let h = Number(hStr);
+  const m = Number(mStr || 0);
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${m.toString().padStart(2, "0")} ${ampm}`;
+};
 
-      <div className="flex items-start space-x-4">
-        <div className="bg-[#2D6A4F] p-3 rounded-lg">
-          <Mail className="w-6 h-6 text-white" />
-        </div>
-        <div>
-          <h4 className="font-semibold text-gray-900 mb-1">Email</h4>
-          <p className="text-gray-600">hello@4donkeysbar.com</p>
-        </div>
-      </div>
+const formatHourRow = (row) => {
+  const days = (row.days || []).map((d) => dayAbbrev[d] || d).join(", ");
+  if (row.closed) return `${days}: Closed`;
+  const open = to12h(row.open);
+  const close = to12h(row.close);
+  return `${days}: ${open} – ${close}${row.note ? ` (${row.note})` : ""}`;
+};
 
-      <div className="flex items-start space-x-4">
-        <div className="bg-[#2D6A4F] p-3 rounded-lg">
-          <Clock className="w-6 h-6 text-white" />
+const oneLineAddress = (address) =>
+  [
+    address?.street,
+    address?.city,
+    address?.state,
+    address?.postalCode,
+    address?.country,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+const buildMapEmbedSrc = (address) => {
+  // Prefer coordinates if present; falls back to encoded address
+  const lng = address?.geo?.coordinates?.[0];
+  const lat = address?.geo?.coordinates?.[1];
+  if (typeof lng === "number" && typeof lat === "number") {
+    return `https://www.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+  }
+  const q = encodeURIComponent(oneLineAddress(address));
+  return `https://www.google.com/maps?q=${q}&z=15&output=embed`;
+};
+
+/* -------------------- CONTACT INFO (dynamic) -------------------- */
+const ContactInfo = ({ contact }) => {
+  const address = contact?.address;
+  return (
+    <div className="bg-white rounded-2xl shadow-lg p-8">
+      <h3 className="text-2xl font-bold text-gray-900 mb-2">Get in Touch</h3>
+      {contact?.blurb && <p className="text-gray-600 mb-6">{contact.blurb}</p>}
+
+      <div className="space-y-6">
+        {/* Location */}
+        <div className="flex items-start space-x-4">
+          <div className="bg-[#2D6A4F] p-3 rounded-lg">
+            <MapPin className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
+            <p className="text-gray-600">
+              {address ? (
+                <>
+                  {address.street && (
+                    <>
+                      {address.street}
+                      <br />
+                    </>
+                  )}
+                  {[address.city, address.state, address.postalCode]
+                    .filter(Boolean)
+                    .join(", ")}
+                  <br />
+                  {address.country}
+                </>
+              ) : (
+                "—"
+              )}
+            </p>
+          </div>
         </div>
-        <div>
-          <h4 className="font-semibold text-gray-900 mb-1">Opening Hours</h4>
-          <div className="text-gray-600 space-y-1">
-            <p>Monday - Thursday: 4PM - 11PM</p>
-            <p>Friday - Saturday: 4PM - 1AM</p>
-            <p>Sunday: Closed</p>
+
+        {/* Phone */}
+        <div className="flex items-start space-x-4">
+          <div className="bg-[#2D6A4F] p-3 rounded-lg">
+            <Phone className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-1">Phone</h4>
+            <p className="text-gray-600">{contact?.phone || "—"}</p>
+          </div>
+        </div>
+
+        {/* Email */}
+        <div className="flex items-start space-x-4">
+          <div className="bg-[#2D6A4F] p-3 rounded-lg">
+            <Mail className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-1">Email</h4>
+            <p className="text-gray-600">{contact?.email || "—"}</p>
+          </div>
+        </div>
+
+        {/* Opening Hours */}
+        <div className="flex items-start space-x-4">
+          <div className="bg-[#2D6A4F] p-3 rounded-lg">
+            <Clock className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-1">Opening Hours</h4>
+            <div className="text-gray-600 space-y-1">
+              {(contact?.openingHours?.length
+                ? contact.openingHours
+                : [
+                    {
+                      days: ["Monday", "Tuesday", "Wednesday", "Thursday"],
+                      open: "16:00",
+                      close: "23:00",
+                    },
+                    {
+                      days: ["Friday", "Saturday"],
+                      open: "16:00",
+                      close: "01:00",
+                    },
+                    { days: ["Sunday"], closed: true },
+                  ]
+              ).map((row, i) => (
+                <p key={i}>{formatHourRow(row)}</p>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
+/* -------------------- CONTACT FORM (unchanged API) -------------------- */
 const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -75,29 +163,21 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Simulate API call
     try {
-      const response = await axiosInstance.post("/contact", formData);
-
+      await axiosInstance.post("/contact", formData);
       toast.success("Message sent successfully! We'll get back to you soon.");
       setFormData({ name: "", email: "", message: "" });
-      setIsSubmitting(false);
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Failed to send message. Please try again later.");
       setFormData({ name: "", email: "", message: "" });
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    // In a real app, this would be an API call
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleChange = (e) =>
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   return (
     <form
@@ -107,7 +187,6 @@ const ContactForm = () => {
       <h3 className="text-2xl font-bold text-gray-900 mb-6">
         Send us a Message
       </h3>
-
       <div className="space-y-6">
         <div>
           <label
@@ -117,7 +196,6 @@ const ContactForm = () => {
             Name
           </label>
           <input
-            type="text"
             id="name"
             name="name"
             value={formData.name}
@@ -188,22 +266,44 @@ const ContactForm = () => {
   );
 };
 
-const GoogleMap = () => (
+/* -------------------- GOOGLE MAP (dynamic) -------------------- */
+const GoogleMap = ({ address }) => (
   <div className="w-full h-[400px] rounded-2xl overflow-hidden shadow-lg">
     <iframe
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3312.8673831863824!2d151.20544631521252!3d-33.86882728065589!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6b12ae401e8b983f%3A0x8f0a3069a0b10b0!2sThe%20Rocks%2C%20Sydney%20NSW%202000!5e0!3m2!1sen!2sau!4v1645123456789!5m2!1sen!2sau"
+      src={buildMapEmbedSrc(address)}
       width="100%"
       height="100%"
       style={{ border: 0 }}
       allowFullScreen=""
       loading="lazy"
       referrerPolicy="no-referrer-when-downgrade"
-      title="4 Donkeys Bar Location"
+      title="Location Map"
     />
   </div>
 );
 
+/* -------------------- PAGE -------------------- */
 const ContactPage = () => {
+  const [contact, setContact] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await axiosInstance.get("/contactus");
+        setContact(data);
+      } catch (err) {
+        // If 404, show page with placeholders
+        if (err?.response?.status !== 404) {
+          console.error("Failed to fetch contact:", err);
+          toast.error("Failed to load contact info");
+        }
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar forceSolid={true} />
@@ -220,35 +320,43 @@ const ContactPage = () => {
               Contact Us
             </h1>
             <p className="text-xl text-gray-600">
-              Get in touch with us or visit our bar in The Rocks, Sydney
+              {contact?.locationLabel
+                ? `Reach us at ${contact.locationLabel}`
+                : "Get in touch or visit our bar"}
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <ContactForm />
-            </motion.div>
+          {loading ? (
+            <p className="text-center text-gray-500">Loading…</p>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <ContactForm />
+                </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <ContactInfo />
-            </motion.div>
-          </div>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <ContactInfo contact={contact} />
+                </motion.div>
+              </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <GoogleMap />
-          </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <GoogleMap address={contact?.address} />
+              </motion.div>
+            </>
+          )}
         </div>
       </div>
 
