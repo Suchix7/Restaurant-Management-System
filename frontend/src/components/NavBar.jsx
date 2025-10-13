@@ -101,9 +101,9 @@ const NavBar = ({ forceSolid = false }) => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="md:hidden bg-[#2D6A4F] overflow-hidden"
+            className="md:hidden bg-[#2D6A4F] overflow-hidden "
           >
-            <div className="px-6 py-4 space-y-4">
+            <div className="flex flex-col items-center px-6 py-4 space-y-4">
               {menuItems.map((item) =>
                 item.label === "RESERVE" ? (
                   <a
@@ -122,7 +122,9 @@ const NavBar = ({ forceSolid = false }) => {
                     key={item.path}
                     to={item.path}
                     className={`hover:text-[#8ed189] transition-all ${
-                      location.pathname === item.path ? "border-b-2 pb-1" : ""
+                      location.pathname === item.path
+                        ? "sm:border-b-2 pb-1"
+                        : ""
                     }`}
                   >
                     {item.label}
