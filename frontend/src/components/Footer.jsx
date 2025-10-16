@@ -72,7 +72,7 @@ const Footer = () => {
       <footer className="bg-[#435644] text-white font-inter antialiased px-6 py-12 md:px-16 lg:px-24">
         <div className="container max-w-[1600px] mx-auto">
           {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+          <div className="grid grid-cols-1 lg:grid-cols-[4fr_7fr] gap-8 lg:gap-10">
             {/* Left: Contact Info */}
             <div className="space-y-8">
               <div>
@@ -165,8 +165,8 @@ const Footer = () => {
                     return (
                       <div
                         key={key}
-                        className="relative w-full h-72 cursor-pointer rounded-xl shadow-lg overflow-hidden group 
-                       transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
+                        className="relative w-full aspect-[3/4] cursor-pointer rounded-xl shadow-lg overflow-hidden group
+             transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
                         onClick={() => handlePostRedirect(linkUrl)}
                       >
                         <img

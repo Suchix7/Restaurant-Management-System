@@ -8,7 +8,6 @@ import axiosInstance from "@/lib/axiosInstance"; // Adjust the import based on y
 import EventLogoButton from "@/components/EventLogoButton";
 import Spinner from "@/components/Spinner"; // Adjust the import based on your project structure
 const MenuPage = () => {
-;
   const [events, setEvents] = useState([]);
   const [slideIndex, setSlideIndex] = useState(0);
   const currentEvent = events[slideIndex];
@@ -75,7 +74,7 @@ const MenuPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="max-w-6xl mx-auto"
+          className="max-w-6xl mx-auto flex justify-center items-center flex-col"
         >
           <div className="text-center mb-8">
             <h1 className="text-5xl font-bold text-gray-900 mb-4">Our Menu</h1>
@@ -104,7 +103,7 @@ const MenuPage = () => {
           {/* Menu Display */}
           {menuPages.length > 0 ? (
             <>
-              <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden">
+              <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden inline-flex">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentPage}
@@ -112,15 +111,17 @@ const MenuPage = () => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -100 }}
                     transition={{ duration: 0.3 }}
-                    className="relative aspect-[4/3] bg-gray-100"
+                    className="relative"
                   >
+                    {/* Make the image clickable */}
                     <img
                       src={menuPages[currentPage].image}
                       alt={menuPages[currentPage].title}
-                      className="w-full h-full object-contain"
+                      className="max-w-[85vw] max-h-[75vh] w-auto h-auto object-contain cursor-pointer"
+                      onClick={() => setIsZoomed(true)}
                     />
 
-                    {/* Zoom Button */}
+                    {/* Optional Zoom Button (can be removed if not needed) */}
                     <button
                       onClick={() => setIsZoomed(true)}
                       className="absolute bottom-4 right-4 bg-black/70 text-white p-3 rounded-full hover:bg-black/90 transition-colors"
@@ -159,15 +160,6 @@ const MenuPage = () => {
                   ))}
                 </div>
               </div>
-              {/* Page Title */}
-              <div className="text-center mt-6">
-                <h2 className="text-2xl font-semibold text-gray-900">
-                  {menuPages[currentPage].title}
-                </h2>
-                <p className="text-gray-600 mt-2">
-                  Page {currentPage + 1} of {menuPages.length}
-                </p>
-              </div>
             </>
           ) : (
             <div className="flex justify-center items-center h-64">
@@ -178,7 +170,7 @@ const MenuPage = () => {
       </div>
 
       <Footer />
-     
+
       {/* Fullscreen Zoom View */}
       <AnimatePresence>
         {isZoomed && (
@@ -187,18 +179,37 @@ const MenuPage = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
-            onClick={() => setIsZoomed(false)}
           >
+            {/* Close Button */}
             <button
               onClick={() => setIsZoomed(false)}
               className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-white/10"
             >
               <X className="w-8 h-8" />
             </button>
+
+            {/* Previous Arrow */}
+            <button
+              onClick={prevPage}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/70 text-white p-3 rounded-full hover:bg-black/90 transition-colors"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            {/* Next Arrow */}
+            <button
+              onClick={nextPage}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/70 text-white p-3 rounded-full hover:bg-black/90 transition-colors"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            {/* Image */}
             <img
               src={menuPages[currentPage].image}
               alt={menuPages[currentPage].title}
-              className="max-w-[90vw] max-h-[90vh] object-contain"
+              className="max-w-[90vw] max-h-[90vh] object-contain cursor-pointer"
+              onClick={() => setIsZoomed(false)} // optional: close lightbox on click
             />
           </motion.div>
         )}
