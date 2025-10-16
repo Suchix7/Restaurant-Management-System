@@ -101,6 +101,17 @@ const Hero = () => {
               >
                 Book the Venue
               </button>
+              <button
+                onClick={() =>
+                  window.open(
+                    "https://www.opentable.com.au/booking/restref/availability?lang=en-AU&correlationId=78b16142-2b7f-4103-b078-0562b4ac6a2a&restRef=264575&otSource=Restaurant%20website",
+                    "_blank"
+                  )
+                }
+                className="w-full sm:w-auto bg-white border-2 border-white text-black px-6 py-3.5 text-sm font-semibold hover:bg-transparent hover:text-white transition rounded-md"
+              >
+                Reserve Table
+              </button>
             </div>
           </div>
         </div>
