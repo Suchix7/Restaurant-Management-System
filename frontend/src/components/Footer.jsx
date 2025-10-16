@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Mail, Phone, MapPin } from "lucide-react";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import axiosInstance from "@/lib/axiosInstance.js";
 
-// Define the core data for the component
 const contactData = {
   address: "27 Albion St, Surry Hills, NSW 2010, Australia",
   email: "Fourdonkeysbar@gmail.com",
@@ -11,18 +9,16 @@ const contactData = {
   openingHours: [
     { days: "Sundays, Mondays & Tuesdays", hours: "6pm – 12am" },
     { days: "Wednesdays & Thursdays", hours: "6pm – 1am" },
-    { days: "Fidays & Saturdays", hours: "6pm – 2am" },
+    { days: "Fridays & Saturdays", hours: "6pm – 2am" },
   ],
-  happyHour: "daily: 6pm – 7:30pm",
+  happyHour: "Daily: 6pm – 7:30pm",
   disclaimer:
     "Entry is strictly for guests above the age of 18 years.\nThank you for your cooperation!",
 };
 
-// --- INSTAGRAM CONFIG ---
 const instagramHandle = "@4donkeysbar";
 const instagramUrl = `https://www.instagram.com/4donkeybar/`;
 
-// Fallback Mock Data (Used if real data fetching fails or is blocked)
 const fallbackPosts = [
   {
     id: 1,
@@ -44,35 +40,25 @@ const fallbackPosts = [
   },
 ];
 
-// Utility function to handle redirection to specific post links
 const handlePostRedirect = (url) => {
   window.open(url, "_blank", "noopener,noreferrer");
 };
 
 const Footer = () => {
-  const [posts, setPosts] = useState([]); // unified array (either admin-managed or fallback)
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
-      setError(null);
       try {
-        // Try to fetch admin-managed posts
         const { data } = await axiosInstance.get("/admin/posts");
         const sorted = (data || [])
           .slice()
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .slice(0, 3); // cap to 3, newest first
-        if (sorted.length) {
-          setPosts(sorted);
-        } else {
-          // no posts in db -> show fallback
-          setPosts(fallbackPosts);
-        }
+          .slice(0, 3);
+        setPosts(sorted.length ? sorted : fallbackPosts);
       } catch (e) {
-        // fallback on error
         setError("Showing sample posts.");
         setPosts(fallbackPosts);
       } finally {
@@ -83,25 +69,23 @@ const Footer = () => {
 
   return (
     <>
-      <div className=" bg-[#435644] text-white font-inter antialiased p-8 md:p-16 flex items-start justify-center">
-        {/* Main Content Grid */}
-        <div className="container max-w-[1600px] w-full ">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24">
-            {/* 1. Left Column: Contact Information */}
-            <div className="space-y-8 pb-10">
-              {/* Visit Us / Address */}
+      <footer className="bg-[#435644] text-white font-inter antialiased px-6 py-12 md:px-16 lg:px-24">
+        <div className="container max-w-[1600px] mx-auto">
+          {/* Main Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+            {/* Left: Contact Info */}
+            <div className="space-y-8">
               <div>
-                <h3 className="text-xl font-serif-alt font-bold mb-2 tracking-wide">
+                <h3 className="text-lg md:text-xl font-serif-alt font-bold mb-2 tracking-wide">
                   Visit Us
                 </h3>
-                <p className="text-base leading-relaxed whitespace-pre-line text-maroon-light/90">
+                <p className="text-base leading-relaxed text-maroon-light/90">
                   {contactData.address}
                 </p>
               </div>
 
-              {/* All Enquiries / Email */}
               <div>
-                <h3 className="text-xl font-serif-alt font-bold mb-2 tracking-wide">
+                <h3 className="text-lg md:text-xl font-serif-alt font-bold mb-2 tracking-wide">
                   All Enquiries
                 </h3>
                 <a
@@ -112,9 +96,8 @@ const Footer = () => {
                 </a>
               </div>
 
-              {/* Phone */}
               <div>
-                <h3 className="text-xl font-serif-alt font-bold mb-2 tracking-wide">
+                <h3 className="text-lg md:text-xl font-serif-alt font-bold mb-2 tracking-wide">
                   Phone
                 </h3>
                 <a
@@ -125,23 +108,21 @@ const Footer = () => {
                 </a>
               </div>
 
-              {/* Opening Hours */}
               <div>
-                <h3 className="text-xl font-serif-alt font-bold mb-3 tracking-wide">
+                <h3 className="text-lg md:text-xl font-serif-alt font-bold mb-3 tracking-wide">
                   Opening Hours
                 </h3>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {contactData.openingHours.map((item, index) => (
                     <div
                       key={index}
-                      className="flex justify-between text-base text-maroon-light/90"
+                      className="flex justify-between text-sm md:text-base text-maroon-light/90"
                     >
                       <span className="font-medium">{item.days}</span>
                       <span>{item.hours}</span>
                     </div>
                   ))}
                 </div>
-                {/* Happy Hour */}
                 <div className="mt-4">
                   <p className="text-base font-bold text-maroon-light/90">
                     Happy Hour:{" "}
@@ -151,12 +132,11 @@ const Footer = () => {
               </div>
             </div>
 
-            {/* 2. Right Column: Instagram Feed and Link */}
-            <div className="space-y-4 md:pl-8 pt-8 md:pt-0">
-              {/* Follow Us Link - Matches the top-right text alignment */}
-              <div className="flex flex-col mb-6">
-                <h3 className="text-xl font-serif-alt font-bold tracking-wide">
-                  Follow us
+            {/* Right: Instagram Feed */}
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg md:text-xl font-serif-alt font-bold tracking-wide">
+                  Follow Us
                 </h3>
                 <a
                   href={instagramUrl}
@@ -168,17 +148,16 @@ const Footer = () => {
                 </a>
               </div>
 
-              {/* Latest 3 Posts Gallery (newest first) */}
-              <div className="flex space-x-3 md:space-x-4 overflow-x-auto p-1 -m-1 justify-start">
+              {/* Posts grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {loading && (
-                  <div className="text-maroon-light/70 text-lg p-4">
+                  <div className="col-span-full text-maroon-light/70 text-lg p-4">
                     Loading latest posts...
                   </div>
                 )}
 
                 {!loading &&
                   posts.map((post) => {
-                    // Normalize fields for both DB-backed and fallback items
                     const key = post._id || post.id;
                     const imageUrl = post.image?.imageUrl || post.url;
                     const linkUrl = post.linkUrl || post.postLink;
@@ -186,32 +165,23 @@ const Footer = () => {
                     return (
                       <div
                         key={key}
-                        className="relative flex-shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48 cursor-pointer rounded-sm shadow-xl overflow-hidden group transition duration-300 transform hover:scale-[1.02] hover:shadow-2xl ring-2 ring-maroon-light/20"
+                        className="relative w-full h-72 cursor-pointer rounded-xl shadow-lg overflow-hidden group 
+                       transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
                         onClick={() => handlePostRedirect(linkUrl)}
-                        aria-label={`Open post ${key}`}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ")
-                            handlePostRedirect(linkUrl);
-                        }}
                       >
                         <img
                           src={imageUrl}
                           alt={`Post ${key}`}
-                          className="w-full h-full object-cover transition duration-500 group-hover:opacity-80 bg-maroon-dark"
+                          className="w-full h-full object-cover group-hover:opacity-85 transition duration-500 bg-maroon-dark"
                           onError={(e) => {
-                            e.currentTarget.onerror = null;
                             e.currentTarget.src =
-                              "https://placehold.co/300x300/4D0219/FADCD9?text=Image+Unavailable";
+                              "https://placehold.co/400x600/4D0219/FADCD9?text=Image+Unavailable";
                           }}
                         />
-
-                        {/* Optional overlay if you carry `type` for fallback */}
                         {post.type === "video" && (
-                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                          <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
                             <svg
-                              className="w-10 h-10 text-white/90"
+                              className="w-12 h-12 text-white/90"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                             >
@@ -227,31 +197,22 @@ const Footer = () => {
                     );
                   })}
               </div>
-
-              {/* Error/Status Message */}
-              <p
-                className={`text-sm pt-2 italic ${
-                  error ? "text-red-300" : "text-maroon-light/60"
-                }`}
-              >
-                {error ||
-                  "Showing the 3 most recent posts. Click an image to open its link."}
-              </p>
             </div>
           </div>
 
-          {/* Disclaimer at the bottom */}
-          <div className="mt-16 pt-8 border-t border-maroon-light/30 text-left">
-            <p className="text-base italic leading-relaxed whitespace-pre-line text-maroon-light/90">
+          {/* Disclaimer */}
+          <div className="mt-12 pt-6 border-t border-maroon-light/30">
+            <p className="text-sm md:text-base italic leading-relaxed whitespace-pre-line text-maroon-light/90">
               {contactData.disclaimer}
             </p>
           </div>
         </div>
-      </div>{" "}
+      </footer>
+
+      {/* Bottom Bar */}
       <div className="flex justify-center bg-[#7e9e78] text-white">
-        <div className=" w-full max-w-[1600px] flex flex-col items-start p-8 space-y-4">
-          {/* Social Media */}
-          <div className="flex space-x-4 text-2xl">
+        <div className="w-full max-w-[1600px] flex flex-col sm:flex-row sm:items-center justify-between p-6 space-y-4 sm:space-y-0">
+          <div className="flex space-x-5 text-2xl">
             <a
               href="https://www.facebook.com/people/4Donkey-Bar/61570263453541/"
               target="_blank"
@@ -270,13 +231,12 @@ const Footer = () => {
             </a>
           </div>
 
-          {/* Title */}
-          <h2 className="text-xl  font-bold ">Four Donkeys Bar</h2>
-
-          {/* Address */}
-          <p className="text-sm font-semibold max-w-lg">
-            27 Albion St, Surry Hills, NSW 2010, Australia
-          </p>
+          <div className="text-center sm:text-right">
+            <h2 className="text-lg md:text-xl font-bold">Four Donkeys Bar</h2>
+            <p className="text-sm md:text-base font-medium">
+              {contactData.address}
+            </p>
+          </div>
         </div>
       </div>
     </>
