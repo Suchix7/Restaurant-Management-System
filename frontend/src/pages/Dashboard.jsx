@@ -46,6 +46,7 @@ import MailConfigForm from "@/components/MailConfigForm";
 import AddSpecials from "@/components/AddSpecials";
 import Specials from "@/components/Specials";
 import ContactSettings from "@/components/ManageContact";
+import ManagePosts from "@/components/ManagePosts";
 
 const Dashboard = ({ userRole }) => {
   const location = useLocation();
@@ -101,6 +102,7 @@ const Dashboard = ({ userRole }) => {
     { icon: User, label: "Add Role", key: "AddRole" },
     { icon: User2, label: "View Roles", key: "ViewRoles" },
     { icon: Contact, label: "Manage ContactUs", key: "ManageContactUs" },
+    { icon: MessageCircle, label: "Manage Posts", key: "ManagePosts" },
   ];
 
   const sidebarItems = allSidebarItems.filter((item) =>
@@ -213,6 +215,7 @@ const Dashboard = ({ userRole }) => {
             {selectedTab === "AddRole" && <AddRole />}
             {selectedTab === "ViewRoles" && <ViewRoles />}
             {selectedTab === "ManageContactUs" && <ContactSettings />}
+            {selectedTab === "ManagePosts" && <ManagePosts />}
           </main>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
+import axiosInstance from "@/lib/axiosInstance.js";
 
 // Define the core data for the component
 const contactData = {
@@ -27,7 +28,7 @@ const fallbackPosts = [
     id: 1,
     type: "video",
     url: "https://placehold.co/300x300/6A082D/FADCD9?text=LATEST+Video+Post",
-    postLink: `${instagramUrl}/p/CkO6L4Fv3S3/`, // Mock individual post link
+    postLink: `${instagramUrl}/p/CkO6L4Fv3S3/`,
   },
   {
     id: 2,
@@ -43,42 +44,41 @@ const fallbackPosts = [
   },
 ];
 
-// Tailwind CSS Configuration setup - defining the deep burgundy color
-const TailwindConfig = `
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'maroon-deep': '#800020', // Custom deep burgundy color
-            'maroon-light': '#FADCD9', // A light complimentary pink/beige
-            'maroon-dark': '#4D0219',
-          },
-          fontFamily: {
-             // Using a serif font for headers to mimic the image's style
-            'serif-alt': ['Georgia', 'serif'], 
-            'inter': ['Inter', 'sans-serif'], 
-          }
-        }
-      }
-    }
-  </script>
-`;
-
 // Utility function to handle redirection to specific post links
 const handlePostRedirect = (url) => {
   window.open(url, "_blank", "noopener,noreferrer");
 };
 
 const Footer = () => {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([]); // unified array (either admin-managed or fallback)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Skipping the unstable real fetch and defaulting to mock data for stability.
-    setPosts(fallbackPosts);
-    setLoading(false);
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Try to fetch admin-managed posts
+        const { data } = await axiosInstance.get("/admin/posts");
+        const sorted = (data || [])
+          .slice()
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 3); // cap to 3, newest first
+        if (sorted.length) {
+          setPosts(sorted);
+        } else {
+          // no posts in db -> show fallback
+          setPosts(fallbackPosts);
+        }
+      } catch (e) {
+        // fallback on error
+        setError("Showing sample posts.");
+        setPosts(fallbackPosts);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   return (
@@ -168,56 +168,64 @@ const Footer = () => {
                 </a>
               </div>
 
-              {/* Latest 3 Posts Gallery */}
+              {/* Latest 3 Posts Gallery (newest first) */}
               <div className="flex space-x-3 md:space-x-4 overflow-x-auto p-1 -m-1 justify-start">
-                {/* Show loading state if active */}
                 {loading && (
                   <div className="text-maroon-light/70 text-lg p-4">
                     Loading latest posts...
                   </div>
                 )}
 
-                {/* Render posts from state */}
                 {!loading &&
-                  posts.map((post) => (
-                    <div
-                      key={post.id}
-                      className="relative flex-shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48 cursor-pointer rounded-sm shadow-xl overflow-hidden group transition duration-300 transform hover:scale-[1.02] hover:shadow-2xl ring-2 ring-maroon-light/20"
-                      onClick={() => handlePostRedirect(post.postLink)}
-                      aria-label={`View post ${post.id} on Instagram`}
-                      role="button"
-                      tabIndex="0"
-                    >
-                      <img
-                        src={post.url}
-                        alt={`Instagram Post ${post.id}`}
-                        className="w-full h-full object-cover transition duration-500 group-hover:opacity-80 bg-maroon-dark"
-                        // Fallback image
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src =
-                            "https://placehold.co/300x300/4D0219/FADCD9?text=Post+Image+Missing";
-                        }}
-                      />
+                  posts.map((post) => {
+                    // Normalize fields for both DB-backed and fallback items
+                    const key = post._id || post.id;
+                    const imageUrl = post.image?.imageUrl || post.url;
+                    const linkUrl = post.linkUrl || post.postLink;
 
-                      {/* Overlay for Video Icon */}
-                      {post.type === "video" && (
-                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                          <svg
-                            className="w-10 h-10 text-white/90"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    return (
+                      <div
+                        key={key}
+                        className="relative flex-shrink-0 w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 lg:w-48 lg:h-48 cursor-pointer rounded-sm shadow-xl overflow-hidden group transition duration-300 transform hover:scale-[1.02] hover:shadow-2xl ring-2 ring-maroon-light/20"
+                        onClick={() => handlePostRedirect(linkUrl)}
+                        aria-label={`Open post ${key}`}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ")
+                            handlePostRedirect(linkUrl);
+                        }}
+                      >
+                        <img
+                          src={imageUrl}
+                          alt={`Post ${key}`}
+                          className="w-full h-full object-cover transition duration-500 group-hover:opacity-80 bg-maroon-dark"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src =
+                              "https://placehold.co/300x300/4D0219/FADCD9?text=Image+Unavailable";
+                          }}
+                        />
+
+                        {/* Optional overlay if you carry `type` for fallback */}
+                        {post.type === "video" && (
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <svg
+                              className="w-10 h-10 text-white/90"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
               </div>
 
               {/* Error/Status Message */}
@@ -227,12 +235,12 @@ const Footer = () => {
                 }`}
               >
                 {error ||
-                  "These posts are simulated. Click on any image to be redirected to the mock post URL."}
+                  "Showing the 3 most recent posts. Click an image to open its link."}
               </p>
             </div>
           </div>
 
-          {/* Disclaimer at the bottom, matching the font and weight of the original */}
+          {/* Disclaimer at the bottom */}
           <div className="mt-16 pt-8 border-t border-maroon-light/30 text-left">
             <p className="text-base italic leading-relaxed whitespace-pre-line text-maroon-light/90">
               {contactData.disclaimer}

@@ -22,6 +22,7 @@ import MainGallery from "./models/maingallery.model.js";
 import mailRouter from "./routes/mail.route.js";
 import Specials from "./models/specials.model.js";
 import Contactus from "./models/contactus.model.js";
+import Post from "./models/post.model.js";
 
 const app = express();
 app.set("trust proxy", true);
@@ -713,11 +714,9 @@ app.post(
     try {
       const galleryCheck = Gallery.find({});
       if (galleryCheck.length >= 5) {
-        return res
-          .status(400)
-          .json({
-            message: "Gallery limit reached. Cannot add more galleries.",
-          });
+        return res.status(400).json({
+          message: "Gallery limit reached. Cannot add more galleries.",
+        });
       }
       const { category, description } = req.body;
 
@@ -1653,6 +1652,77 @@ app.delete("/api/contactus", async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to delete contact.", error: err.message });
+  }
+});
+
+app.post("/api/admin/posts", upload.single("image"), async (req, res) => {
+  try {
+    const { linkUrl } = req.body;
+    if (!linkUrl)
+      return res.status(400).json({ message: "linkUrl is required" });
+    if (!req.file)
+      return res.status(400).json({ message: "image file is required" });
+
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinaryV2.uploader.upload_stream(
+        {
+          folder: process.env.CLOUDINARY_FOLDER || "app_posts",
+          resource_type: "image",
+          overwrite: false,
+        },
+        (err, uploaded) => (err ? reject(err) : resolve(uploaded))
+      );
+      stream.end(req.file.buffer);
+    });
+
+    const doc = await Post.create({
+      linkUrl,
+      image: {
+        publicId: result.public_id,
+        imageUrl: result.secure_url,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+        bytes: result.bytes,
+      },
+    });
+
+    res.status(201).json(doc);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(400)
+      .json({ message: "Failed to create post", error: err.message });
+  }
+});
+
+app.get("/api/admin/posts", async (_req, res) => {
+  try {
+    const posts = await Post.find().sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch posts", error: err.message });
+  }
+});
+
+// DELETE a post (and Cloudinary image)
+app.delete("/api/admin/posts/:id", async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    await cloudinary.uploader.destroy(post.image.publicId, {
+      resource_type: "image",
+    });
+    await Post.deleteOne({ _id: post._id });
+
+    res.json({ message: "Post deleted" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to delete post", error: err.message });
   }
 });
 

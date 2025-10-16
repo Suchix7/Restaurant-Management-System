@@ -15,6 +15,7 @@ const features = [
   "AddRole",
   "ViewRoles",
   "ManageContactUs",
+  "ManagePosts",
 ];
 
 export default features;
