@@ -49,8 +49,7 @@ const Gallery = () => {
             Capturing the flavor, mood, and magic of 4 Donkeys Bar
           </p>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 [grid-auto-rows:10px] min-h-[300px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 min-h-[300px]">
           {galleryImages.length > 0 ? (
             galleryImages.map((image, i) => (
               <motion.div
@@ -59,9 +58,9 @@ const Gallery = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className={`relative group overflow-hidden rounded-lg shadow-lg ${
-                  image.colSpan ? "sm:col-span-2" : ""
-                }`}
+                className={`relative group overflow-hidden rounded-lg shadow-lg
+          sm:${image.colSpan ? "col-span-2" : ""} 
+          w-full`}
                 style={{
                   gridRowEnd: `span ${image.rowSpan}`,
                 }}

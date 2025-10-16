@@ -149,7 +149,7 @@ const Footer = () => {
               </div>
 
               {/* Posts grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-3  gap-6">
                 {loading && (
                   <div className="col-span-full text-maroon-light/70 text-lg p-4">
                     Loading latest posts...
