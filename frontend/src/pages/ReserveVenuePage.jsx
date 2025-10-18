@@ -103,7 +103,7 @@ const ReserveVenuePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className=" bg-white">
       <div className="container mx-auto px-4 pt-8 pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

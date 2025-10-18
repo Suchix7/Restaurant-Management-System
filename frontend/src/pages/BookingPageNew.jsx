@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import ReserveVenuePage from "./ReserveVenuePage";
-import Popup from "@/components/Popup";
 import EventLogoButton from "@/components/EventLogoButton";
 
 const BookingPage = () => {
@@ -15,10 +14,10 @@ const BookingPage = () => {
   const currentEvent = events[slideIndex];
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
+    <div className=" bg-white relative overflow-hidden">
       <NavBar forceSolid={true} />
 
-      <div className="relative z-10 container mx-auto px-4 pt-24 pb-16">
+      <div className="relative z-10 container mx-auto px-4 pt-24 ">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -36,10 +35,6 @@ const BookingPage = () => {
 
           <ReserveVenuePage />
         </motion.div>
-      </div>
-      <div className="hidden md:block">
-        <EventLogoButton onClick={() => setShowPopup(true)} />
-        <Popup show={showPopup} onClose={() => setShowPopup(false)} />
       </div>
       <Footer />
     </div>

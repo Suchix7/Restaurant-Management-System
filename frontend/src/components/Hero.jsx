@@ -91,12 +91,7 @@ const Hero = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
               <button
-                onClick={() =>
-                  window.open(
-                    "https://www.opentable.com.au/booking/restref/availability?lang=en-AU&correlationId=78b16142-2b7f-4103-b078-0562b4ac6a2a&restRef=264575&otSource=Restaurant%20website",
-                    "_blank"
-                  )
-                }
+                onClick={() => navigate("/booking")}
                 className="w-full sm:w-auto bg-transparent border-2 border-white text-white px-6 py-3.5 text-sm font-semibold hover:bg-white hover:text-black transition rounded-md"
               >
                 Book the Venue
