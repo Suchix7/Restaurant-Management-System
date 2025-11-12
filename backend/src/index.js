@@ -34,6 +34,7 @@ const origins =
         "https://restaurant-management-system-y7o4.onrender.com",
         "https://reservation-system-lemon.vercel.app",
         "https://www.4donkey.com.au/",
+        "https://4donkey.com.au",
       ]
     : ["http://localhost:3000", "http://localhost:5173"];
 
