@@ -23,7 +23,7 @@ import mailRouter from "./routes/mail.route.js";
 import Specials from "./models/specials.model.js";
 import Contactus from "./models/contactus.model.js";
 import Post from "./models/post.model.js";
-
+import fetch from "node-fetch";
 const app = express();
 app.set("trust proxy", true);
 dotenv.config();
@@ -37,7 +37,7 @@ const origins =
         "https://4donkey.com.au",
       ]
     : ["http://localhost:3000", "http://localhost:5173"];
-
+const SELF_URL = "https://restaurant-management-system-y7o4.onrender.com";
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -141,6 +141,13 @@ app.get("/api/venue-reservations", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+setInterval(() => {
+  fetch(SELF_URL)
+    .then((res) =>
+      console.log(`Pinged ${SELF_URL} at ${new Date().toISOString()}`)
+    )
+    .catch((err) => console.error("Ping failed:", err));
+}, 14 * 60 * 1000); // every 14 minutes
 
 app.get("/api/venue-reservations/:id", async (req, res) => {
   try {
