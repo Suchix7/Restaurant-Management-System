@@ -23,7 +23,7 @@ import mailRouter from "./routes/mail.route.js";
 import Specials from "./models/specials.model.js";
 import Contactus from "./models/contactus.model.js";
 import Post from "./models/post.model.js";
-import fetch from "node-fetch";
+// import fetch from "node-fetch";
 const app = express();
 app.set("trust proxy", true);
 dotenv.config();
