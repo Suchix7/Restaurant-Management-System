@@ -141,14 +141,18 @@ app.get("/api/venue-reservations", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-setInterval(() => {
-  fetch(SELF_URL)
-    .then((res) =>
-      console.log(`Pinged ${SELF_URL} at ${new Date().toISOString()}`)
-    )
-    .catch((err) => console.error("Ping failed:", err));
-}, 14 * 60 * 1000); // every 14 minutes
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 
+  // Start pinging only after server is ready
+  setInterval(() => {
+    fetch(SELF_URL)
+      .then(() => {
+        console.log(`Pinged ${SELF_URL} at ${new Date().toISOString()}`);
+      })
+      .catch((err) => console.error("Ping failed:", err.message));
+  }, 14 * 60 * 1000); // every 14 min
+});
 app.get("/api/venue-reservations/:id", async (req, res) => {
   try {
     const reservation = await Venue.findById(req.params.id);
