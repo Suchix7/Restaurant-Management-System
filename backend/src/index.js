@@ -188,6 +188,13 @@ app.put("/api/venue-reservations/:id", async (req, res) => {
       { new: true }
     );
 
+    const subject = `Reservation Status Update: ${updatedReservation.status}`;
+    const text = `Dear ${updatedReservation.name}, your reservation status has been updated to ${updatedReservation.status}.`;
+
+    const email = updatedReservation.email;
+
+    await sendEmail(email, subject, text);
+
     if (!updatedReservation) {
       return res.status(404).json({ message: "Reservation not found" });
     }

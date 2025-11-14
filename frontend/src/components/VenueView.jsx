@@ -46,6 +46,11 @@ const VenueView = () => {
   }, []);
 
   const handleStatusChange = async (id, newStatus) => {
+    if (newStatus === "cancelled") {
+      if (!confirm("Are you sure you want to cancel this reservation?")) {
+        return;
+      }
+    }
     setReservations((prev) =>
       prev.map((item) =>
         item._id === id ? { ...item, status: newStatus } : item
