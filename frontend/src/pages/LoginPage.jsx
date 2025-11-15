@@ -139,7 +139,7 @@ const LoginPage = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Password
+                  Password:
                 </label>
                 <div className="relative">
                   <Input
@@ -176,7 +176,7 @@ const LoginPage = () => {
                 ) : (
                   <>
                     <Lock className="w-4 h-4 mr-2" />
-                    Sign In
+                    SignIn
                   </>
                 )}
               </Button>

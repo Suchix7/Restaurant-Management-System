@@ -1,5 +1,6 @@
 import UserAccess from "../models/useraccess.model.js";
 import { generateToken } from "../lib/util.js";
+import jwt from "jsonwebtoken";
 export const checkAuth = async (req, res) => {
   try {
     const { role, password } = req.body;
@@ -19,13 +20,13 @@ export const checkAuth = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = generateToken(userAccess._id);
+    const token = generateToken(userAccess._id, res);
 
     return res.status(200).json({
       id: userAccess._id,
       message: "Login successful",
       role: userAccess.role,
-      token,
+      // token,
     });
   } catch (error) {
     console.error("Login error:", error);
