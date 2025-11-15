@@ -23,11 +23,12 @@ export const checkAuth = async (req, res) => {
     });
 
     res.cookie("jwt", token, {
-      httpOnly: true, // secure, JS can’t access
-      secure: process.env.NODE_ENV === "production", // HTTPS only in production
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // cross-site support
+      httpOnly: true, // secure, not accessible via JS
+      secure: true, // must be true for HTTPS
+      sameSite: "none", // required for cross-site cookies
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
+
     res.status(200).json({
       id: userAccess._id,
       message: "Login successful",
