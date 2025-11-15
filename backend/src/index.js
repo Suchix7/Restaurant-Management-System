@@ -65,7 +65,7 @@ cloudinaryV2.config({
 app.use("/api/mail-config", mailRouter);
 
 app.get("/", (req, res) => {
-  res.send("Server is running");
+  res.send("Server is running!");
 });
 
 app.post("/api/reserve-venue", upload.single("file"), async (req, res) => {
