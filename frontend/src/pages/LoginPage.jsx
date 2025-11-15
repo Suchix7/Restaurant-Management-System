@@ -36,9 +36,10 @@ const LoginPage = () => {
         setLoading(true);
         const response = await axiosInstance.get("/roles");
         setRoles(response.data);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching roles:", error);
+        toast.error("Failed to load roles");
+      } finally {
         setLoading(false);
       }
     };
@@ -52,17 +53,26 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await axiosInstance.post(
-        "/auth/login",
-        { role, password },
-        { withCredentials: true }
-      );
+      const response = await axiosInstance.post("/auth/login", {
+        role,
+        password,
+      });
+
+      const { token, role: userRole, id } = response.data;
+
+      // Store auth data in localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", userRole);
+      localStorage.setItem("userId", id);
 
       toast.success("Login successful!");
-      navigate("/dashboard", { state: { id: response.data.id } });
+      navigate("/dashboard", { state: { id } });
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Login failed. Please check your credentials.");
+      const msg =
+        error?.response?.data?.message ||
+        "Login failed. Please check your credentials.";
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -114,13 +124,13 @@ const LoginPage = () => {
                   </SelectTrigger>
                   <SelectContent className="bg-white border-gray-200">
                     {roles.length > 0 &&
-                      roles.map((role) => (
+                      roles.map((r) => (
                         <SelectItem
-                          value={role.role}
-                          key={role.role}
+                          value={r.role}
+                          key={r.role}
                           className="text-gray-900 hover:bg-[#2D6A4F]/10"
                         >
-                          {role.role}
+                          {r.role}
                         </SelectItem>
                       ))}
                   </SelectContent>

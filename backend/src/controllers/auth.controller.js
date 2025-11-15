@@ -3,23 +3,25 @@ import { generateToken } from "../lib/util.js";
 export const checkAuth = async (req, res) => {
   try {
     const { role, password } = req.body;
-    const userAccess = await UserAccess.findOne({ role });
-    if (!userAccess) {
-      return res.status(404).json({ message: "Role not found" });
-    }
+
     if (!role || !password) {
       return res
         .status(400)
         .json({ message: "Role and password are required" });
     }
 
+    const userAccess = await UserAccess.findOne({ role });
+    if (!userAccess) {
+      return res.status(404).json({ message: "Role not found" });
+    }
+
     if (userAccess.password !== password) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = generateToken(userAccess._id, res);
+    const token = generateToken(userAccess._id);
 
-    res.status(200).json({
+    return res.status(200).json({
       id: userAccess._id,
       message: "Login successful",
       role: userAccess.role,

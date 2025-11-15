@@ -50,40 +50,68 @@ import ManagePosts from "@/components/ManagePosts";
 
 const Dashboard = ({ userRole }) => {
   const location = useLocation();
-  const id = location.state?.id;
-  const [role, setRole] = useState({ permissions: [] });
+  const navigate = useNavigate();
 
+  // Prefer id from route state, fall back to localStorage
+  const initialId = location.state?.id || localStorage.getItem("userId");
+
+  const [role, setRole] = useState({ permissions: [] });
+  const [selectedTab, setSelectedTab] = useState("Venue");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Fetch role/permissions
   useEffect(() => {
+    // If no id at all, send back to login
+    if (!initialId) {
+      toast.error("Session expired. Please log in again.");
+      navigate("/login");
+      return;
+    }
+
     const fetchRole = async () => {
       try {
-        const response = await axiosInstance.get(`/role/${id}`);
+        const response = await axiosInstance.get(`/role/${initialId}`);
         setRole(response.data);
       } catch (error) {
         console.error("Error fetching role:", error);
+        toast.error("Failed to load role permissions.");
       }
     };
 
     fetchRole();
-  }, []);
+  }, [initialId, navigate]);
 
-  const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState("Venue");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
+  // Auth check using token in Authorization header
   useEffect(() => {
     async function checkAuthentication() {
+      const token = localStorage.getItem("token");
+
+      // If there is no token at all, don't even call the backend
+      if (!token) {
+        setIsAuthenticated(false);
+        toast.error("You need to log in first.");
+        navigate("/login");
+        return;
+      }
+
       try {
+        // axiosInstance will attach Authorization header via interceptor
         await axiosInstance.get("/auth/check");
         setIsAuthenticated(true);
       } catch (error) {
         console.error("Error checking authentication:", error);
         setIsAuthenticated(false);
-        toast.error("You need to log in first.");
+        toast.error("Your session has expired. Please log in again.");
+        // Clear any stale data
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("userId");
         navigate("/login");
       }
     }
+
     checkAuthentication();
-  }, []);
+  }, [navigate]);
 
   const allSidebarItems = [
     { icon: Landmark, label: "Venue", key: "Venue" },
@@ -111,12 +139,20 @@ const Dashboard = ({ userRole }) => {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/auth/logout");
-      navigate("/login");
+      // Optional: you can keep this if you have a server-side logout,
+      // but with JWT in localStorage it's mostly a client-side operation.
+      await axiosInstance.post("/auth/logout").catch(() => {});
+
+      // Clear auth data on client
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("userId");
+
       toast.success("Logout successful!");
+      navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
-      alert("Logout failed. Please try again.");
+      toast.error("Logout failed. Please try again.");
     }
   };
 
