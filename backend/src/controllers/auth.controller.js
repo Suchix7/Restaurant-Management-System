@@ -23,9 +23,10 @@ export const checkAuth = async (req, res) => {
     });
 
     res.cookie("jwt", token, {
-      httpOnly: true, // secure, not accessible via JS
-      secure: true, // must be true for HTTPS
-      sameSite: "none", // required for cross-site cookies
+      httpOnly: true, // JS cannot access
+      secure: true, // required for HTTPS
+      sameSite: "none", // cross-origin
+      domain: ".4donkey.com.au", // important for www vs non-www subdomain
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 

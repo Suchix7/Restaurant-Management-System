@@ -27,30 +27,27 @@ import Post from "./models/post.model.js";
 const app = express();
 app.set("trust proxy", true);
 dotenv.config();
-const origins =
-  process.env.NODE_ENV === "production"
-    ? [
-        "https://reservation-system-f28uhp7p9.vercel.app",
-        "https://restaurant-management-system-y7o4.onrender.com",
-        "https://reservation-system-lemon.vercel.app",
-        "https://www.4donkey.com.au",
-        "https://4donkey.com.au",
-      ]
-    : ["http://localhost:3000", "http://localhost:5173"];
-const SELF_URL = "https://restaurant-management-system-y7o4.onrender.com";
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || origins.includes(origin)) {
+      const allowedOrigins = [
+        "https://www.4donkey.com.au",
+        "https://4donkey.com.au",
+        "https://reservation-system-f28uhp7p9.vercel.app",
+        "https://restaurant-management-system-y7o4.onrender.com",
+        "https://reservation-system-lemon.vercel.app",
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
         console.log("Origin not allowed by CORS:", origin);
+        callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true,
+    credentials: true, // VERY important for cookies
   })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
