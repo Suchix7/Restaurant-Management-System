@@ -8,14 +8,14 @@ import {
   Settings,
   Landmark,
   ClipboardList,
-  Bell,
-  Search,
+  // Bell,
   LogOut,
   UtensilsCrossed,
   User,
   User2,
   Contact,
   MessageCircle,
+  Menu,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance.js";
 import { Button } from "@/components/ui/button";
@@ -51,17 +51,15 @@ import ManagePosts from "@/components/ManagePosts";
 const Dashboard = ({ userRole }) => {
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Prefer id from route state, fall back to localStorage
   const initialId = location.state?.id || localStorage.getItem("userId");
 
   const [role, setRole] = useState({ permissions: [] });
   const [selectedTab, setSelectedTab] = useState("Venue");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetch role/permissions
   useEffect(() => {
-    // If no id at all, send back to login
     if (!initialId) {
       toast.error("Session expired. Please log in again.");
       navigate("/login");
@@ -81,12 +79,10 @@ const Dashboard = ({ userRole }) => {
     fetchRole();
   }, [initialId, navigate]);
 
-  // Auth check using token in Authorization header
+  // Auth check
   useEffect(() => {
     async function checkAuthentication() {
       const token = localStorage.getItem("token");
-
-      // If there is no token at all, don't even call the backend
       if (!token) {
         setIsAuthenticated(false);
         toast.error("You need to log in first.");
@@ -95,14 +91,12 @@ const Dashboard = ({ userRole }) => {
       }
 
       try {
-        // axiosInstance will attach Authorization header via interceptor
         await axiosInstance.get("/auth/check");
         setIsAuthenticated(true);
       } catch (error) {
         console.error("Error checking authentication:", error);
         setIsAuthenticated(false);
         toast.error("Your session has expired. Please log in again.");
-        // Clear any stale data
         localStorage.removeItem("token");
         localStorage.removeItem("role");
         localStorage.removeItem("userId");
@@ -139,15 +133,10 @@ const Dashboard = ({ userRole }) => {
 
   const handleLogout = async () => {
     try {
-      // Optional: you can keep this if you have a server-side logout,
-      // but with JWT in localStorage it's mostly a client-side operation.
       await axiosInstance.post("/auth/logout").catch(() => {});
-
-      // Clear auth data on client
       localStorage.removeItem("token");
       localStorage.removeItem("role");
       localStorage.removeItem("userId");
-
       toast.success("Logout successful!");
       navigate("/login");
     } catch (error) {
@@ -160,21 +149,34 @@ const Dashboard = ({ userRole }) => {
     isAuthenticated && (
       <div className="min-h-screen bg-slate-50 flex">
         {/* Sidebar */}
-        <div className="w-64 bg-white border-r border-slate-200 shadow-sm fixed h-screen overflow-y-auto hide-scrollbar">
-          <div className="px-6 py-4 border-b border-slate-200">
+        <div
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 shadow-sm overflow-y-auto transform transition-transform duration-300 lg:translate-x-0 ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <LayoutDashboard className="w-4 h-4 text-white" />
               </div>
               <h1 className="text-xl font-bold text-slate-800">Admin Panel</h1>
             </div>
+            <button
+              className="lg:hidden p-1 rounded-md hover:bg-slate-100"
+              onClick={() => setSidebarOpen(false)}
+            >
+              ✕
+            </button>
           </div>
 
           <nav className="p-4 space-y-2">
             {sidebarItems.map((item, index) => (
               <button
                 key={index}
-                onClick={() => setSelectedTab(item.key)}
+                onClick={() => {
+                  setSelectedTab(item.key);
+                  setSidebarOpen(false); // close on mobile
+                }}
                 className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
                   selectedTab === item?.key
                     ? "bg-blue-50 text-blue-700 border border-blue-200"
@@ -189,52 +191,59 @@ const Dashboard = ({ userRole }) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col ml-64">
+        <div className="flex-1 flex flex-col lg:ml-64">
           {/* Header */}
-          <header className="bg-white border-b border-slate-200 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="relative">
+          <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button
+                className="lg:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+
+              {/* <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <Input
                   placeholder="Search..."
-                  className="pl-10 w-80 bg-slate-50 border-slate-200 focus:bg-white"
+                  className="pl-10 w-full max-w-xs sm:max-w-md bg-slate-50 border-slate-200 focus:bg-white"
                 />
-              </div>
+              </div> */}
+            </div>
 
-              <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </Button>
+            <div className="flex items-center space-x-4">
+              {/* <Button variant="ghost" size="sm" className="relative">
+                <Bell className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </Button> */}
 
-                <div className="flex items-center space-x-3">
-                  <Avatar>
-                    <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold">
-                      {userRole === "admin" ? "AD" : "ED"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="text-sm">
-                    <p className="font-medium text-slate-900 capitalize">
-                      {userRole}
-                    </p>
-                    <p className="text-slate-500">Online</p>
-                  </div>
+              <div className="flex items-center space-x-3">
+                <Avatar>
+                  <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold">
+                    {userRole === "admin" ? "AD" : "ED"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-sm">
+                  <p className="font-medium text-slate-900 capitalize">
+                    {userRole}
+                  </p>
+                  {/* <p className="text-slate-500">Online</p> */}
                 </div>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="text-slate-600 hover:text-red-600"
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
               </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-slate-600 hover:text-red-600"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
             </div>
           </header>
 
           {/* Content Section */}
-          <main className="flex-1 p-6 space-y-6">
+          <main className="flex-1 p-6 space-y-6 overflow-auto">
             {selectedTab === "Venue" && <VenueView />}
             {selectedTab === "AddMenu" && <AddMenu />}
             {selectedTab === "Menu" && <MenuView />}

@@ -36,6 +36,7 @@ app.use(
         "https://reservation-system-f28uhp7p9.vercel.app",
         "https://restaurant-management-system-y7o4.onrender.com",
         "https://reservation-system-lemon.vercel.app",
+        "http://localhost:5173",
       ];
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
