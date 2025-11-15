@@ -26,7 +26,7 @@ export const checkAuth = async (req, res) => {
       id: userAccess._id,
       message: "Login successful",
       role: userAccess.role,
-      // token,
+      token,
     });
   } catch (error) {
     console.error("Login error:", error);
