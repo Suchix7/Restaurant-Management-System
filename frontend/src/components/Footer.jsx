@@ -11,7 +11,7 @@ const contactData = {
     { days: "Wednesdays & Thursdays", hours: "6pm – 1am" },
     { days: "Fridays & Saturdays", hours: "6pm – 2am" },
   ],
-  happyHour: "Daily: 6pm – 7:30pm",
+  happyHour: "5-7pm on Weekdays, 3-5pm on Friday & Weekdays.",
   disclaimer:
     "Entry is strictly for guests above the age of 18 years.\nThank you for your cooperation!",
 };
