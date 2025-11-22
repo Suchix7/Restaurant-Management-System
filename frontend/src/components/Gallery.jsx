@@ -14,7 +14,7 @@ import Spinner from "./Spinner";
 
 const Gallery = () => {
   const [galleryImages, setGalleryImages] = useState([]);
-  const rowspans = [20, 30, 20, 40, 30];
+  const rowspans = [20, 30, 20, 60, 30];
   useEffect(() => {
     const fetchGalleryImages = async () => {
       try {
